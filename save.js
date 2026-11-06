@@ -5,7 +5,7 @@
 })(this, function () {
   'use strict';
   const KEY = 'm5g_morg';
-  const def = () => ({ maxNight: 1, docs: [], itsme: [], custom2020: false });
+  const def = () => ({ maxNight: 1, night: 1, docs: [], itsme: [], custom2020: false });
   const strArr = a => Array.isArray(a) && a.every(x => typeof x === 'string');
 
   function store(s) {
@@ -18,7 +18,8 @@
       const raw = st.getItem(KEY); if (!raw) return def();
       const p = JSON.parse(raw);
       if (!p || !Number.isInteger(p.maxNight) || p.maxNight < 1 || p.maxNight > 7 || !strArr(p.docs) || !strArr(p.itsme) || typeof p.custom2020 !== 'boolean') return def();
-      return { maxNight: p.maxNight, docs: p.docs, itsme: p.itsme, custom2020: p.custom2020 };
+      const night = Number.isInteger(p.night) && p.night >= 1 && p.night <= 5 ? p.night : Math.min(p.maxNight, 5);
+      return { maxNight: p.maxNight, night, docs: p.docs, itsme: p.itsme, custom2020: p.custom2020 };
     } catch (e) { return def(); }
   }
   function save(p, s) {
@@ -30,9 +31,12 @@
     const q = { ...p, docs: add(p.docs, r.doc), itsme: r.result === 'itsme' || r.itsmeSeen ? add(p.itsme, r.itsme) : p.itsme };
     if (r.result === 'win') {
       if (r.night <= 6) q.maxNight = Math.max(q.maxNight, Math.min(7, r.night + 1));
+      if (r.night <= 4) q.night = Math.max(q.night || 1, r.night + 1);
       if (r.night === 7 && r.levels && Object.values(r.levels).every(v => v === 20)) q.custom2020 = true;
     }
     return q;
   }
-  return { KEY, load, save, unlock, defaults: def };
+  // Yeni oyun: sadece kaldığın geceyi sıfırlar; arşiv ve açılan modlar kalır.
+  function newGame(p) { return { ...p, night: 1 }; }
+  return { KEY, load, save, unlock, newGame, defaults: def };
 });

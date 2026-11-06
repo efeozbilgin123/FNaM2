@@ -67,10 +67,11 @@
     d.sheet = !!inp.sheet;
     d.doorL = !!inp.doorL;
     const free = !d.sheet;
-    d.lightL = free && !!inp.lightL;
-    d.flash = free && !!inp.flash;
-    d.ventLight = free && !!inp.ventLight;
     d.monitor = free && !!inp.monitor;
+    const hands = free && !d.monitor; // monitöre bakarken ışık/fener kullanılamaz
+    d.lightL = hands && !!inp.lightL;
+    d.flash = hands && !!inp.flash;
+    d.ventLight = hands && !!inp.ventLight;
     d.cooling = d.monitor && !!inp.cooling;
     d.cam = d.monitor && CAMS.includes(inp.cam) ? inp.cam : null;
     d.reboot = d.monitor && CAMS.includes(inp.reboot) ? inp.reboot : null;

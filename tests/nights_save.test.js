@@ -25,7 +25,7 @@ test('each night 1-5 has a document and a phone call; docs have title and html',
 function mem(init) { const m = { ...init }; return { getItem: k => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); }, m }; }
 
 test('load returns defaults on empty, corrupt or throwing storage', () => {
-  const def = { maxNight: 1, docs: [], itsme: [], custom2020: false };
+  const def = { maxNight: 1, night: 1, docs: [], itsme: [], custom2020: false };
   assert.deepStrictEqual(Save.load(mem({})), def);
   assert.deepStrictEqual(Save.load(mem({ m5g_morg: '{bozuk' })), def);
   assert.deepStrictEqual(Save.load({ getItem() { throw new Error('denied'); } }), def);
@@ -40,6 +40,13 @@ test('save then load round-trips', () => {
 
 test('save never throws on a broken storage', () => {
   assert.doesNotThrow(() => Save.save({ maxNight: 2, docs: [], itsme: [], custom2020: false }, { setItem() { throw new Error('quota'); } }));
+});
+
+test('newGame resets the night but keeps the archive and unlocks', () => {
+  const p = Save.newGame({ maxNight: 7, docs: ['doc1'], itsme: ['cam'], custom2020: true });
+  assert.strictEqual(p.night, 1);
+  assert.deepStrictEqual(p.docs, ['doc1']); assert.deepStrictEqual(p.itsme, ['cam']);
+  assert.strictEqual(p.custom2020, true); assert.strictEqual(p.maxNight, 7);
 });
 
 test('unlock rules', () => {

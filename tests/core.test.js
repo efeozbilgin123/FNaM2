@@ -32,6 +32,12 @@ test('sheet forces lights, flash, monitor and cooling off but keeps the door', (
   assert.deepStrictEqual([d.sheet, d.doorL, d.lightL, d.flash, d.ventLight, d.monitor, d.cooling], [true, true, false, false, false, false, false]);
 });
 
+test('lights and flashlight cannot be used while the monitor is up', () => {
+  const G = game();
+  Core.step(G, 0.05, { ...IDLE, monitor: true, flash: true, lightL: true, ventLight: true });
+  assert.deepStrictEqual([G.dev.monitor, G.dev.flash, G.dev.lightL, G.dev.ventLight], [true, false, false, false]);
+});
+
 test('with the monitor down, cooling, cam and reboot are ignored', () => {
   const G = game();
   Core.step(G, 0.05, { ...IDLE, monitor: false, cooling: true, cam: 'cold', reboot: 'cold' });

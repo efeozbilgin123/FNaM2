@@ -43,9 +43,9 @@ function glitchBurst(after, ms = 260) {
 let P = Save.load();
 function persist(r) { P = Save.unlock(P, r); Save.save(P); refreshMenu(); }
 function refreshMenu() {
-  const n = Math.min(P.maxNight, 5);
+  const n = P.night || 1;
   $('bCont').textContent = `DEVAM ET — ${n}. GECE`;
-  $('bCont').hidden = P.maxNight < 2;
+  $('bCont').hidden = n < 2;
   $('bSix').hidden = P.maxNight < 6;
   $('bCustom').hidden = P.maxNight < 7;
 }
@@ -320,13 +320,13 @@ function openCam() {
   look.zoom = true;
   v.style.transition = `transform .48s ${ease}`; v.style.transform = zoomTransform();
   c.style.transition = `transform .48s ${ease}, opacity .32s ease-out`; c.style.transform = 'translate(0px, 0px) scale(1)'; c.style.opacity = '1';
-  setTimeout(() => { c.style.transition = 'none'; c.style.transform = 'none'; camBusy = false; }, 490);
+  clearTimeout(camTimer); camTimer = setTimeout(() => { c.style.transition = 'none'; c.style.transform = 'none'; camBusy = false; }, 490);
 }
 function closeCam(silent) {
   const c = $('cam'), v = $('view');
   ui.monitor = false; ui.cooling = false; ui.reboot = false;
   if (silent || !c.classList.contains('on')) {
-    camBusy = false; c.classList.remove('on', 'booting'); c.style.transition = 'none'; c.style.transform = ''; c.style.opacity = '';
+    clearTimeout(camTimer); camBusy = false; c.classList.remove('on', 'booting'); c.style.transition = 'none'; c.style.transform = ''; c.style.opacity = '';
     look.zoom = false; v.style.transition = 'none'; applyLook(); $('game').classList.remove('cam-mode'); return;
   }
   camBusy = true; snd('camClose');
@@ -337,9 +337,11 @@ function closeCam(silent) {
   look.zoom = false; $('game').classList.remove('cam-mode');
   v.style.transition = `transform .44s ${ease}`; applyLook();
   c.style.transition = `transform .44s ${ease}, opacity .3s ease-in .06s`; c.style.transform = camFromOfficeTransform(); c.style.opacity = '0';
-  setTimeout(() => { c.classList.remove('on'); c.style.transition = 'none'; c.style.transform = ''; c.style.opacity = ''; v.style.transition = 'none'; camBusy = false; }, 450);
+  clearTimeout(camTimer); camTimer = setTimeout(() => { c.classList.remove('on'); c.style.transition = 'none'; c.style.transform = ''; c.style.opacity = ''; v.style.transition = 'none'; camBusy = false; }, 450);
 }
-function toggleMonitor() { if (ui.monitor) closeCam(); else openCam(); }
+let camTimer = 0;
+// Animasyon sürerken gelen geçişler yok sayılır: monitörün açık/kapalı hali ekrandakiyle hep aynı kalır.
+function toggleMonitor() { if (camBusy) return; if (ui.monitor) closeCam(); else openCam(); }
 function toggleSheet() {
   if (!G || G.over) return;
   if (!ui.sheet && ui.monitor) closeCam(true);
@@ -375,6 +377,10 @@ addEventListener('keydown', e => {
   if (e.key === 'Escape' && ui.monitor) closeCam();
   if (e.key === 'ArrowLeft') { look.keys = -1; e.preventDefault(); } if (e.key === 'ArrowRight') { look.keys = 1; e.preventDefault(); }
 });
+// Pencere odağı kaybedince basılı tuşlar takılı kalmasın
+function releaseHolds() { for (const k of Object.values(HOLD_KEYS)) ui[k] = false; look.keys = 0; }
+addEventListener('blur', releaseHolds);
+document.addEventListener('visibilitychange', () => { if (document.hidden) releaseHolds(); });
 addEventListener('keyup', e => {
   const k = e.key.toLowerCase();
   if (HOLD_KEYS[k]) { ui[HOLD_KEYS[k]] = false; if (k === 'a' || k === 'v') snd('light', false); }
@@ -395,8 +401,8 @@ function setLamp(v) { $('game').style.setProperty('--lamp', v); }
 })();
 
 // ---------- menü ----------
-$('bNew').onclick = () => { P = Save.defaults(); Save.save(P); refreshMenu(); startNight(1); };
-$('bCont').onclick = () => startNight(Math.min(P.maxNight, 5));
+$('bNew').onclick = () => { P = Save.newGame(P); Save.save(P); refreshMenu(); startNight(1); };
+$('bCont').onclick = () => startNight(P.night || 1);
 $('bSix').onclick = () => startNight(6);
 $('bCustom').onclick = () => { renderCustom(); show('custom'); };
 $('bArchive').onclick = () => { renderArchive(); show('archive'); };

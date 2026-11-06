@@ -134,6 +134,23 @@ await check('winning a night shows 6 AM and unlocks the next night', async (page
   assert.strictEqual(await page.evaluate(() => window.__m5g.save().maxNight), 2);
 });
 
+// ---- son inceleme düzeltmeleri ----
+await check('losing window focus releases held keys', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.down('f'); await page.waitForTimeout(150);
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await page.waitForTimeout(150);
+  assert.strictEqual(await page.evaluate(() => window.__game.dev.flash), false);
+});
+await check('flicking the monitor fast never leaves it powered but hidden', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.press('Space'); await page.waitForTimeout(200);
+  await page.keyboard.press('Space'); await page.waitForTimeout(300);
+  await page.keyboard.press('Space'); await page.waitForTimeout(900);
+  const [mon, shown] = await page.evaluate(() => [window.__game.dev.monitor, document.getElementById('cam').classList.contains('on')]);
+  assert.strictEqual(shown, mon, `monitor powered=${mon} but overlay shown=${shown}`);
+});
+
 await browser.close(); server.kill();
 console.log(results.join('\n'));
 console.log(`# pass ${results.length - failed}\n# fail ${failed}`);

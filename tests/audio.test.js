@@ -31,6 +31,14 @@ function loadAudio() {
   return ctx.Audio5;
 }
 
+test('audio.js loads even when localStorage access throws', () => {
+  const ctx = { window: { AudioContext: function () { return fakeNode(); } }, setTimeout: () => 0, clearTimeout: () => {}, Math, Float32Array, Promise, console };
+  Object.defineProperty(ctx, 'localStorage', { get() { throw new Error('SecurityError'); } });
+  vm.createContext(ctx);
+  assert.doesNotThrow(() => vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'audio.js'), 'utf8') + '\nthis.Audio5 = Audio5;', ctx));
+  assert.doesNotThrow(() => { ctx.Audio5.init(); ctx.Audio5.setMuted(true); });
+});
+
 const NEW_SFX = ['knock', 'drag', 'say', 'miyav', 'rattle', 'drawer', 'motor', 'reboot', 'phoneRing', 'breath', 'sheet', 'flashClick'];
 
 test('every new sound effect exists and plays without throwing', () => {

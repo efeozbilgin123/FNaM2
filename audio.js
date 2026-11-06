@@ -1,7 +1,7 @@
 // MIRIK'LA 5 GECE — ses motoru (dosya yok, hepsi Web Audio ile sentezleniyor)
 const Audio5 = (() => {
   let ctx = null, master, comp, verb, verbIn, sfxBus, musicBus, ambBus;
-  let muted = localStorage.getItem('m5g_morg_mute') === '1';
+  let muted = false; try { muted = localStorage.getItem('m5g_morg_mute') === '1'; } catch (e) { }
   let musicTimer = null, musicNodes = [], ambNodes = [], ambTimer = null, buzz = null;
   const buffers = {};
 
@@ -443,7 +443,7 @@ const Audio5 = (() => {
     const g = ambNodes.gain, t = now(); g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.exponentialRampToValueAtTime(0.0001, t + fade);
     const ns = ambNodes; setTimeout(() => ns.forEach(n => { try { n.stop(); } catch (e) {} }), fade * 1000 + 100); ambNodes = [];
   }
-  function setMuted(m) { muted = m; localStorage.setItem('m5g_morg_mute', m ? '1' : '0'); if (master) master.gain.setTargetAtTime(m ? 0 : 0.9, now(), 0.05); }
+  function setMuted(m) { muted = m; try { localStorage.setItem('m5g_morg_mute', m ? '1' : '0'); } catch (e) { } if (master) master.gain.setTargetAtTime(m ? 0 : 0.9, now(), 0.05); }
 
   return { init, sfx, loadSamples, play, playMenuMusic, stopMusic, startAmbience, morgAmbience, playVoice, stopAmbience, setMuted, get muted() { return muted; }, get debug() { return { music: !!mg, sched: !!mSched, amb: !!ambTimer, ctx: ctx && ctx.state }; } };
 })();
