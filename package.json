@@ -1,0 +1,10 @@
+{
+  "name": "fnam2",
+  "private": true,
+  "description": "Mırık'la 5 Gece: MORG",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "sim": "node tools/sim.js",
+    "e2e": "node tests/e2e.mjs"
+  }
+}
