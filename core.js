@@ -290,7 +290,63 @@
     m.tick = 0;
     if (roll(G, G.lv.muh)) hack(G, CAMS[Math.floor(G.rng() * CAMS.length)]);
   });
+  // ---------- Arda Baz (Denek 4, taklitçi) ----------
+  Object.assign(PARAMS, { ARDA_TICK: 6, ARDA_WINDOW: 6, ARDA_MIYAV: 5.5, ARDA_MAX: 3 });
+  const FAKE_SOUNDS = {
+    sahil: [[0, 'drag'], [2.6, 'drag']],
+    sayici: [[0, 'say4'], [4, 'say5']],
+    avukat: [[0, 'knock'], [1.6, 'knock'], [3.2, 'knock']],
+  };
+  const FAKE_FROM = { sahil: 'vent', sayici: 'vent', avukat: 'door' };
+  INIT.arda = () => ({ fake: null, mistakes: 0, tick: 0, prevSheet: false, prevDoor: false });
+  function startFake(G, mimic) {
+    G.arda.fake = { mimic, t: 0, next: 0, miyav: false, counted: false };
+  }
+  TICKS.push(function tickArda(G, dt) {
+    const a = G.arda, d = G.dev;
+    const sheetOn = d.sheet && !a.prevSheet, doorOn = d.doorL && !a.prevDoor;
+    a.prevSheet = d.sheet; a.prevDoor = d.doorL;
+    const f = a.fake;
+    if (f) {
+      const list = FAKE_SOUNDS[f.mimic];
+      while (f.next < list.length && f.t >= list[f.next][0]) {
+        emit(G, { type: 'sound', id: list[f.next][1], from: FAKE_FROM[f.mimic], fake: true }); f.next++;
+      }
+      if (!f.miyav && f.t >= PARAMS.ARDA_MIYAV) { f.miyav = true; emit(G, { type: 'sound', id: 'miyav', from: FAKE_FROM[f.mimic], fake: true }); }
+      const wrong = f.mimic === 'avukat' ? (doorOn && !G.pending.door) : (sheetOn && !G.pending.sheet);
+      if (wrong && !f.counted) {
+        f.counted = true; a.mistakes++;
+        if (a.mistakes >= PARAMS.ARDA_MAX) { die(G, 'arda'); return; }
+      }
+      f.t += dt;
+      if (f.t >= PARAMS.ARDA_WINDOW) { a.fake = null; a.tick = 0; }
+      return;
+    }
+    a.tick += dt;
+    if (a.tick < PARAMS.ARDA_TICK) return;
+    a.tick = 0;
+    if (!roll(G, G.lv.arda)) return;
+    const opts = ['sahil', 'sayici', 'avukat'].filter(c => G.lv[c] > 0);
+    if (!opts.length) return;
+    startFake(G, opts[Math.floor(G.rng() * opts.length)]);
+  });
+
+  // ---------- ITS ME ----------
+  Object.assign(PARAMS, { ITSME_CHANCE: 0.03 });
+  INIT.itsme = (G, opts) => {
+    if (opts.noItsMe || G.rng() >= PARAMS.ITSME_CHANCE) return { at: null, variant: null, done: false };
+    const r = G.rng();
+    return { at: 30 + G.rng() * 240, variant: r < 0.5 ? 'cam' : r < 0.9 ? 'corr' : 'crash', done: false };
+  };
+  TICKS.push(function tickItsMe(G) {
+    const i = G.itsme;
+    if (i.at == null || i.done || G.t < i.at) return;
+    i.done = true;
+    emit(G, { type: 'itsme', variant: i.variant });
+    if (i.variant === 'crash') { G.over = true; G.result = 'itsme'; }
+  });
+
   function shownTemp(G) { return G.muh.cam === 'cold' ? G.muh.frozenTemp : G.denek5.temp; }
 
-  return { PARAMS, CAMS, CHARS, createGame, step, usage, shownTemp, _internal: { INIT, TICKS, roll, emit, die, mul, hack } };
+  return { PARAMS, CAMS, CHARS, createGame, step, usage, shownTemp, _internal: { INIT, TICKS, roll, emit, die, mul, hack, startFake } };
 });
