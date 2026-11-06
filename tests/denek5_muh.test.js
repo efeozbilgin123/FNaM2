@@ -3,10 +3,11 @@ const assert = require('node:assert');
 const { Core, game, run } = require('./helpers');
 const { hack } = Core._internal;
 
-test('Denek 5 warms by 0.25+0.06*lv per second without cooling', () => {
+const P = Core.PARAMS;
+test('Denek 5 warms by D5_BASE + D5_PER_LV*lv per second without cooling', () => {
   const G = game(1, { denek5: 3 });
   run(G, 10);
-  assert.ok(Math.abs(G.denek5.temp - 4.3) < 0.05, 'temp ' + G.denek5.temp);
+  assert.ok(Math.abs(G.denek5.temp - 10 * (P.D5_BASE + 3 * P.D5_PER_LV)) < 0.05, 'temp ' + G.denek5.temp);
 });
 
 test('Denek 5 at 100 kills 4 s later', () => {
@@ -45,7 +46,7 @@ test('a hack on the cold cam freezes shown temperature while real temp rises', (
   hack(G, 'cold');
   run(G, 5);
   assert.strictEqual(Core.shownTemp(G), 20);
-  assert.ok(G.denek5.temp > 22.5, 'real temp ' + G.denek5.temp);
+  assert.ok(G.denek5.temp > 20 + 5 * (P.D5_BASE + 5 * P.D5_PER_LV) - 0.1, 'real temp ' + G.denek5.temp);
 });
 
 test('holding reboot 3 s clears the hack; 2.9 s does not', () => {
@@ -69,10 +70,10 @@ test('an unfixed hack kills after 25 s', () => {
   assert.ok(evs.some(e => e.type === 'death' && e.who === 'muh'));
 });
 
-test('Mühendis at level 0 never hacks; at 20 hacks within 8 s', () => {
+test('Mühendis at level 0 never hacks; at 20 hacks within one tick', () => {
   const G = game(1, { muh: 0 });
   assert.ok(!run(G, 120).some(e => e.type === 'hack'));
   const H = game(1, { muh: 20 });
-  const evs = run(H, 8);
+  const evs = run(H, P.MUH_TICK + 1);
   assert.ok(evs.some(e => e.type === 'hack' && Core.CAMS.includes(e.cam)));
 });

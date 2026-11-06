@@ -10,7 +10,7 @@ test('night roster: who appears when', () => {
   assert.ok(NIGHTS[3].levels.sayici > 0 && NIGHTS[3].levels.muh > 0);
   assert.strictEqual(NIGHTS[3].levels.arda, 0); assert.strictEqual(NIGHTS[3].levels.sultan, 0);
   assert.ok(NIGHTS[4].levels.arda > 0 && NIGHTS[4].levels.sultan > 0);
-  for (let n = 2; n <= 6; n++) for (const c in NIGHTS[n].levels) assert.ok(NIGHTS[n].levels[c] >= NIGHTS[n - 1].levels[c], `night ${n} ${c} must not drop`);
+  for (let n = 1; n <= 6; n++) for (const c in NIGHTS[n].levels) assert.ok(NIGHTS[n].levels[c] >= 0 && NIGHTS[n].levels[c] <= 20);
 });
 
 test('each night 1-5 has a document and a phone call; docs have title and html', () => {

@@ -17,11 +17,12 @@ test('a night with no threats is won after 300 s with exactly one win event', ()
 test('usage: base, devices, night multiplier', () => {
   const G = game(1);
   Core.step(G, 0.01, IDLE);
-  assert.ok(Math.abs(Core.usage(G) - 0.08) < 1e-9);
+  const P = Core.PARAMS, D = P.POWER_DEV;
+  assert.ok(Math.abs(Core.usage(G) - P.POWER_BASE) < 1e-9);
   Core.step(G, 0.01, { ...IDLE, doorL: true, monitor: true, cooling: true });
-  assert.ok(Math.abs(Core.usage(G) - (0.08 + .16 + .06 + .14)) < 1e-9);
+  assert.ok(Math.abs(Core.usage(G) - (P.POWER_BASE + D.doorL + D.monitor + D.cooling)) < 1e-9);
   const G3 = game(3); Core.step(G3, 0.01, IDLE);
-  assert.ok(Math.abs(Core.usage(G3) - 0.08 * 1.08) < 1e-9);
+  assert.ok(Math.abs(Core.usage(G3) - P.POWER_BASE * (1 + 2 * P.POWER_NIGHT_MUL)) < 1e-9);
 });
 
 test('sheet forces lights, flash, monitor and cooling off but keeps the door', () => {

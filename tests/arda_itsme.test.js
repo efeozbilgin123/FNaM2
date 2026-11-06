@@ -17,7 +17,7 @@ test('Arda fakes a drag sound and ends it with a miyav', () => {
 
 test('Arda at level 20 eventually produces a fake sound', () => {
   const G = game(4, { arda: 20, sahil: 1, sayici: 1, avukat: 1 });
-  const evs = run(G, 7);
+  const evs = run(G, Core.PARAMS.ARDA_TICK + 1);
   assert.ok(evs.some(e => e.type === 'sound' && e.fake === true));
 });
 

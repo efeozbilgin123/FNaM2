@@ -6,13 +6,15 @@
   'use strict';
   const L = (pasta, avukat, sahil, sayici, muh, arda, sultan, denek5) => ({ pasta, avukat, sahil, sayici, muh, arda, sultan, denek5 });
 
+  // Seviyeler tools/sim.js ile ayarlandı (npm run sim). Yeni karakter gelen gecelerde
+  // eski karakterlerin seviyesi bilerek düşebilir: zorluk karakter sayısından geliyor.
   const NIGHTS = {
-    1: { levels: L(3, 2, 0, 0, 0, 0, 0, 3), doc: 'doc1', phone: 'voice/phone1.mp3' },
-    2: { levels: L(5, 4, 4, 0, 0, 0, 0, 5), doc: 'doc2', phone: 'voice/phone2.mp3' },
-    3: { levels: L(7, 6, 6, 5, 5, 0, 0, 7), doc: 'doc3', phone: 'voice/phone3.mp3' },
-    4: { levels: L(9, 8, 8, 7, 7, 6, 5, 9), doc: 'doc4', phone: 'voice/phone4.mp3' },
-    5: { levels: L(12, 11, 11, 10, 10, 9, 9, 12), doc: 'doc5', phone: 'voice/phone5.mp3' },
-    6: { levels: L(16, 15, 15, 14, 14, 13, 13, 16), doc: null, phone: 'voice/phone6_secret.mp3' },
+    1: { levels: L(5, 3, 0, 0, 0, 0, 0, 4), doc: 'doc1', phone: 'voice/phone1.mp3' },
+    2: { levels: L(14, 15, 19, 0, 0, 0, 0, 17), doc: 'doc2', phone: 'voice/phone2.mp3' },
+    3: { levels: L(16, 14, 17, 12, 12, 0, 0, 16), doc: 'doc3', phone: 'voice/phone3.mp3' },
+    4: { levels: L(9, 8, 9, 7, 7, 4, 4, 9), doc: 'doc4', phone: 'voice/phone4.mp3' },
+    5: { levels: L(11, 10, 11, 9, 9, 7, 7, 11), doc: 'doc5', phone: 'voice/phone5.mp3' },
+    6: { levels: L(13, 12, 13, 11, 11, 9, 9, 13), doc: null, phone: 'voice/phone6_secret.mp3' },
   };
 
   const DOCS = {

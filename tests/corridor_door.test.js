@@ -2,18 +2,19 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { Core, game, run } = require('./helpers');
 
-function pastaAtEnd(G) { G.pasta.stage = 3; G.pasta.window = 6; G.pasta.flashT = 0; }
+const P = Core.PARAMS;
+function pastaAtEnd(G) { G.pasta.stage = 3; G.pasta.window = P.PASTA_WINDOW; G.pasta.flashT = 0; }
 
-test('Pasta at stage 3 is driven back by 1.2 s of flashlight', () => {
+test('Pasta at stage 3 is driven back by PASTA_FLASH seconds of flashlight', () => {
   const G = game(1); pastaAtEnd(G);
-  run(G, 1.25, { flash: true }); run(G, 6);
+  run(G, P.PASTA_FLASH + 0.05, { flash: true }); run(G, P.PASTA_WINDOW);
   assert.strictEqual(G.pasta.stage, 0); assert.strictEqual(G.over, false);
 });
 
-test('Pasta kills if flashed only 1.1 s', () => {
+test('Pasta kills if flashed too briefly', () => {
   const G = game(1); pastaAtEnd(G);
-  run(G, 1.1, { flash: true });
-  const evs = run(G, 6);
+  run(G, P.PASTA_FLASH - 0.1, { flash: true });
+  const evs = run(G, P.PASTA_WINDOW);
   assert.ok(evs.some(e => e.type === 'death' && e.who === 'pasta'));
 });
 
@@ -26,10 +27,11 @@ test('flash does nothing to Pasta before stage 3', () => {
 test('Avukat does not kill with the door closed and drains extra power while knocking', () => {
   const G = game(1); G.avukat.at = true; G.avukat.t = 0;
   const p0 = G.power;
-  const evs = run(G, 19, { doorL: true });
+  const T = P.AVUKAT_ATTACK + P.AVUKAT_KNOCK + 1;
+  const evs = run(G, T, { doorL: true });
   assert.ok(!G.over);
   assert.ok(evs.some(e => e.type === 'sound' && e.id === 'knock'));
-  const expected = (0.08 + 0.16) * 19 + 1.2;
+  const expected = (P.POWER_BASE + P.POWER_DEV.doorL) * T + P.AVUKAT_DRAIN * P.AVUKAT_KNOCK;
   assert.ok(Math.abs((p0 - G.power) - expected) < 0.1, 'used ' + (p0 - G.power));
   assert.strictEqual(G.avukat.at, false);
 });
