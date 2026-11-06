@@ -41,11 +41,17 @@ Toplam 11 görsel. Her biri yaklaşık 2–3 dakika sürer.
 
 ## 1. Sol kapı (3 görsel)
 
-### 1.1 `door_lit.png`
+### 1.1 `door_lit.png` ✅ HAZIR, atla
+Bu zaten yapıldı. 1.2 için şuradan indir: https://github.com/efeozbilgin123/FNaM2/raw/main/img/office_v/door_lit.png
+
+<details><summary>Eski prompt</summary>
+
 **Yüklenecek:** OFİS
 ```
 Edit this photo. In the open doorway on the far left wall, a harsh cold fluorescent light is now switched on just outside the doorway, lighting up the inside of the door frame and revealing an empty white-tiled hospital hallway beyond it, with some cold light spilling onto the floor just inside the room. The output must be a wide landscape image with exactly the same size and aspect ratio as the first image, never portrait. Keep the exact same camera angle, framing, composition and every other object in the image identical. Only change the described area. Photorealistic, same lighting and color grading as the original. No text.
 ```
+
+</details>
 
 ### 1.2 `door_avukat.png`
 **Yüklenecek:** `door_lit.png` (az önce yaptığın) + AVUKAT
@@ -128,4 +134,4 @@ Edit the first image. At the far end of the flashlight-lit corridor inside the c
 
 Hepsini bitirmen gerekmiyor. Yüklediğin her görseli oyun hemen kullanır, eksikler için eski görüntüler devam eder. Yükleyince bana haber ver: boyutları ayarlar, masa kaymış mı diye kontrol eder, kenar geçişlerini ayarlarım.
 
-**Önerilen sıra:** 1.1 → 1.2 → 2.1 → 2.2 → 3.1 → 3.4 → 1.3 → 3.3 → 3.2 → 3.5 → 3.6
+**Önerilen sıra:** 1.2 → 2.1 → 2.2 → 3.1 → 3.4 → 1.3 → 3.3 → 3.2 → 3.5 → 3.6
