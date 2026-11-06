@@ -50,7 +50,7 @@ const Audio5 = (() => {
     const list = { doorClose: 'sfx/door_close.mp3', doorOpen: 'sfx/door_open.mp3', switchOn: 'sfx/switch_on.mp3', switchOff: 'sfx/switch_off.mp3',
       say4: 'sfx/sayici_4.mp3', say5: 'sfx/sayici_5.mp3', say6: 'sfx/sayici_6.mp3', miyav: 'sfx/miyav.mp3' }; // kayıt yoksa sentez
     await Promise.all(Object.entries(list).map(async ([k, url]) => {
-      try { const r = await fetch(url); const ab = await r.arrayBuffer(); samples[k] = await new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)); } catch (e) {}
+      try { const r = await fetch(url); if (!r.ok) return; const ab = await r.arrayBuffer(); const p = ctx.decodeAudioData(ab, b => { samples[k] = b; }, () => {}); if (p && p.catch) await p.catch(() => {}); } catch (e) {}
     }));
   }
   function play(name, { pan = 0, vol = 1, wet = 0.15, rate = 1 } = {}) {
