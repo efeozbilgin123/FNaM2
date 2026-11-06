@@ -47,7 +47,8 @@ const Audio5 = (() => {
   const samples = {};
   async function loadSamples() {
     if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.suspend && ctx.suspend(); initGraph(); }
-    const list = { doorClose: 'sfx/door_close.mp3', doorOpen: 'sfx/door_open.mp3', switchOn: 'sfx/switch_on.mp3', switchOff: 'sfx/switch_off.mp3' };
+    const list = { doorClose: 'sfx/door_close.mp3', doorOpen: 'sfx/door_open.mp3', switchOn: 'sfx/switch_on.mp3', switchOff: 'sfx/switch_off.mp3',
+      say4: 'sfx/sayici_4.mp3', say5: 'sfx/sayici_5.mp3', say6: 'sfx/sayici_6.mp3', miyav: 'sfx/miyav.mp3' }; // kayıt yoksa sentez
     await Promise.all(Object.entries(list).map(async ([k, url]) => {
       try { const r = await fetch(url); const ab = await r.arrayBuffer(); samples[k] = await new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej)); } catch (e) {}
     }));
@@ -85,6 +86,81 @@ const Audio5 = (() => {
 
   // ---------- SFX ----------
   const sfx = {
+
+    // ---------- MORG sesleri ----------
+    knock(side = -1) { // çelik kapıya yumruk
+      const t = now(), p = side * 0.7;
+      for (let i = 0; i < 3; i++) {
+        const tt = t + i * 0.32 + Math.random() * 0.04;
+        osc({ t: tt, f: 90, f2: 45, dur: 0.22, vol: 0.9, pan: p, wet: 0.4 });
+        noise({ t: tt, dur: 0.12, f: 1400, f2: 300, vol: 0.5, kind: 'pink', pan: p, wet: 0.4 });
+        [212, 371, 590].forEach(f => osc({ t: tt, f, dur: 0.7, vol: 0.035, type: 'triangle', pan: p, wet: 0.6 }));
+      }
+    },
+    drag(side = 1) { // ıslak sürünme: havalandırmada
+      const t = now(), p = side * 0.8;
+      for (let i = 0; i < 4; i++) {
+        const tt = t + i * 0.55 + Math.random() * 0.1;
+        noise({ t: tt, dur: 0.45, type: 'bandpass', f: 500, f2: 260, q: 1.4, vol: 0.32, kind: 'brown', pan: p, wet: 0.45 });
+        noise({ t: tt + 0.05, dur: 0.25, type: 'highpass', f: 2600, vol: 0.06, pan: p, wet: 0.3 }); // ıslak şıpırtı
+        osc({ t: tt, f: 60, f2: 45, dur: 0.3, vol: 0.12, pan: p, wet: 0.5 });
+      }
+    },
+    say(n = 4, fake = false) { // Sayıcı: kayıt varsa onu, yoksa fısıltı sentezi
+      if (![4, 5, 6].includes(n)) n = 4;
+      const pan = 0.75, rate = fake ? 0.96 : 1;
+      if (play('say' + n, { pan, rate, vol: 1.1, wet: 0.45 })) return;
+      const t = now(), syll = n === 6 ? 2 : 1, loud = n === 6 ? 0.9 : 0.45;
+      const form = { 4: [[700, 1200]], 5: [[500, 1900]], 6: [[750, 1250], [400, 2200]] }[n];
+      for (let i = 0; i < syll; i++) {
+        const tt = t + i * 0.28, [f1, f2] = form[i];
+        noise({ t: tt, dur: 0.32, type: 'bandpass', f: f1 * rate, q: 6, vol: loud, pan, wet: 0.5 });
+        noise({ t: tt, dur: 0.32, type: 'bandpass', f: f2 * rate, q: 8, vol: loud * 0.7, pan, wet: 0.5 });
+        noise({ t: tt, dur: 0.08, type: 'highpass', f: 4500, vol: loud * 0.4, pan, wet: 0.3 });
+      }
+      if (n === 6) osc({ t, f: 55, f2: 35, dur: 0.8, vol: 0.6, wet: 0.4 });
+    },
+    miyav() { // Arda Baz'ın bozuk miyavı: kısa, boğuk, yarıda kesik
+      if (play('miyav', { pan: 0.3, vol: 0.9, wet: 0.4, rate: 0.9 })) return;
+      const t = now(), dur = 0.38;
+      const o = ctx.createOscillator(); o.type = 'sawtooth';
+      o.frequency.setValueAtTime(330, t); o.frequency.linearRampToValueAtTime(470, t + dur * 0.4); o.frequency.exponentialRampToValueAtTime(240, t + dur);
+      const f1 = ctx.createBiquadFilter(); f1.type = 'bandpass'; f1.Q.value = 5; f1.frequency.setValueAtTime(800, t); f1.frequency.linearRampToValueAtTime(1300, t + dur * 0.4);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t + 0.04); g.gain.setValueAtTime(0.35, t + dur * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(f1).connect(g); out(g, { pan: 0.3, wet: 0.5 }); o.start(t); o.stop(t + dur + 0.05);
+      noise({ t: t + dur * 0.75, dur: 0.05, type: 'bandpass', f: 3000, q: 2, vol: 0.2, wet: 0.2 }); // kesik
+    },
+    rattle() { // morg çekmecesi takırdıyor
+      const t = now();
+      for (let i = 0; i < 9; i++) {
+        const tt = t + i * 0.07 + Math.random() * 0.03;
+        noise({ t: tt, dur: 0.04, type: 'bandpass', f: 1800 + Math.random() * 900, q: 5, vol: 0.18, pan: -0.3, wet: 0.6 });
+        osc({ t: tt, f: 140, f2: 90, dur: 0.06, vol: 0.12, pan: -0.3, wet: 0.5 });
+      }
+    },
+    drawer() { // 5 numaralı çekmece açılıyor: uzun metal sürtünmesi + gümleme
+      const t = now();
+      noise({ t, dur: 1.6, type: 'bandpass', f: 900, f2: 500, q: 9, vol: 0.5, pan: -0.3, wet: 0.6 });
+      osc({ t, f: 180, f2: 120, dur: 1.6, vol: 0.12, type: 'sawtooth', lp: 900, pan: -0.3, wet: 0.5 });
+      osc({ t: t + 1.6, f: 60, f2: 30, dur: 0.8, vol: 1, wet: 0.6 });
+    },
+    motor() { // koridordan yaklaşan motor
+      const t = now(), dur = 6;
+      const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(38, t); o.frequency.linearRampToValueAtTime(70, t + dur);
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(200, t); lp.frequency.linearRampToValueAtTime(900, t + dur);
+      const am = ctx.createGain(); const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.setValueAtTime(9, t); lfo.frequency.linearRampToValueAtTime(18, t + dur); lg.gain.value = 0.4; lfo.connect(lg).connect(am.gain);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.9, t + dur);
+      o.connect(lp).connect(am).connect(g); out(g, { wet: 0.5 }); o.start(t); lfo.start(t); o.stop(t + dur + 8.5); lfo.stop(t + dur + 8.5);
+      g.gain.setValueAtTime(0.9, t + dur + 7.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 8.4);
+    },
+    reboot() { noise({ dur: 0.6, type: 'bandpass', f: 600, f2: 3200, q: 1, vol: 0.3, wet: 0.1 }); osc({ f: 900, f2: 1800, dur: 0.5, vol: 0.05, type: 'square', wet: 0 }); },
+    phoneRing() {
+      const t = now();
+      for (let r = 0; r < 2; r++) for (let i = 0; i < 16; i++) { const tt = t + r * 1.2 + i * 0.05; osc({ t: tt, f: 1300, dur: 0.03, vol: 0.06, type: 'square', lp: 2500, pan: 0.3, wet: 0.3 }); }
+    },
+    breath() { noise({ dur: 1.4, type: 'bandpass', f: 900, f2: 500, q: 1.2, vol: 0.12, a: 0.5, wet: 0.2 }); },
+    sheet() { for (let i = 0; i < 4; i++) noise({ t: now() + i * 0.05, dur: 0.18, type: 'bandpass', f: 1800 + Math.random() * 1500, q: 0.9, vol: 0.12, wet: 0.15 }); sfx.breath(); },
+    flashClick() { noise({ dur: 0.015, type: 'highpass', f: 3500, vol: 0.3, wet: 0 }); osc({ f: 3000, f2: 1500, dur: 0.02, vol: 0.05, wet: 0 }); },
     door(side = 0, closing = true) { // ağır sürgülü çelik kepenk
       if (play(closing ? 'doorClose' : 'doorOpen', { pan: side * 0.6, vol: closing ? 1 : 0.85, wet: 0.18 })) return;
       const t = now(), p = side * 0.6, slide = closing ? 0.34 : 0.4;
@@ -347,7 +423,20 @@ const Audio5 = (() => {
     };
     ambTimer = setTimeout(creak, 5000);
   }
+
+  // Morg: soğuk oda kompresörü (yavaş açılıp kapanan uğultu) + normal atmosfer
+  let comp2 = null;
+  function morgAmbience() {
+    startAmbience(); if (comp2) return;
+    const t = now(), o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 59;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 180;
+    const g = ctx.createGain(); g.gain.value = 0.03; const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 0.05; lg.gain.value = 0.025; lfo.connect(lg).connect(g.gain);
+    o.connect(lp).connect(g); out(g, { bus: ambBus, wet: 0.2 }); o.start(t); lfo.start(t);
+    comp2 = [o, lfo]; ambNodes.push(o, lfo);
+  }
+  function playVoice(url, vol = 0.9) { const a = new Audio(url); a.volume = muted ? 0 : vol; a.play().catch(() => {}); return a; }
   function stopAmbience(fade = 0.5) {
+    comp2 = null;
     if (ambTimer) { clearTimeout(ambTimer); ambTimer = null; }
     if (buzz) { try { buzz.stop(); } catch (e) {} buzz = null; }
     if (!ambNodes.gain) return;
@@ -356,5 +445,5 @@ const Audio5 = (() => {
   }
   function setMuted(m) { muted = m; localStorage.setItem('m5g_morg_mute', m ? '1' : '0'); if (master) master.gain.setTargetAtTime(m ? 0 : 0.9, now(), 0.05); }
 
-  return { init, sfx, loadSamples, play, playMenuMusic, stopMusic, startAmbience, stopAmbience, setMuted, get muted() { return muted; }, get debug() { return { music: !!mg, sched: !!mSched, amb: !!ambTimer, ctx: ctx && ctx.state }; } };
+  return { init, sfx, loadSamples, play, playMenuMusic, stopMusic, startAmbience, morgAmbience, playVoice, stopAmbience, setMuted, get muted() { return muted; }, get debug() { return { music: !!mg, sched: !!mSched, amb: !!ambTimer, ctx: ctx && ctx.state }; } };
 })();

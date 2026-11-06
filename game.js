@@ -101,7 +101,7 @@ function begin() {
   $('game').className = 'screen on';
   show('game');
   look.x = PAN_MAX / 2; applyLook();
-  try { A.startAmbience && A.startAmbience(); } catch (e) { }
+  try { A.morgAmbience(); } catch (e) { }
   if (!quiet) setTimeout(playPhone, 2000);
   note('Sistem hazır. Nöbet başladı.');
   last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
@@ -156,13 +156,12 @@ function moveNote(e) {
 }
 function sound(e) {
   const p = PAN[e.from] ?? 0;
-  const map = { step: () => snd('step', p), retreat: () => snd('step', p), knock: () => snd('knock', p) || 0, drag: () => snd('drag', p),
-    say4: () => snd('say', 4, e.fake), say5: () => snd('say', 5, e.fake), say6: () => snd('say', 6, e.fake), miyav: () => snd('miyav'),
-    rattle: () => snd('rattle'), drawer: () => snd('drawer'), motor: () => snd('motor') };
-  if (map[e.id]) map[e.id]();
-  if (!sfx[{ knock: 'knock', drag: 'drag', say4: 'say', say5: 'say', say6: 'say', miyav: 'miyav', rattle: 'rattle', drawer: 'drawer', motor: 'motor' }[e.id] || 'step']) {
-    // eski ses motorunda olmayan sesler için yedek
-    if (e.id === 'knock') snd('bang'); else if (e.id === 'miyav') snd('meow', true); else if (e.id === 'drawer' || e.id === 'motor') snd('boom'); else if (e.id === 'rattle' || e.id === 'drag') snd('step', p); else if (/^say/.test(e.id)) snd('tick');
+  switch (e.id) {
+    case 'step': case 'retreat': return snd('step', p);
+    case 'knock': return snd('knock', p);
+    case 'drag': return snd('drag', p);
+    case 'say4': case 'say5': case 'say6': return snd('say', +e.id[3], !!e.fake);
+    default: return snd(e.id); // miyav, rattle, drawer, motor
   }
 }
 function note(t) { if (t === lastNote) return; lastNote = t; $('camNote').textContent = t; }
@@ -344,7 +343,7 @@ function toggleMonitor() { if (ui.monitor) closeCam(); else openCam(); }
 function toggleSheet() {
   if (!G || G.over) return;
   if (!ui.sheet && ui.monitor) closeCam(true);
-  ui.sheet = !ui.sheet; snd('sheet'); if (!sfx.sheet) snd('paper');
+  ui.sheet = !ui.sheet; snd('sheet');
 }
 function selCam(cam) { if (ui.cam === cam) return; ui.cam = cam; ui.reboot = false; snd('blip'); $('static').style.opacity = 1; setTimeout(() => $('static').style.opacity = '', 160); }
 
@@ -354,7 +353,7 @@ document.querySelectorAll('#map button').forEach(b => b.onclick = () => selCam(b
 
 // ---------- kontroller ----------
 function hold(el, key) {
-  const on = e => { e.preventDefault(); if (G && !G.over) { ui[key] = true; if (key === 'flash') snd('flashClick'); if (key === 'lightL' || key === 'ventLight') snd('light', true, key === 'lightL' ? -1 : 1); } };
+  const on = e => { e.preventDefault(); if (G && !G.over) { ui[key] = true; if (key === 'flash') snd('flashClick'); if (key === 'reboot') snd('reboot'); if (key === 'lightL' || key === 'ventLight') snd('light', true, key === 'lightL' ? -1 : 1); } };
   const off = () => { if (ui[key]) { ui[key] = false; if (key !== 'flash' && key !== 'cooling' && key !== 'reboot') snd('light', false); } };
   el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointerleave', off); el.addEventListener('pointercancel', off);
 }
@@ -367,7 +366,7 @@ const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling', r: 'r
 addEventListener('keydown', e => {
   if (!G || G.over || !$('game').classList.contains('on')) return;
   const k = e.key.toLowerCase();
-  if (HOLD_KEYS[k]) { if (!e.repeat) { ui[HOLD_KEYS[k]] = true; if (k === 'f') snd('flashClick'); if (k === 'a' || k === 'v') snd('light', true, k === 'a' ? -1 : 1); } return; }
+  if (HOLD_KEYS[k]) { if (!e.repeat) { ui[HOLD_KEYS[k]] = true; if (k === 'f') snd('flashClick'); if (k === 'r') snd('reboot'); if (k === 'a' || k === 'v') snd('light', true, k === 'a' ? -1 : 1); } return; }
   if (e.repeat) return;
   if (k === 'q') $('bDoor').onclick();
   if (k === ' ' || k === 'tab') { e.preventDefault(); toggleMonitor(); }
