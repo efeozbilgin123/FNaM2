@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Mırık'la 5 Gece: MORG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;900&family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{ --red:#b0101c; --bone:#cfd6d2; --dim:#7d8a88; --green:#7dff8a; --cold:#9fd8e6 }
+  body > *:not(#stage):not(script){display:none !important}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none}
+  html,body{margin:0; height:100%; background:#000; overflow:hidden; font-family:'VT323',monospace; color:#fff}
+  #stage{position:absolute; left:50%; top:50%; width:1280px; height:720px; transform-origin:center; background:#05080a; overflow:hidden}
+  .screen{position:absolute; inset:0; display:none}
+  .screen.on{display:block}
+  .vignette{position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.92) 100%)}
+  .scan{position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, rgba(0,0,0,.1) 0 2px, transparent 2px 6px)}
+  .center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+  button{font-family:'VT323',monospace; cursor:pointer}
+  @keyframes flick{0%,96%,100%{opacity:1} 97%{opacity:.2} 98%{opacity:1} 99%{opacity:.4}}
+  #glitch{position:absolute; inset:0; z-index:60; pointer-events:none; display:none; width:100%; height:100%}
+  #glitch.on{display:block}
+  #mute{position:absolute; right:20px; top:14px; background:none; border:2px solid #2a3538; color:#7d8a88; font-size:24px; padding:2px 12px; border-radius:6px; z-index:5}
+  #mute:hover{color:#fff; border-color:#888}
+
+  /* SPLASH */
+  #splash{background:#000; cursor:pointer}
+  #splash .s1{font-family:'Creepster',cursive; font-size:92px; color:var(--red); letter-spacing:4px}
+  #splash .s2{font-size:40px; animation:flick 2.4s infinite}
+  #splash .s3{font-size:26px; color:#4a5558; margin-top:30px}
+
+  /* TITLE */
+  #title{background:#04070a}
+  #faceWrap{position:absolute; right:60px; top:20px; width:510px; height:680px; animation:twitch 7s infinite}
+  #faceWrap img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+  #faceWrap .face{opacity:.5; filter:grayscale(.4) contrast(1.1)}
+  #faceWrap .scary{opacity:0}
+  #faceWrap.snap .face{opacity:0} #faceWrap.snap .scary{opacity:.95}
+  #title.flash::after{content:''; position:absolute; inset:0; background:rgba(150,0,0,.2); pointer-events:none; z-index:4}
+  @keyframes twitch{0%,92%,100%{transform:none; opacity:1} 93%{transform:translateX(-8px) skewX(4deg); opacity:.7} 95%{transform:translateX(6px); opacity:.35}}
+  #title .fade{position:absolute; inset:0; background:linear-gradient(90deg,#04070a 38%,transparent 78%)}
+  #title h1{position:absolute; left:72px; top:80px; margin:0; font-family:'Creepster',cursive; font-weight:400; line-height:.95; letter-spacing:5px}
+  #title h1 .a{display:block; font-size:96px; color:var(--bone)}
+  #title h1 .b{display:block; font-size:190px; color:var(--red); animation:flick 4s infinite}
+  #title .sub{position:absolute; left:76px; top:400px; width:560px; font-family:Inter,sans-serif; font-size:19px; line-height:1.5; color:#8f9b99}
+  #menu{position:absolute; left:70px; top:480px}
+  #menu button{display:block; background:none; border:0; color:var(--dim); font-size:36px; padding:1px 8px; text-align:left}
+  #menu button:hover,#menu button:focus{color:#fff; outline:none}
+  #menu button:hover::before,#menu button:focus::before{content:'> '}
+  #menu button[hidden]{display:none}
+  #title .foot{position:absolute; right:24px; bottom:12px; color:#3a4548; font-size:20px}
+
+  /* DOCUMENT */
+  #doc{background:#030405; cursor:pointer}
+  #paperDoc{position:absolute; left:50%; top:50%; width:560px; height:690px; transform:translate(-50%,-50%) rotate(-1.2deg); padding:40px 46px; color:#1c1a16; font-family:'Special Elite','Courier New',monospace; font-size:15.5px; line-height:1.45;
+    background:url(img/doc/paper.png) center/cover, #cfc7b0; box-shadow:0 30px 90px rgba(0,0,0,.95), inset 0 0 80px rgba(70,50,20,.5); filter:sepia(.25) brightness(.86) contrast(1.05); animation:paperIn .9s cubic-bezier(.2,.8,.3,1); overflow:hidden}
+  @keyframes paperIn{from{transform:translate(-50%,-30%) rotate(-8deg) scale(.7); opacity:0} to{transform:translate(-50%,-50%) rotate(-1.2deg); opacity:1}}
+  #paperDoc .hd{font-size:12.5px; letter-spacing:1px; border-bottom:2px solid #1c1a16; padding-bottom:6px; text-transform:uppercase}
+  #paperDoc h2{font-size:24px; margin:14px 0 10px; letter-spacing:2px}
+  #paperDoc p{margin:0 0 9px}
+  #paperDoc .sig{margin-top:16px; text-align:right}
+  #paperDoc .you{background:#1c1a16; color:#1c1a16; padding:0 40px}
+  #paperDoc .clip{margin-top:14px; padding:10px 12px; background:rgba(255,250,235,.35); border:1px solid #1c1a16; font-family:Georgia,serif; font-size:14px; transform:rotate(1.5deg)}
+  #paperDoc .np{font-size:11px; letter-spacing:2px; border-bottom:1px solid; margin-bottom:6px}
+  #paperDoc hr{border:0; border-top:1px dashed #1c1a16; margin:12px 0}
+  #paperDoc::after{content:'GİZLİ'; position:absolute; right:30px; top:70px; transform:rotate(14deg); border:4px solid rgba(150,20,20,.55); color:rgba(150,20,20,.55); font-size:34px; padding:0 10px; letter-spacing:4px}
+  #doc .hint{position:absolute; bottom:12px; width:100%; text-align:center; color:#5a6668; font-size:24px; animation:flick 2.4s infinite}
+
+  /* INTRO / SIX / OVER / END */
+  #intro .t{font-size:110px; line-height:1} #intro .n{font-size:52px; color:var(--dim)}
+  #six .clock{font-size:160px; line-height:1}
+  #six .msg{font-size:40px; color:var(--cold); margin-top:10px; max-width:900px}
+  .big-btn{margin-top:36px; background:none; border:2px solid #cfd6d2; color:#cfd6d2; font-size:34px; padding:6px 26px; border-radius:6px}
+  .big-btn:hover{background:#cfd6d2; color:#000}
+  #over .t{font-family:'Creepster'; font-size:110px; color:var(--red)} #over .why{font-family:Inter,sans-serif; font-size:21px; color:#8f9b99; margin-top:10px; max-width:760px; line-height:1.5}
+  #ending{background:#000}
+  #endImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 4s; filter:brightness(.7)}
+  #ending.show #endImg{opacity:1}
+  #ending .txt{position:absolute; left:0; right:0; bottom:60px; text-align:center; font-family:'Special Elite',monospace; font-size:26px; color:#cfd6d2; text-shadow:0 0 12px #000; opacity:0; transition:opacity 3s 3s; padding:0 120px; line-height:1.5}
+  #ending.show .txt{opacity:1}
+  #crash{background:#202124; font-family:Inter,sans-serif; color:#9aa0a6}
+  #crash .center{gap:10px} #crash b{color:#e8eaed; font-size:26px} #crash i{font-style:normal; font-size:15px}
+
+  /* ARCHIVE / CUSTOM */
+  #archive, #custom{background:#05080a}
+  .pageT{position:absolute; left:48px; top:24px; margin:0; font-family:'Creepster',cursive; font-weight:400; font-size:68px; color:var(--red); letter-spacing:3px}
+  #arcList{position:absolute; left:48px; top:120px; right:48px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  .arc{border:2px solid #1d2a2c; background:#0b1214; padding:14px 16px; font-family:Inter,sans-serif; font-size:16px; color:#8f9b99; cursor:pointer; min-height:86px}
+  .arc b{display:block; color:#cfd6d2; font-size:18px; margin-bottom:4px}
+  .arc.lock{cursor:default; opacity:.35}
+  .back{position:absolute; left:48px; bottom:18px; background:none; border:2px solid #2a3538; color:#cfd6d2; font-size:30px; padding:2px 18px; border-radius:6px}
+  #ccards{position:absolute; left:48px; right:48px; top:120px; display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+  .cc{border:2px solid #1d2a2c; background:#0b1214; border-radius:10px; padding:10px; text-align:center}
+  .cc .pic{height:120px; background:#000 center/cover no-repeat; border-radius:6px; filter:grayscale(.3) brightness(.8)}
+  .cc b{display:block; font-family:Inter; font-weight:900; font-size:15px; margin:8px 0 4px; color:#cfd6d2}
+  .cc .lv{display:flex; align-items:center; justify-content:center; gap:14px; font-size:40px}
+  .cc .lv button{background:none; border:1px solid #2a3538; color:#cfd6d2; width:38px; height:38px; font-size:28px; border-radius:6px}
+  #cpresets{position:absolute; left:48px; bottom:80px; display:flex; gap:12px}
+  #cpresets button, #cStart{background:none; border:2px solid #2a3538; color:#cfd6d2; font-size:28px; padding:2px 16px; border-radius:6px}
+  #cStart{position:absolute; right:48px; bottom:18px; border-color:var(--red); color:#ff6b6b; font-size:34px}
+
+  /* GAME / OFFICE */
+  #game{background:#05080a}
+  #office{position:absolute; inset:0; overflow:hidden}
+  #view{position:absolute; left:0; top:0; width:2000px; height:848px; transform-origin:0 0; will-change:transform}
+  #view .bg{position:absolute; inset:0; width:2000px; height:848px}
+  .hole{position:absolute; overflow:hidden; background:#000}
+  .hole img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block}
+  #corr{left:860px; top:120px; width:280px; height:500px}
+  #corrImg{opacity:0}
+  #game.flash #corrImg{opacity:1}
+  #corrDark{opacity:.9; filter:brightness(.35)}
+  #game.flash #corrDark{opacity:0}
+  #corr .beam{position:absolute; inset:0; pointer-events:none; opacity:0; background:radial-gradient(circle at 50% 46%, transparent 26%, rgba(0,0,0,.55) 46%, rgba(0,0,0,.95) 70%)}
+  #game.flash #corr .beam{opacity:1}
+  #headlight{position:absolute; left:50%; top:46%; width:40px; height:40px; margin:-20px; border-radius:50%; background:radial-gradient(circle, #fff 0%, rgba(255,250,220,.9) 25%, rgba(255,240,200,.25) 55%, transparent 72%); opacity:0; transition:opacity .4s, transform 6s linear; pointer-events:none}
+  #game.sultanA #headlight{opacity:.85; transform:scale(4)}
+  #game.sultanH #headlight{opacity:1; transform:scale(14); transition:opacity .2s, transform .6s ease-out}
+  #game.sultanH .shade{background:rgba(0,0,0,.25) !important}
+  #corrHit{position:absolute; left:860px; top:120px; width:280px; height:500px; cursor:crosshair; z-index:2}
+  #dwL{left:60px; top:70px; width:320px; height:730px}
+  #dwImg{opacity:0} #game.lightL #dwImg{opacity:1}
+  #dwL .shutter{position:absolute; inset:0; background:url(img/door.png) center/100% 100% no-repeat; filter:brightness(.4); transform:translateY(-102%); transition:transform .3s cubic-bezier(.5,0,.9,.6); border-bottom:6px solid #0b0d0e; box-shadow:0 12px 20px rgba(0,0,0,.85); z-index:2}
+  #game.doorL #dwL .shutter{transform:none; transition:transform .24s cubic-bezier(.6,0,1,.5)}
+  #pL{position:absolute; left:395px; top:330px; width:100px; height:250px; z-index:2}
+  #pL::before{content:''; position:absolute; inset:0; background:url(img/panel.png) 0 0/100% 100%; filter:brightness(.55); box-shadow:0 6px 14px rgba(0,0,0,.7)}
+  .pbtn{position:absolute; left:28px; width:44px; height:44px; border-radius:50%; cursor:pointer}
+  .pbtn.door{top:42px} .pbtn.lamp{top:150px}
+  #game.doorL .pbtn.door{background:radial-gradient(circle, rgba(255,90,80,.95), rgba(230,20,20,.55) 55%, transparent 72%); box-shadow:0 0 26px 8px rgba(255,40,40,.55)}
+  #game.lightL .pbtn.lamp{background:radial-gradient(circle, rgba(230,250,255,.95), rgba(190,235,255,.55) 55%, transparent 72%); box-shadow:0 0 26px 8px rgba(190,235,255,.5)}
+  #vent{left:1640px; top:560px; width:300px; height:220px}
+  #ventImg{opacity:0} #game.ventLight #ventImg{opacity:1}
+  #ventBtn{position:absolute; left:1555px; top:470px; width:64px; height:64px; border-radius:8px; background:#141a1c; border:3px solid #2a3538; box-shadow:inset 0 0 10px #000; color:#46595d; font-size:16px; z-index:2}
+  #game.ventLight #ventBtn{border-color:#bfe9ff; color:#bfe9ff; box-shadow:0 0 22px rgba(190,235,255,.6)}
+  #mon{position:absolute; left:915px; top:590px; width:170px; height:120px; border-radius:16px/20px; background:radial-gradient(ellipse,#0d2212,#020503 78%); box-shadow:inset 0 0 26px rgba(0,0,0,.95), 0 0 40px rgba(125,255,138,.12); color:#3f9a4f; font-size:20px; display:flex; align-items:center; justify-content:center; text-align:center; opacity:.85}
+  #phone{position:absolute; left:1160px; top:690px; width:110px; height:60px; cursor:pointer; z-index:2}
+  #phoneLed{position:absolute; right:14px; top:10px; width:9px; height:9px; border-radius:50%; background:#400; }
+  #game.ringing #phoneLed{background:#ff2b2b; box-shadow:0 0 10px #ff2b2b; animation:flick 1s steps(2) infinite}
+  #dclock{position:absolute; left:740px; top:690px; width:150px; height:110px; pointer-events:none}
+  #dclock img{width:100%; height:100%; filter:brightness(.45) saturate(.4) contrast(1.1)}
+  #dclock .disp{position:absolute; left:26.2%; top:42.2%; width:56.8%; height:28.2%; background:#160303; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:30px; color:#ff3b2a; text-shadow:0 0 6px #ff2a1a, 0 0 14px rgba(255,40,20,.9)}
+  #gen{position:absolute; left:560px; top:715px; width:160px; height:70px; background:#0c1112; border:3px solid #1d2628; border-radius:6px; padding:4px 8px; font-size:17px; color:#9fd8e6; text-shadow:0 0 6px rgba(159,216,230,.6); line-height:1.1}
+  #gen .bars{display:flex; gap:3px; margin-top:4px} #gen .bars i{width:14px; height:14px; background:#16282c} #gen .bars i.on{background:#9fd8e6; box-shadow:0 0 6px #9fd8e6} #gen .bars i.hot{background:#ff5a4a; box-shadow:0 0 6px #ff5a4a}
+  #view .shade{position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 900px 520px at 1000px 480px, rgba(0,0,0,.05), rgba(0,0,0,.55) 65%, rgba(0,0,0,.8)); opacity:calc(.7 + (1 - var(--lamp,1)) * .3)}
+  #view .flk{position:absolute; inset:0; pointer-events:none; background:#020304; opacity:calc((1 - var(--lamp,1)) * .7)}
+  #game.dark #view .shade{background:rgba(0,0,0,.96)}
+  #edgeL,#edgeR{position:absolute; top:0; bottom:0; width:60px; pointer-events:none; opacity:0; transition:opacity .3s}
+  #edgeL{left:0; background:linear-gradient(90deg,rgba(255,255,255,.05),transparent)} #edgeR{right:0; background:linear-gradient(-90deg,rgba(255,255,255,.05),transparent)}
+  #sheetLayer{position:absolute; inset:0; z-index:30; pointer-events:none; transform:translateY(105%); transition:transform .32s cubic-bezier(.3,.7,.3,1)}
+  #sheetLayer img{width:100%; height:100%; object-fit:cover; filter:brightness(.55)}
+  #game.sheet #sheetLayer{transform:none}
+  #sheetLayer::after{content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.85)); animation:breathe 3.2s ease-in-out infinite}
+  @keyframes breathe{50%{opacity:.75}}
+  .bar{position:absolute; bottom:6px; height:46px; width:420px; background:rgba(200,230,235,.08); border:2px solid rgba(200,230,235,.4); border-radius:4px; color:#cfd6d2; font-size:28px; display:flex; align-items:center; justify-content:center; z-index:35; transition:opacity .2s}
+  .bar:hover{background:rgba(200,230,235,.18)}
+  #barMon{left:120px} #barSheet{right:120px}
+  #game.cam-mode #barSheet{opacity:0; pointer-events:none}
+  #game.cam-mode #barMon{opacity:.35}
+  #game.sheet #barMon{opacity:0; pointer-events:none}
+  #dark{position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; transition:opacity 1s; z-index:28}
+  #game.dark #dark{opacity:.9}
+  #toast{position:absolute; left:0; right:0; top:22px; text-align:center; font-size:26px; color:#9fb0b2; text-shadow:0 2px 8px #000; z-index:40; pointer-events:none; opacity:0; transition:opacity .4s}
+  #toast.on{opacity:1}
+
+  /* CAMERA (CRT) */
+  #cam{position:absolute; inset:0; display:none; z-index:20; overflow:hidden; transform-origin:0 0; will-change:transform,opacity}
+  #cam.on{display:block}
+  #bezel{position:absolute; inset:0; background:url(img/ui/monitor.png) -23px -13px/1320px 737px no-repeat; clip-path:polygon(252px 0px, 1028px 0px, 1041px 18px, 1046px 80px, 1050px 220px, 1051px 360px, 1049px 500px, 1045px 610px, 1040px 670px, 1030px 704px, 1015px 720px, 265px 720px, 248px 704px, 237px 670px, 232px 610px, 229px 500px, 227px 360px, 229px 220px, 233px 80px, 237px 18px); filter:brightness(calc(.2 + .3 * var(--lamp,1))) saturate(.4) hue-rotate(150deg)}
+  #screenWrap{position:absolute; left:313px; top:74px; width:808px; height:632px; transform:scale(.81,.815); transform-origin:0 0}
+  #monPower{position:absolute; left:853px; top:652px; width:46px; height:46px; border-radius:6px; cursor:pointer; z-index:5}
+  #monPower:hover{box-shadow:0 0 14px 3px rgba(125,255,138,.5)}
+  #monLed{position:absolute; left:802px; top:672px; width:6px; height:6px; border-radius:50%; background:#5dff7a; box-shadow:0 0 8px #5dff7a; z-index:5}
+  #camPostit{position:absolute; left:316px; top:646px; width:132px; transform:rotate(-2.5deg); font-family:'Special Elite',monospace; font-size:12.5px; line-height:1.05; color:#22226e; background:rgba(240,230,120,.55); padding:3px 5px; z-index:5; pointer-events:none; filter:brightness(calc(.3 + .4 * var(--lamp,1)))}
+  #screen{filter:url(#crtBulge); position:absolute; left:0; top:0; width:808px; height:632px; border-radius:46px/42px; overflow:hidden; background:radial-gradient(ellipse at 50% 48%, #071409 0%, #020602 72%, #000 100%); color:#7dff8a; text-shadow:0 0 6px rgba(80,255,120,.55), 1.3px 0 rgba(255,60,60,.28), -1.3px 0 rgba(60,140,255,.28)}
+  #screen .glass{position:absolute; inset:0; pointer-events:none; border-radius:inherit; background:radial-gradient(ellipse 46% 28% at 34% 16%, rgba(255,255,255,.13), transparent 72%), radial-gradient(ellipse 72% 68% at 50% 50%, transparent 52%, rgba(0,0,0,.42) 78%, rgba(0,0,0,.92) 100%); box-shadow:inset 0 0 70px rgba(0,0,0,.95); z-index:6}
+  #screen .scan{background:repeating-linear-gradient(0deg, rgba(0,0,0,.3) 0 1px, transparent 1px 3px); z-index:5}
+  #screen .rollbar{position:absolute; left:0; right:0; height:120px; top:-120px; pointer-events:none; background:linear-gradient(transparent, rgba(160,255,170,.06), transparent); animation:roll 5.5s linear infinite; z-index:5}
+  @keyframes roll{to{top:110%}}
+  #osTop{position:absolute; left:0; right:0; top:6px; height:28px; padding:0 36px; display:flex; justify-content:space-between; align-items:center; font-size:16.5px; white-space:nowrap; background:rgba(40,120,50,.18); border-bottom:1px solid rgba(125,255,138,.35)}
+  #feedWin{position:absolute; left:18px; top:38px; width:772px; height:462px; border:1px solid rgba(125,255,138,.55)}
+  #feedWin .wtitle{height:24px; padding:0 12px; display:flex; justify-content:space-between; align-items:center; font-size:19px; background:rgba(125,255,138,.14); border-bottom:1px solid rgba(125,255,138,.35)}
+  #feedBox{position:relative; width:770px; height:436px; overflow:hidden; background:#000}
+  #feedImg{position:absolute; inset:-10px; width:790px; height:456px; object-fit:cover; filter:grayscale(.85) contrast(1.15) brightness(.9) sepia(.25) hue-rotate(60deg); animation:camPan 14s ease-in-out infinite alternate}
+  @keyframes camPan{from{transform:translateX(-8px)} to{transform:translateX(8px)}}
+  #feedBox.frozen #feedImg{animation-play-state:paused}
+  #static{position:absolute; inset:0; width:100%; height:100%; opacity:.12; pointer-events:none}
+  #feedBox.blind #static{opacity:1}
+  #feedBox .tint{position:absolute; inset:0; background:rgba(58,90,58,.16); pointer-events:none}
+  #stamp{position:absolute; left:10px; bottom:6px; font-size:18px; color:#e8ffe8; opacity:.85}
+  #d5{position:absolute; right:14px; top:10px; font-size:22px; color:#e8ffe8; opacity:0}
+  #itsmeCam{position:absolute; inset:0; display:none; align-items:center; justify-content:center; font-family:'Creepster'; font-size:120px; color:#fff; letter-spacing:8px; background:rgba(0,0,0,.4)}
+  #feedBox.itsme #itsmeCam{display:flex}
+  #coldPanel{position:absolute; left:16px; right:250px; bottom:30px; height:70px; display:none; align-items:center; gap:14px; background:rgba(0,15,4,.82); border:1px solid rgba(125,255,138,.6); padding:0 14px; font-size:22px}
+  #feedBox.cold #coldPanel{display:flex}
+  #tempBar{flex:1; height:22px; border:1px solid #7dff8a; position:relative}
+  #tempFill{position:absolute; left:0; top:0; bottom:0; width:0; background:#7dff8a}
+  #coldPanel.hot #tempFill{background:#ff5a4a; animation:flick 1s steps(2) infinite}
+  #tempTxt{width:70px; text-align:right}
+  #bCool{background:rgba(125,255,138,.1); border:2px solid #7dff8a; color:#7dff8a; font-size:24px; padding:2px 16px; text-shadow:inherit}
+  #bCool.on{background:#7dff8a; color:#021}
+  #rebootBar{position:absolute; left:0; bottom:0; height:6px; width:0; background:#7dff8a}
+  #side{position:absolute; left:574px; top:318px; width:348px; height:286px; transform:scale(.6); transform-origin:0 0; z-index:3}
+  #map{position:absolute; inset:0; border:1px solid rgba(125,255,138,.7); background:rgba(0,12,2,.86); background-image:linear-gradient(rgba(125,255,138,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(125,255,138,.05) 1px, transparent 1px); background-size:16px 16px}
+  #map .mt{position:absolute; left:0; right:0; top:0; height:26px; padding-left:10px; line-height:26px; font-size:22px; background:rgba(125,255,138,.14); border-bottom:1px solid rgba(125,255,138,.35)}
+  #map .plan{position:absolute; left:0; top:0; pointer-events:none}
+  #map .plan path{fill:none; stroke:rgba(125,255,138,.55); stroke-width:6}
+  #map button{position:absolute; width:70px; height:34px; background:rgba(0,20,0,.85); color:#7dff8a; border:1px solid #7dff8a; font-size:19px; text-shadow:inherit; padding:0}
+  #map button.sel{background:#7dff8a; color:#021}
+  #map .you{position:absolute; left:139px; top:242px; width:70px; height:34px; border:1px dashed #7dff8a; color:#7dff8a; font-size:22px; display:flex; align-items:center; justify-content:center}
+  #log{position:absolute; left:18px; top:506px; width:540px; height:56px; border:1px solid rgba(125,255,138,.55); padding:4px 10px 4px 134px; overflow:hidden; display:flex; align-items:center}
+  #log .mt{position:absolute; left:0; top:0; bottom:0; width:122px; padding-left:10px; line-height:54px; font-size:19px; background:rgba(125,255,138,.14); border-right:1px solid rgba(125,255,138,.35)}
+  #camNote{font-size:19px; line-height:1.15}
+  #camNote::before{content:'> '} #camNote::after{content:'█'; animation:flick 1s steps(2) infinite}
+  #osBottom{position:absolute; left:30px; right:30px; top:568px; height:34px; display:flex; gap:14px; align-items:center; font-size:18.5px}
+  #osBottom button{background:rgba(125,255,138,.1); border:1px solid #7dff8a; color:#7dff8a; font-size:19px; padding:2px 12px; text-shadow:inherit}
+  #osBottom button:hover{background:#7dff8a; color:#021}
+  #camClose{margin-left:auto}
+  #boot{position:absolute; inset:0; display:none; align-items:center; justify-content:center; text-align:center; font-size:30px; z-index:4; background:rgba(0,10,0,.55)}
+  #cam.booting #boot{display:flex}
+
+  /* SCARE */
+  #scare{background:#000}
+  #scareImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:lunge .5s cubic-bezier(.15,.9,.3,1) forwards, shake .06s infinite}
+  @keyframes lunge{from{transform:scale(.6)} to{transform:scale(1.15)}}
+  @keyframes shake{0%{translate:-6px 4px} 50%{translate:5px -5px} 100%{translate:-3px -2px}}
+  #scare .flash{position:absolute; inset:0; background:var(--red); opacity:.25; animation:flash .1s steps(2) infinite}
+  @keyframes flash{50%{opacity:0}}
+  .shakeAll{animation:shake2 .08s infinite}
+  @keyframes shake2{50%{transform:translate(4px,-3px)}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg width="0" height="0" style="position:absolute;pointer-events:none"><filter id="crtBulge" x="0" y="0" width="808" height="632" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feImage href="data:image/png;base64,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" x="0" y="0" width="808" height="632" preserveAspectRatio="none" result="m"/><feGaussianBlur in="m" stdDeviation="2.2" edgeMode="duplicate" result="mb"/><feDisplacementMap in="SourceGraphic" in2="mb" scale="130" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+  <canvas id="glitch" width="320" height="180"></canvas>
+  <button id="mute">🔊 SES</button>
+
+  <section id="splash" class="screen on"><div class="center"><div class="s1">MIRIK'LA 5 GECE: MORG</div><div class="s2" id="splashTxt">YÜKLENİYOR... %0</div><div class="s3">🎧 kulaklıkla, ışıklar kapalı oyna</div></div></section>
+
+  <section id="title" class="screen">
+    <div id="faceWrap"><img class="face" src="img/menu_face.png" alt=""><img class="scary" src="img/menu_face_scary.png" alt=""></div>
+    <div class="fade"></div><div class="vignette"></div><div class="scan"></div>
+    <h1><span class="a">MIRIK'LA 5 GECE</span><span class="b">MORG</span></h1>
+    <div class="sub">Tıp fakültesi, morg katı. Beş gece nöbet.<br>5 numaralı çekmeceyi soğuk tut. Seslere güvenme.</div>
+    <div id="menu">
+      <button id="bNew">YENİ OYUN</button>
+      <button id="bCont">DEVAM ET</button>
+      <button id="bSix" hidden>6. GECE</button>
+      <button id="bCustom" hidden>CUSTOM NIGHT</button>
+      <button id="bArchive">ARŞİV</button>
+    </div>
+    <div class="foot">v2.0 · Proje 4-5-6</div>
+  </section>
+
+  <section id="doc" class="screen"><div id="paperDoc"></div><div class="hint">[ devam etmek için tıkla ]</div></section>
+  <section id="intro" class="screen"><div class="center"><div class="t">12:00 AM</div><div class="n" id="introN">1. GECE</div></div></section>
+
+  <section id="game" class="screen">
+    <div id="office">
+      <div id="view">
+        <img class="bg" src="img/office.png" alt="">
+        <div class="hole" id="corr"><img id="corrDark" src="img/corr/empty.png" alt=""><img id="corrImg" src="img/corr/lit.png" alt=""><div class="beam"></div><div id="headlight"></div></div>
+        <div class="hole" id="dwL"><img id="dwImg" src="img/doorway/empty.png" alt=""><div class="shutter"></div></div>
+        <div id="pL"><div class="pbtn door" id="bDoor" title="Kapı (Q)"></div><div class="pbtn lamp" id="bLight" title="Kapı ışığı (A, basılı tut)"></div></div>
+        <div class="hole" id="vent"><img id="ventImg" src="img/vent/empty.png" alt=""></div>
+        <button id="ventBtn" title="Havalandırma ışığı (V, basılı tut)">IŞIK</button>
+        <div id="mon">MORG-SEC</div>
+        <div id="phone" title="Telefonu sustur"><div id="phoneLed"></div></div>
+        <div id="gen">JENERATÖR <span id="tPower">%100</span><div class="bars" id="tUsage"></div></div>
+        <div id="dclock"><img src="img/ui/dclock.png" alt=""><div class="disp" id="dcTime">12:00</div></div>
+        <div class="shade"></div><div class="flk"></div>
+        <div id="corrHit" title="El feneri (F, basılı tut)"></div>
+      </div>
+      <div class="vignette"></div>
+      <div id="edgeL"></div><div id="edgeR"></div>
+      <div id="dark"></div>
+      <div id="sheetLayer"><img src="img/sheet.png" alt=""></div>
+      <div id="toast"></div>
+      <div class="bar" id="barMon">▲ MONİTÖR</div>
+      <div class="bar" id="barSheet">▲ ÖRTÜ</div>
+    </div>
+    <div id="cam">
+      <div id="bezel"></div><div id="monLed"></div><div id="monPower" title="Monitörü kapat"></div>
+      <div id="camPostit">KURUL: 5 gün<br>Brakiyal pleksus<br>kitapta mı??</div>
+      <div id="screenWrap"><div id="screen">
+        <div id="osTop"><span>▣ MORG-SEC CCTV v4.5.6 │ ANATOMİ B-1 KATI</span><span id="camTimeR"></span></div>
+        <div id="feedWin">
+          <div class="wtitle"><span id="camName"></span><span>● REC</span></div>
+          <div id="feedBox"><img id="feedImg" src="img/cam/corr.png" alt=""><canvas id="static" width="320" height="180"></canvas><div class="tint"></div><div id="stamp"></div><div id="d5">D5</div><div id="itsmeCam">IT'S ME</div>
+            <div id="coldPanel"><span>SOĞUK ODA</span><div id="tempBar"><div id="tempFill"></div></div><span id="tempTxt">0°</span><button id="bCool">SOĞUT</button></div>
+            <div id="rebootBar"></div></div>
+        </div>
+        <div id="side"><div id="map">
+          <svg class="plan" viewBox="0 0 348 286" width="348" height="286"><path d="M110 61 H140 M175 78 V140 M86 127 H51 V180 M86 197 H139 M175 174 V242 M51 144 V110 H268 M303 124 V170 M303 204 V259 H209 M140 61 V259 H139"/></svg>
+          <div class="mt">KAT PLANI — MORG B-1</div><div class="you">SEN</div>
+        </div></div>
+        <div id="log"><div class="mt">OLAY KAYDI</div><div id="camNote"></div></div>
+        <div id="osBottom"><button id="bReboot">↻ YENİDEN BAŞLAT (R)</button><span id="camPow"></span><button id="camClose">[ESC] KALK</button></div>
+        <div id="boot"><div>MORG-SEC BIOS 4.5.6<br>VİDEO SİNYALİ ARANIYOR...</div></div>
+        <div class="scan"></div><div class="rollbar"></div><div class="glass"></div>
+      </div></div>
+    </div>
+  </section>
+
+  <section id="scare" class="screen"><img id="scareImg" src="" alt=""><div class="flash"></div></section>
+  <section id="six" class="screen"><div class="vignette"></div><div class="center"><div class="clock" id="sixClock">5 AM</div><div class="msg" id="sixMsg"></div><button class="big-btn" id="bNext" style="visibility:hidden">DEVAM →</button></div></section>
+  <section id="over" class="screen"><div class="vignette"></div><div class="center"><div class="t">ÖLDÜN</div><div class="why" id="overWhy"></div><div><button class="big-btn" id="bRetry">TEKRAR DENE</button> <button class="big-btn" id="bMenu1">MENÜ</button></div></div></section>
+  <section id="ending" class="screen"><img id="endImg" src="img/ending.png" alt=""><div class="txt" id="endTxt"></div><button class="big-btn" id="bMenu2" style="position:absolute;right:40px;top:20px;margin:0;font-size:24px">MENÜ</button></section>
+  <section id="crash" class="screen"><div class="center"><b>:(</b><b>Bu sayfa yanıt vermiyor</b><i>Hata kodu: DENEK_5_CEVRIMICI</i></div></section>
+  <section id="archive" class="screen"><h2 class="pageT">ARŞİV</h2><div id="arcList"></div><button class="back" id="bArcBack">← GERİ</button></section>
+  <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
+</div>
+
+<script src="audio.js"></script>
+<script src="core.js"></script>
+<script src="nights.js"></script>
+<script src="save.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
