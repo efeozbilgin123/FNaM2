@@ -73,7 +73,36 @@ await check('a missing image does not break the game loop', async (page, errors)
   assert.deepStrictEqual(errors, []);
 });
 
-if (globalThis.EXTRA_E2E) await globalThis.EXTRA_E2E(check, { boot, startNight });
+// ---- Task 10: kameralar ----
+async function openCold(page) {
+  await page.keyboard.press('Space'); await page.waitForTimeout(700);
+  await page.keyboard.press('3'); await page.waitForTimeout(200);
+}
+await check('holding C on the cold cam lowers the temperature', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.evaluate(() => { window.__game.denek5.temp = 50; });
+  await openCold(page);
+  await page.keyboard.down('c'); await page.waitForTimeout(800); await page.keyboard.up('c');
+  assert.ok(await page.evaluate(() => window.__game.denek5.temp) < 47);
+});
+await check('a hacked cold cam shows a frozen temperature', async (page) => {
+  await boot(page); await startNight(page, 2, { quiet: true });
+  await page.evaluate(() => { window.__game.denek5.temp = 30; Core._internal.hack(window.__game, 'cold'); });
+  await openCold(page);
+  const a = await page.textContent('#tempTxt');
+  await page.evaluate(() => { window.__game.denek5.temp = 60; });
+  await page.waitForTimeout(300);
+  assert.strictEqual(await page.textContent('#tempTxt'), a);
+  assert.strictEqual(a, '30°');
+});
+await check('holding R for 3 s reboots the hacked camera', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.evaluate(() => Core._internal.hack(window.__game, 'cold'));
+  await openCold(page);
+  await page.keyboard.down('r'); await page.waitForTimeout(3400); await page.keyboard.up('r');
+  assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), null);
+});
+
 await browser.close(); server.kill();
 console.log(results.join('\n'));
 console.log(`# pass ${results.length - failed}\n# fail ${failed}`);
