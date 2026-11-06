@@ -332,6 +332,8 @@ function quadMatrix(w, h, p) {
 const QUADS = {
   dwL: { w: 320, h: 750, p: [[402, 82], [570, 160], [572, 672], [404, 664]] },
   vent: { w: 600, h: 440, p: [[1656, 522], [1952, 575], [1945, 812], [1658, 715]] },
+  pL: { w: 120, h: 300, p: [[597, 321], [651, 327], [651, 414], [597, 421]] },        // soldaki duvar girintisi
+  ventBtn: { w: 100, h: 100, p: [[1770, 437], [1818, 440], [1818, 489], [1770, 487]] }, // havalandırmanın üstündeki duvar
 };
 for (const [id, q] of Object.entries(QUADS)) $(id).style.transform = quadMatrix(q.w, q.h, q.p);
 
