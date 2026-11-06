@@ -160,6 +160,7 @@ await check('an office variant replaces the flat door overlay when it exists', a
   assert.ok(on && hidden, `variant on=${on} flat hidden=${hidden}`);
 });
 await check('without variants the flat door overlay is used', async (page) => {
+  await page.route('**/img/office_v/**', r => r.fulfill({ status: 404, body: '' }));
   await boot(page); await startNight(page, 1, { quiet: true });
   await page.keyboard.down('a'); await page.waitForTimeout(250);
   assert.strictEqual(await page.evaluate(() => document.getElementById('vDoor').classList.contains('on')), false);
