@@ -319,7 +319,7 @@ function updateLook(dt) {
 }
 
 // ---------- monitör (1. oyundaki CRT geçişi) ----------
-const MON = { x: 1000, y: 650 }, ZOOM = 3.13;
+const MON = { x: 759, y: 604 }, ZOOM = 3.13;
 function zoomTransform() { return `translate(${640 - MON.x * ZOOM}px, ${360 - MON.y * ZOOM}px) scale(${ZOOM})`; }
 function camFromOfficeTransform() { const s = VIEW_SCALE / ZOOM; return `translate(${-look.x + (MON.x - 640 / ZOOM) * VIEW_SCALE}px, ${PAN_Y + (MON.y - 360 / ZOOM) * VIEW_SCALE}px) scale(${s})`; }
 function openCam() {

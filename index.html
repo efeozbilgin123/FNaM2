@@ -108,7 +108,7 @@
   #view .bg{position:absolute; inset:0; width:2000px; height:848px}
   .hole{position:absolute; overflow:hidden; background:#000}
   .hole img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block}
-  #corr{left:860px; top:120px; width:280px; height:500px}
+  #corr{left:858px; top:100px; width:284px; height:468px; border-radius:142px 142px 0 0}
   #corrImg{opacity:0}
   #game.flash #corrImg{opacity:1}
   #corrDark{opacity:.9; filter:brightness(.35)}
@@ -119,31 +119,31 @@
   #game.sultanA #headlight{opacity:.85; transform:scale(4)}
   #game.sultanH #headlight{opacity:1; transform:scale(14); transition:opacity .2s, transform .6s ease-out}
   #game.sultanH .shade{background:rgba(0,0,0,.25) !important}
-  #corrHit{position:absolute; left:860px; top:120px; width:280px; height:500px; cursor:crosshair; z-index:2}
-  #dwL{left:60px; top:70px; width:320px; height:730px}
+  #corrHit{position:absolute; left:858px; top:100px; width:284px; height:468px; border-radius:142px 142px 0 0; cursor:crosshair; z-index:2}
+  #dwL{left:402px; top:82px; width:172px; height:590px}
   #dwImg{opacity:0} #game.lightL #dwImg{opacity:1}
   #dwL .shutter{position:absolute; inset:0; background:url(img/door.png) center/100% 100% no-repeat; filter:brightness(.4); transform:translateY(-102%); transition:transform .3s cubic-bezier(.5,0,.9,.6); border-bottom:6px solid #0b0d0e; box-shadow:0 12px 20px rgba(0,0,0,.85); z-index:2}
   #game.doorL #dwL .shutter{transform:none; transition:transform .24s cubic-bezier(.6,0,1,.5)}
-  #pL{position:absolute; left:395px; top:330px; width:100px; height:250px; z-index:2}
+  #pL{position:absolute; left:592px; top:300px; width:68px; height:170px; z-index:2}
   #pL::before{content:''; position:absolute; inset:0; background:url(img/panel.png) 0 0/100% 100%; filter:brightness(.55); box-shadow:0 6px 14px rgba(0,0,0,.7)}
-  .pbtn{position:absolute; left:28px; width:44px; height:44px; border-radius:50%; cursor:pointer}
-  .pbtn.door{top:42px} .pbtn.lamp{top:150px}
+  .pbtn{position:absolute; left:16px; width:36px; height:36px; border-radius:50%; cursor:pointer}
+  .pbtn.door{top:26px} .pbtn.lamp{top:100px}
   #game.doorL .pbtn.door{background:radial-gradient(circle, rgba(255,90,80,.95), rgba(230,20,20,.55) 55%, transparent 72%); box-shadow:0 0 26px 8px rgba(255,40,40,.55)}
   #game.lightL .pbtn.lamp{background:radial-gradient(circle, rgba(230,250,255,.95), rgba(190,235,255,.55) 55%, transparent 72%); box-shadow:0 0 26px 8px rgba(190,235,255,.5)}
-  #vent{left:1640px; top:560px; width:300px; height:220px}
+  #vent{left:1664px; top:530px; width:268px; height:262px; clip-path:polygon(0 0, 100% 8%, 100% 100%, 0 90%)}
   #ventImg{opacity:0} #game.ventLight #ventImg{opacity:1}
-  #ventBtn{position:absolute; left:1555px; top:470px; width:64px; height:64px; border-radius:8px; background:#141a1c; border:3px solid #2a3538; box-shadow:inset 0 0 10px #000; color:#46595d; font-size:16px; z-index:2}
+  #ventBtn{position:absolute; left:1760px; top:430px; width:64px; height:64px; border-radius:8px; background:#141a1c; border:3px solid #2a3538; box-shadow:inset 0 0 10px #000; color:#46595d; font-size:16px; z-index:2}
   #game.ventLight #ventBtn{border-color:#bfe9ff; color:#bfe9ff; box-shadow:0 0 22px rgba(190,235,255,.6)}
-  #mon{position:absolute; left:915px; top:590px; width:170px; height:120px; border-radius:16px/20px; background:radial-gradient(ellipse,#0d2212,#020503 78%); box-shadow:inset 0 0 26px rgba(0,0,0,.95), 0 0 40px rgba(125,255,138,.12); color:#3f9a4f; font-size:20px; display:flex; align-items:center; justify-content:center; text-align:center; opacity:.85}
-  #phone{position:absolute; left:1160px; top:690px; width:110px; height:60px; cursor:pointer; z-index:2}
-  #phoneLed{position:absolute; right:14px; top:10px; width:9px; height:9px; border-radius:50%; background:#400; }
+  #mon{position:absolute; left:670px; top:520px; width:178px; height:168px; border-radius:14px/18px; background:radial-gradient(ellipse,#0d2212,#020503 78%); box-shadow:inset 0 0 26px rgba(0,0,0,.95), 0 0 40px rgba(125,255,138,.12); color:#3f9a4f; font-size:20px; display:flex; align-items:center; justify-content:center; text-align:center; opacity:.85}
+  #phone{position:absolute; left:585px; top:722px; width:165px; height:100px; cursor:pointer; z-index:2}
+  #phoneLed{position:absolute; left:120px; top:14px; width:9px; height:9px; border-radius:50%; background:#400; }
   #game.ringing #phoneLed{background:#ff2b2b; box-shadow:0 0 10px #ff2b2b; animation:flick 1s steps(2) infinite}
-  #dclock{position:absolute; left:740px; top:690px; width:150px; height:110px; pointer-events:none}
+  #dclock{position:absolute; left:880px; top:632px; width:140px; height:102px; pointer-events:none}
   #dclock img{width:100%; height:100%; filter:brightness(.45) saturate(.4) contrast(1.1)}
   #dclock .disp{position:absolute; left:26.2%; top:42.2%; width:56.8%; height:28.2%; background:#160303; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:30px; color:#ff3b2a; text-shadow:0 0 6px #ff2a1a, 0 0 14px rgba(255,40,20,.9)}
-  #gen{position:absolute; left:560px; top:715px; width:160px; height:70px; background:#0c1112; border:3px solid #1d2628; border-radius:6px; padding:4px 8px; font-size:17px; color:#9fd8e6; text-shadow:0 0 6px rgba(159,216,230,.6); line-height:1.1}
+  #gen{position:absolute; left:425px; top:700px; width:160px; height:70px; background:#0c1112; border:3px solid #1d2628; border-radius:6px; padding:4px 8px; font-size:17px; color:#9fd8e6; text-shadow:0 0 6px rgba(159,216,230,.6); line-height:1.1}
   #gen .bars{display:flex; gap:3px; margin-top:4px} #gen .bars i{width:14px; height:14px; background:#16282c} #gen .bars i.on{background:#9fd8e6; box-shadow:0 0 6px #9fd8e6} #gen .bars i.hot{background:#ff5a4a; box-shadow:0 0 6px #ff5a4a}
-  #view .shade{position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 900px 520px at 1000px 480px, rgba(0,0,0,.05), rgba(0,0,0,.55) 65%, rgba(0,0,0,.8)); opacity:calc(.7 + (1 - var(--lamp,1)) * .3)}
+  #view .shade{position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 1000px 560px at 1000px 460px, rgba(0,0,0,0), rgba(0,0,0,.35) 65%, rgba(0,0,0,.7)); opacity:calc(.75 + (1 - var(--lamp,1)) * .25)}
   #view .flk{position:absolute; inset:0; pointer-events:none; background:#020304; opacity:calc((1 - var(--lamp,1)) * .7)}
   #game.dark #view .shade{background:rgba(0,0,0,.96)}
   #edgeL,#edgeR{position:absolute; top:0; bottom:0; width:60px; pointer-events:none; opacity:0; transition:opacity .3s}
