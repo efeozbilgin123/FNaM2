@@ -122,5 +122,48 @@
     return out;
   }
 
-  return { PARAMS, CAMS, CHARS, createGame, step, usage, _internal: { INIT, TICKS, roll, emit, die, mul } };
+  // ---------- Denek 5 (soğuk oda) ----------
+  Object.assign(PARAMS, { D5_BASE: 0.25, D5_PER_LV: 0.06, D5_COOL: 6, D5_OPEN_DELAY: 4, D5_RATTLE: 70, D5_RATTLE_EVERY: 3 });
+  INIT.denek5 = () => ({ temp: 0, open: false, openT: 0, rattleT: 0 });
+  TICKS.push(function tickDenek5(G, dt) {
+    const s = G.denek5, lv = G.lv.denek5;
+    if (s.open) { s.openT -= dt; if (s.openT <= 0) die(G, 'denek5'); return; }
+    if (lv > 0) s.temp += (PARAMS.D5_BASE + PARAMS.D5_PER_LV * lv) * dt;
+    if (G.dev.cooling) s.temp -= PARAMS.D5_COOL * dt;
+    s.temp = Math.max(0, s.temp);
+    if (s.temp >= 100) { s.temp = 100; s.open = true; s.openT = PARAMS.D5_OPEN_DELAY; emit(G, { type: 'sound', id: 'drawer', from: 'cold' }); return; }
+    if (s.temp >= PARAMS.D5_RATTLE) {
+      s.rattleT -= dt;
+      if (s.rattleT <= 0) { s.rattleT = PARAMS.D5_RATTLE_EVERY; emit(G, { type: 'sound', id: 'rattle', from: 'cold' }); }
+    } else s.rattleT = 0;
+  });
+
+  // ---------- Mühendis Hasan (sahte kamera) ----------
+  Object.assign(PARAMS, { MUH_TICK: 7, MUH_KILL: 25, MUH_REBOOT: 3 });
+  INIT.muh = () => ({ cam: null, age: 0, rebootT: 0, frozenTemp: 0, tick: 0 });
+  function hack(G, cam) {
+    const m = G.muh; m.cam = cam; m.age = 0; m.rebootT = 0; m.frozenTemp = G.denek5.temp;
+    emit2(G, { type: 'hack', cam });
+  }
+  function emit2(G, ev) { if (G._ev) G._ev.push(ev); }
+  TICKS.push(function tickMuh(G, dt) {
+    const m = G.muh;
+    G.dev.camBlind = G.dev.reboot != null;
+    if (m.cam) {
+      m.age += dt;
+      if (G.dev.reboot === m.cam) {
+        m.rebootT += dt;
+        if (m.rebootT >= PARAMS.MUH_REBOOT) { const cam = m.cam; m.cam = null; m.rebootT = 0; emit(G, { type: 'unhack', cam }); return; }
+      } else m.rebootT = 0;
+      if (m.age > PARAMS.MUH_KILL) die(G, 'muh');
+      return;
+    }
+    m.tick += dt;
+    if (m.tick < PARAMS.MUH_TICK) return;
+    m.tick = 0;
+    if (roll(G, G.lv.muh)) hack(G, CAMS[Math.floor(G.rng() * CAMS.length)]);
+  });
+  function shownTemp(G) { return G.muh.cam === 'cold' ? G.muh.frozenTemp : G.denek5.temp; }
+
+  return { PARAMS, CAMS, CHARS, createGame, step, usage, shownTemp, _internal: { INIT, TICKS, roll, emit, die, mul, hack } };
 });
