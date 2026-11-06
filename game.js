@@ -128,6 +128,7 @@ function loop(now) {
   if (!G) return;
   updateLook(dt);
   whisper(dt);
+  drawGrain(dt);
   const evs = Core.step(G, dt, input());
   for (const e of evs) handle(e);
   if (!G.over) { render(); raf = requestAnimationFrame(loop); }
@@ -234,6 +235,18 @@ $('bRetry').onclick = () => startNight(night, { skipDoc: true, levels: customLev
 let endVoice = null;
 $('bMenu1').onclick = $('bMenu2').onclick = () => { if (endVoice) { endVoice.pause(); endVoice = null; } refreshMenu(); show('title'); };
 
+// ---------- ofis versiyonları: varsa düz katmanların yerine kullanılır ----------
+const VARIANTS = ['door_lit', 'door_avukat', 'door_closed', 'vent_lit', 'vent_sahil', 'corr_lit', 'corr_pasta1', 'corr_pasta2', 'corr_pasta3', 'corr_sultan', 'corr_itsme'];
+const haveVar = new Set();
+VARIANTS.forEach(v => { const i = new Image(); i.onload = () => haveVar.add(v); i.src = `img/office_v/${v}.png`; });
+// istenen versiyon yoksa null döner ve eski katman kullanılır
+function useVar(el, cls, name) {
+  const ok = name && haveVar.has(name);
+  if (ok) setSrc(el, `img/office_v/${name}.png`);
+  el.classList.toggle('on', !!ok);
+  $('game').classList.toggle(cls, !!ok || (name === null && [...haveVar].some(v => v.startsWith(cls.slice(1)))));
+}
+
 // ---------- çizim ----------
 function clock() { const h = Math.floor(G.t / (Core.PARAMS.NIGHT_SEC / 6)); return h === 0 ? 12 : h; }
 function camSrc(cam) {
@@ -263,6 +276,10 @@ function render() {
   setSrc($('corrImg'), corr);
   setSrc($('dwImg'), g.avukat.at ? 'img/doorway/avukat.png' : 'img/doorway/empty.png');
   setSrc($('ventImg'), g.sahil.stage === 3 ? 'img/vent/sahil.png' : 'img/vent/empty.png');
+  const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t ? 'corr_itsme' : g.pasta.stage ? 'corr_pasta' + g.pasta.stage : 'corr_lit';
+  useVar($('vCorr'), 'vcorr', corrVar);
+  useVar($('vDoor'), 'vdoor', d.doorL ? 'door_closed' : d.lightL ? (g.avukat.at ? 'door_avukat' : 'door_lit') : null);
+  useVar($('vVent'), 'vvent', d.ventLight ? (g.sahil.stage === 3 ? 'vent_sahil' : 'vent_lit') : null);
   // masa
   const h = clock();
   $('dcTime').textContent = `${String(h).padStart(2, '0')}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')}`;
@@ -293,6 +310,10 @@ function renderCam() {
   drawStatic();
 }
 const sctx = $('static').getContext('2d'), sImg = sctx.createImageData(320, 180);
+// bütün ofise ortak film greni: ek katmanlar ile fotoğraf aynı dokuda görünsün
+const grainCtx = $('grain').getContext('2d'), grainImg = grainCtx.createImageData(320, 180);
+let grainT = 0;
+function drawGrain(dt) { grainT -= dt; if (grainT > 0) return; grainT = 0.06; const d = grainImg.data; for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; } grainCtx.putImageData(grainImg, 0, 0); }
 function drawStatic() { const d = sImg.data; for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; } sctx.putImageData(sImg, 0, 0); }
 
 // ---------- perspektif: düz bir dikdörtgeni ofis görselindeki dört köşeye oturt ----------

@@ -123,6 +123,22 @@
   #dwImg{opacity:0} #game.lightL #dwImg{opacity:1}
   #dwL .shutter{position:absolute; inset:0; background:url(img/door.png) center/100% 100% no-repeat; filter:brightness(.4); transform:translateY(-102%); transition:transform .3s cubic-bezier(.5,0,.9,.6); border-bottom:6px solid #0b0d0e; box-shadow:0 12px 20px rgba(0,0,0,.85); z-index:2}
   #game.doorL #dwL .shutter{transform:none; transition:transform .24s cubic-bezier(.6,0,1,.5)}
+
+  /* --- ek katmanları ofis fotoğrafıyla kaynaştırma --- */
+  .hole img{filter:saturate(.45) sepia(.25) hue-rotate(125deg) brightness(.72) contrast(1.08) blur(.4px)}
+  #dwL img, #vent img{-webkit-mask-image:radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%); mask-image:radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%)}
+  #corr img{-webkit-mask-image:linear-gradient(to bottom, #000 80%, transparent 100%); mask-image:linear-gradient(to bottom, #000 80%, transparent 100%)}
+  .hole::after{content:''; position:absolute; inset:0; pointer-events:none; z-index:3; box-shadow:inset 0 0 40px 18px rgba(4,10,12,.9); background:linear-gradient(rgba(40,70,72,.18), rgba(10,20,22,.35))}
+  #dwL .shutter{filter:saturate(.5) brightness(.55) hue-rotate(10deg)}
+  #grain{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.09; mix-blend-mode:overlay; z-index:26}
+
+  /* --- ofis versiyonları (img/office_v): aynı fotoğrafın düzenlenmiş hali, sadece ilgili bölge yumuşak maskeyle görünür --- */
+  .var{position:absolute; left:0; top:0; width:2000px; height:848px; opacity:0; transition:opacity .12s; pointer-events:none}
+  .var.on{opacity:1}
+  #vDoor{-webkit-mask-image:radial-gradient(ellipse 150px 360px at 488px 375px, #000 75%, transparent 100%); mask-image:radial-gradient(ellipse 150px 360px at 488px 375px, #000 75%, transparent 100%)}
+  #vCorr{-webkit-mask-image:radial-gradient(ellipse 210px 330px at 1000px 330px, #000 72%, transparent 100%); mask-image:radial-gradient(ellipse 210px 330px at 1000px 330px, #000 72%, transparent 100%)}
+  #vVent{-webkit-mask-image:radial-gradient(ellipse 200px 190px at 1800px 665px, #000 72%, transparent 100%); mask-image:radial-gradient(ellipse 200px 190px at 1800px 665px, #000 72%, transparent 100%)}
+  #game.vdoor #dwL, #game.vcorr #corr, #game.vvent #vent{visibility:hidden}
   #pL{position:absolute; left:592px; top:300px; width:68px; height:170px; z-index:2}
   #pL::before{content:''; position:absolute; inset:0; background:url(img/panel.png) 0 0/100% 100%; filter:brightness(.55); box-shadow:0 6px 14px rgba(0,0,0,.7)}
   .pbtn{position:absolute; left:16px; width:36px; height:36px; border-radius:50%; cursor:pointer}
@@ -260,6 +276,7 @@
     <div id="office">
       <div id="view">
         <img class="bg" src="img/office.png" alt="">
+        <img class="var" id="vDoor" alt=""><img class="var" id="vCorr" alt=""><img class="var" id="vVent" alt="">
         <div class="hole" id="corr"><img id="corrImg" src="img/corr/lit.png" alt=""><div class="beam"></div><div id="headlight"></div></div>
         <div class="hole" id="dwL"><img id="dwImg" src="img/doorway/empty.png" alt=""><div class="shutter"></div></div>
         <div id="pL"><div class="pbtn door" id="bDoor" title="Kapı (Q)"></div><div class="pbtn lamp" id="bLight" title="Kapı ışığı (A, basılı tut)"></div></div>
@@ -272,6 +289,7 @@
         <div class="shade"></div><div class="flk"></div>
         <div id="corrHit" title="El feneri (F, basılı tut)"></div>
       </div>
+      <canvas id="grain" width="320" height="180"></canvas>
       <div class="vignette"></div>
       <div id="edgeL"></div><div id="edgeR"></div>
       <div id="dark"></div>
@@ -312,10 +330,10 @@
   <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
 </div>
 
-<script src="audio.js?v=20261106c"></script>
-<script src="core.js?v=20261106c"></script>
-<script src="nights.js?v=20261106c"></script>
-<script src="save.js?v=20261106c"></script>
-<script src="game.js?v=20261106c"></script>
+<script src="audio.js?v=20261106d"></script>
+<script src="core.js?v=20261106d"></script>
+<script src="nights.js?v=20261106d"></script>
+<script src="save.js?v=20261106d"></script>
+<script src="game.js?v=20261106d"></script>
 </body>
 </html>

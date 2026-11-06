@@ -151,6 +151,21 @@ await check('flicking the monitor fast never leaves it powered but hidden', asyn
   assert.strictEqual(shown, mon, `monitor powered=${mon} but overlay shown=${shown}`);
 });
 
+await check('an office variant replaces the flat door overlay when it exists', async (page) => {
+  await page.route('**/img/office_v/door_lit.png', r => r.fulfill({ path: new URL('../img/office.png', import.meta.url).pathname }));
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.down('a'); await page.waitForTimeout(250);
+  const [on, hidden] = await page.evaluate(() => [document.getElementById('vDoor').classList.contains('on'), document.getElementById('game').classList.contains('vdoor')]);
+  await page.keyboard.up('a');
+  assert.ok(on && hidden, `variant on=${on} flat hidden=${hidden}`);
+});
+await check('without variants the flat door overlay is used', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.down('a'); await page.waitForTimeout(250);
+  assert.strictEqual(await page.evaluate(() => document.getElementById('vDoor').classList.contains('on')), false);
+  await page.keyboard.up('a');
+});
+
 await browser.close(); server.kill();
 console.log(results.join('\n'));
 console.log(`# pass ${results.length - failed}\n# fail ${failed}`);
