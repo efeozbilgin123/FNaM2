@@ -55,7 +55,7 @@
   /* DOCUMENT */
   #doc{background:#030405; cursor:pointer}
   #paperDoc{position:absolute; left:50%; top:50%; width:560px; height:690px; transform:translate(-50%,-50%) rotate(-1.2deg); padding:40px 46px; color:#1c1a16; font-family:'Special Elite','Courier New',monospace; font-size:15.5px; line-height:1.45;
-    background:url(img/doc/paper.png) center/cover, #cfc7b0; box-shadow:0 30px 90px rgba(0,0,0,.95), inset 0 0 80px rgba(70,50,20,.5); filter:sepia(.25) brightness(.86) contrast(1.05); animation:paperIn .9s cubic-bezier(.2,.8,.3,1); overflow:hidden}
+    background:linear-gradient(rgba(214,205,180,.55),rgba(214,205,180,.55)), url(img/doc/paper.png) center/cover, #cfc7b0; box-shadow:0 30px 90px rgba(0,0,0,.95), inset 0 0 80px rgba(70,50,20,.5); filter:sepia(.25) brightness(.86) contrast(1.05); animation:paperIn .9s cubic-bezier(.2,.8,.3,1); overflow:hidden}
   @keyframes paperIn{from{transform:translate(-50%,-30%) rotate(-8deg) scale(.7); opacity:0} to{transform:translate(-50%,-50%) rotate(-1.2deg); opacity:1}}
   #paperDoc .hd{font-size:12.5px; letter-spacing:1px; border-bottom:2px solid #1c1a16; padding-bottom:6px; text-transform:uppercase}
   #paperDoc h2{font-size:24px; margin:14px 0 10px; letter-spacing:2px}
@@ -66,7 +66,7 @@
   #paperDoc .np{font-size:11px; letter-spacing:2px; border-bottom:1px solid; margin-bottom:6px}
   #paperDoc hr{border:0; border-top:1px dashed #1c1a16; margin:12px 0}
   #paperDoc::after{content:'GİZLİ'; position:absolute; right:30px; top:70px; transform:rotate(14deg); border:4px solid rgba(150,20,20,.55); color:rgba(150,20,20,.55); font-size:34px; padding:0 10px; letter-spacing:4px}
-  #doc .hint{position:absolute; bottom:12px; width:100%; text-align:center; color:#5a6668; font-size:24px; animation:flick 2.4s infinite}
+  #doc .hint{position:absolute; bottom:12px; width:100%; text-align:center; color:#9aa6a8; z-index:2; font-size:24px; animation:flick 2.4s infinite}
 
   /* INTRO / SIX / OVER / END */
   #intro .t{font-size:110px; line-height:1} #intro .n{font-size:52px; color:var(--dim)}

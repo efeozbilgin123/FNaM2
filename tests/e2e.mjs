@@ -103,6 +103,37 @@ await check('holding R for 3 s reboots the hacked camera', async (page) => {
   assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), null);
 });
 
+// ---- Task 11: ekranlar ----
+await check('Custom Night is hidden on a fresh save and shown at maxNight 7', async (page) => {
+  await boot(page);
+  assert.strictEqual(await page.isVisible('#bCustom'), false);
+  await page.evaluate(() => localStorage.setItem('m5g_morg', JSON.stringify({ maxNight: 7, docs: [], itsme: [], custom2020: false })));
+  await boot(page);
+  assert.strictEqual(await page.isVisible('#bCustom'), true);
+});
+await check('the 20/20 preset sets every level to 20', async (page) => {
+  await page.goto(URL0);
+  await page.evaluate(() => localStorage.setItem('m5g_morg', JSON.stringify({ maxNight: 7, docs: [], itsme: [], custom2020: false })));
+  await boot(page);
+  await page.click('#bCustom'); await page.waitForSelector('#custom.on');
+  await page.click('#cpresets [data-p="max"]');
+  const v = await page.$$eval('#ccards .lv span', s => s.map(x => x.textContent));
+  assert.deepStrictEqual(v, Array(8).fill('20'));
+});
+await check('a forced death shows the jumpscare, then game over', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.evaluate(() => { window.__game.pasta.stage = 3; window.__game.pasta.window = 0.01; });
+  await page.waitForSelector('#scare.on', { timeout: 3000 });
+  assert.ok((await page.getAttribute('#scareImg', 'src')).includes('scare/pasta'));
+  await page.waitForSelector('#over.on', { timeout: 4000 });
+});
+await check('winning a night shows 6 AM and unlocks the next night', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.evaluate(() => { window.__game.t = 299.9; });
+  await page.waitForSelector('#six.on', { timeout: 3000 });
+  assert.strictEqual(await page.evaluate(() => window.__m5g.save().maxNight), 2);
+});
+
 await browser.close(); server.kill();
 console.log(results.join('\n'));
 console.log(`# pass ${results.length - failed}\n# fail ${failed}`);
