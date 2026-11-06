@@ -1,0 +1,27 @@
+{
+ "say6": [
+  "sfx/say6.mp3"
+ ],
+ "say6_scare": [
+  "sfx/say6_scare.mp3"
+ ],
+ "say5": [
+  "sfx/say5_1.mp3",
+  "sfx/say5_2.mp3"
+ ],
+ "say4": [
+  "sfx/say4_1.mp3",
+  "sfx/say4_2.mp3",
+  "sfx/say4_3.mp3",
+  "sfx/say4_4.mp3"
+ ],
+ "murmur": [
+  "sfx/murmur.mp3"
+ ],
+ "kitapta": [
+  "sfx/kitapta.mp3"
+ ],
+ "breath": [
+  "sfx/breath.mp3"
+ ]
+}

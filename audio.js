@@ -47,14 +47,16 @@ const Audio5 = (() => {
   const samples = {};
   async function loadSamples() {
     if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.suspend && ctx.suspend(); initGraph(); }
-    const list = { doorClose: 'sfx/door_close.mp3', doorOpen: 'sfx/door_open.mp3', switchOn: 'sfx/switch_on.mp3', switchOff: 'sfx/switch_off.mp3',
-      say4: 'sfx/sayici_4.mp3', say5: 'sfx/sayici_5.mp3', say6: 'sfx/sayici_6.mp3', miyav: 'sfx/miyav.mp3' }; // kayıt yoksa sentez
-    await Promise.all(Object.entries(list).map(async ([k, url]) => {
-      try { const r = await fetch(url); if (!r.ok) return; const ab = await r.arrayBuffer(); const p = ctx.decodeAudioData(ab, b => { samples[k] = b; }, () => {}); if (p && p.catch) await p.catch(() => {}); } catch (e) {}
+    const list = [['doorClose', 'sfx/door_close.mp3'], ['doorOpen', 'sfx/door_open.mp3'], ['switchOn', 'sfx/switch_on.mp3'], ['switchOff', 'sfx/switch_off.mp3']];
+    // Kayıtlı sesler (tools/voice.py üretir): her ad için bir ya da birkaç varyant. Yoksa sentez kullanılır.
+    try { const r = await fetch('sfx/voices.json'); if (r.ok) for (const [k, urls] of Object.entries(await r.json())) for (const u of urls) list.push([k, u]); } catch (e) {}
+    await Promise.all(list.map(async ([k, url]) => {
+      try { const r = await fetch(url); if (!r.ok) return; const ab = await r.arrayBuffer(); const p = ctx.decodeAudioData(ab, b => { (samples[k] = samples[k] || []).push(b); }, () => {}); if (p && p.catch) await p.catch(() => {}); } catch (e) {}
     }));
   }
   function play(name, { pan = 0, vol = 1, wet = 0.15, rate = 1 } = {}) {
-    const b = samples[name]; if (!b) return false;
+    const all = samples[name]; if (!all || !all.length) return false;
+    const b = all[Math.floor(Math.random() * all.length)];
     const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = rate;
     const g = ctx.createGain(); g.gain.value = vol; s.connect(g); out(g, { pan, wet }); s.start(); return true;
   }
@@ -120,6 +122,9 @@ const Audio5 = (() => {
       }
       if (n === 6) osc({ t, f: 55, f2: 35, dur: 0.8, vol: 0.6, wet: 0.4 });
     },
+    sayScare() { if (!play('say6_scare', { vol: 1.4, wet: 0.3 })) sfx.say(6); },
+    murmur(pan = 0.8) { play('murmur', { pan, vol: 0.45, wet: 0.7 }); }, // havalandırmadan uzak mırıltı
+    kitapta(pan = 0.8) { play('kitapta', { pan, vol: 0.5, wet: 0.7 }); },
     miyav() { // Arda Baz'ın bozuk miyavı: kısa, boğuk, yarıda kesik
       if (play('miyav', { pan: 0.3, vol: 0.9, wet: 0.4, rate: 0.9 })) return;
       const t = now(), dur = 0.38;
@@ -158,7 +163,7 @@ const Audio5 = (() => {
       const t = now();
       for (let r = 0; r < 2; r++) for (let i = 0; i < 16; i++) { const tt = t + r * 1.2 + i * 0.05; osc({ t: tt, f: 1300, dur: 0.03, vol: 0.06, type: 'square', lp: 2500, pan: 0.3, wet: 0.3 }); }
     },
-    breath() { noise({ dur: 1.4, type: 'bandpass', f: 900, f2: 500, q: 1.2, vol: 0.12, a: 0.5, wet: 0.2 }); },
+    breath() { if (play('breath', { vol: 0.5, wet: 0.2 })) return; noise({ dur: 1.4, type: 'bandpass', f: 900, f2: 500, q: 1.2, vol: 0.12, a: 0.5, wet: 0.2 }); },
     sheet() { for (let i = 0; i < 4; i++) noise({ t: now() + i * 0.05, dur: 0.18, type: 'bandpass', f: 1800 + Math.random() * 1500, q: 0.9, vol: 0.12, wet: 0.15 }); sfx.breath(); },
     flashClick() { noise({ dur: 0.015, type: 'highpass', f: 3500, vol: 0.3, wet: 0 }); osc({ f: 3000, f2: 1500, dur: 0.02, vol: 0.05, wet: 0 }); },
     door(side = 0, closing = true) { // ağır sürgülü çelik kepenk

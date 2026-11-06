@@ -96,7 +96,7 @@ function begin() {
   G = Core.createGame({ night, levels, noItsMe: quiet });
   window.__game = G;
   Object.assign(ui, { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false });
-  frozen = null; itsmeCorrUntil = 0; lastNote = '';
+  frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 25;
   closeCam(true);
   $('game').className = 'screen on';
   show('game');
@@ -111,10 +111,9 @@ function playPhone() {
   if (!G || G.over) return;
   const src = night <= 6 ? NIGHTS[night].phone : null; if (!src) return;
   snd('phoneRing');
-  phone = new Audio(src); phone.volume = 0.9;
+  phone = A.playVoice(src, 0.95);
   $('game').classList.add('ringing');
   phone.onended = phone.onerror = () => { $('game').classList.remove('ringing'); phone = null; };
-  phone.play().catch(() => { $('game').classList.remove('ringing'); phone = null; });
 }
 function stopPhone() { if (phone) { try { phone.pause(); } catch (e) { } phone = null; } $('game').classList.remove('ringing'); }
 $('phone').onclick = () => { snd('click'); stopPhone(); };
@@ -128,9 +127,20 @@ function loop(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (!G) return;
   updateLook(dt);
+  whisper(dt);
   const evs = Core.step(G, dt, input());
   for (const e of evs) handle(e);
   if (!G.over) { render(); raf = requestAnimationFrame(loop); }
+}
+
+// Sayıcı aktif gecelerde havalandırmadan arada bir mırıltı / "kitapta mı" fısıltısı (zararsız, sadece atmosfer)
+let whisperT = 25;
+function whisper(dt) {
+  if (!G || G.lv.sayici <= 0 || G.dark) return;
+  whisperT -= dt;
+  if (whisperT > 0) return;
+  whisperT = 35 + Math.random() * 40;
+  snd(Math.random() < 0.6 ? 'murmur' : 'kitapta', 0.8);
 }
 
 // ---------- olaylar ----------
@@ -196,7 +206,7 @@ function die(who) {
   cancelAnimationFrame(raf); stopPhone(); closeCam(true);
   const img = who === 'powerout' ? 'denek5' : who;
   $('scareImg').src = `img/scare/${img}.png`;
-  show('scare'); snd('scream'); $('stage').classList.add('shakeAll');
+  show('scare'); snd('scream'); if (who === 'sayici') snd('sayScare'); $('stage').classList.add('shakeAll');
   setTimeout(() => { $('stage').classList.remove('shakeAll'); $('overWhy').textContent = WHY[who] || ''; show('over'); }, 1700);
 }
 function win() {
@@ -216,12 +226,13 @@ $('bNext').onclick = () => {
 function ending() {
   show('ending'); $('ending').classList.remove('show');
   $('endTxt').innerHTML = 'Proje 4-5-6 — Denek 6: tamamlandı.<br>Sabah aynaya baktığında gözlerin simsiyahtı.';
-  const a = new Audio('voice/phone6_secret.mp3'); a.play().catch(() => { });
+  endVoice = A.playVoice('voice/phone6_secret.mp3');
   setTimeout(() => $('ending').classList.add('show'), 300);
   persist({ night: 5, result: 'seen', doc: 'doc5' });
 }
 $('bRetry').onclick = () => startNight(night, { skipDoc: true, levels: customLevels });
-$('bMenu1').onclick = $('bMenu2').onclick = () => { refreshMenu(); show('title'); };
+let endVoice = null;
+$('bMenu1').onclick = $('bMenu2').onclick = () => { if (endVoice) { endVoice.pause(); endVoice = null; } refreshMenu(); show('title'); };
 
 // ---------- çizim ----------
 function clock() { const h = Math.floor(G.t / (Core.PARAMS.NIGHT_SEC / 6)); return h === 0 ? 12 : h; }
