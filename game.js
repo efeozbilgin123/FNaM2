@@ -295,6 +295,25 @@ function renderCam() {
 const sctx = $('static').getContext('2d'), sImg = sctx.createImageData(320, 180);
 function drawStatic() { const d = sImg.data; for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; } sctx.putImageData(sImg, 0, 0); }
 
+// ---------- perspektif: düz bir dikdörtgeni ofis görselindeki dört köşeye oturt ----------
+// (0,0)(w,0)(w,h)(0,h) -> p[0..3] eşleyen homografiyi CSS matrix3d olarak döndürür.
+function quadMatrix(w, h, p) {
+  const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = p;
+  const dx1 = x1 - x2, dx2 = x3 - x2, dy1 = y1 - y2, dy2 = y3 - y2;
+  const sx = x0 - x1 + x2 - x3, sy = y0 - y1 + y2 - y3;
+  const den = dx1 * dy2 - dx2 * dy1;
+  const g = (sx * dy2 - dx2 * sy) / den, k = (dx1 * sy - sx * dy1) / den;
+  const a = x1 - x0 + g * x1, b = x3 - x0 + k * x3, d = y1 - y0 + g * y1, e = y3 - y0 + k * y3;
+  // birim kareden quad'a; sonra w,h ile ölçekle
+  const m = [a / w, d / w, 0, g / w, b / h, e / h, 0, k / h, 0, 0, 1, 0, x0, y0, 0, 1];
+  return `matrix3d(${m.map(v => +v.toFixed(8)).join(',')})`;
+}
+const QUADS = {
+  dwL: { w: 320, h: 750, p: [[402, 82], [570, 160], [572, 672], [404, 664]] },
+  vent: { w: 600, h: 440, p: [[1656, 522], [1952, 575], [1945, 812], [1658, 715]] },
+};
+for (const [id, q] of Object.entries(QUADS)) $(id).style.transform = quadMatrix(q.w, q.h, q.p);
+
 // ---------- bakış ----------
 function stageX(cx) { const r = stage.getBoundingClientRect(); return (cx - r.left) / r.width * 1280; }
 addEventListener('mousemove', e => { look.mouse = stageX(e.clientX); });
