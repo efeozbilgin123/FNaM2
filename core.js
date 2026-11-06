@@ -198,6 +198,57 @@
     if (s.t <= 0) { s.phase = 'none'; s.tick = 0; emit(G, { type: 'phase', who: 'sultan', phase: 'none' }); }
   });
 
+  // ---------- Sahil Mırık (havalandırma, ölü taklidi) ----------
+  Object.assign(PARAMS, { SAHIL_TICK: 5.5, SAHIL_ATTACK: 7, SAHIL_HIDE: 5, SAHIL_EARLY: 2 });
+  const SAHIL_ROUTE = ['cold', 'ventA', 'ventB', 'mouth'];
+  INIT.sahil = () => ({ stage: 0, t: 0, hide: 0, tick: 0 });
+  TICKS.push(function tickSahil(G, dt) {
+    const s = G.sahil, sheet = G.dev.sheet;
+    if (s.stage === 3) {
+      s.t -= dt;
+      if (sheet) {
+        s.hide += dt;
+        if (s.hide >= PARAMS.SAHIL_HIDE) { s.stage = 0; s.hide = 0; s.tick = 0; emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'drag', from: 'vent' }); }
+        return;
+      }
+      if (s.hide > 0) { s.hide = 0; s.t = Math.min(s.t, PARAMS.SAHIL_EARLY); }
+      if (s.t <= 0) die(G, 'sahil');
+      return;
+    }
+    s.tick += dt;
+    if (s.tick < PARAMS.SAHIL_TICK) return;
+    s.tick = 0;
+    if (!roll(G, G.lv.sahil)) return;
+    s.stage++;
+    if (s.stage === 3) { s.t = PARAMS.SAHIL_ATTACK; s.hide = 0; }
+    emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[s.stage], stage: s.stage });
+    emit(G, { type: 'sound', id: 'drag', from: 'vent' });
+  });
+
+  // ---------- Sayıcı Mırık (havalandırma, sadece ses) ----------
+  Object.assign(PARAMS, { SAYICI_TICK: 6, SAYICI_GAP: 4 });
+  INIT.sayici = () => ({ active: false, count: 0, t: 0, tick: 0 });
+  TICKS.push(function tickSayici(G, dt) {
+    const s = G.sayici;
+    if (s.active) {
+      s.t += dt * (G.dev.ventLight ? 2 : 1);
+      if (s.t < PARAMS.SAYICI_GAP) return;
+      s.t = 0;
+      if (s.count === 4) { s.count = 5; emit(G, { type: 'sound', id: 'say5', from: 'vent' }); return; }
+      emit(G, { type: 'sound', id: 'say6', from: 'vent' });
+      if (!G.dev.sheet) { die(G, 'sayici'); return; }
+      s.active = false; s.count = 0; s.tick = 0;
+      return;
+    }
+    s.tick += dt;
+    if (s.tick < PARAMS.SAYICI_TICK) return;
+    s.tick = 0;
+    if (!roll(G, G.lv.sayici)) return;
+    s.active = true; s.count = 4; s.t = 0;
+    emit(G, { type: 'sound', id: 'say4', from: 'vent' });
+  });
+  TICKS.push(function pendingSheet(G) { G.pending.sheet = G.sahil.stage === 3 || G.sayici.active; });
+
   // ---------- Denek 5 (soğuk oda) ----------
   Object.assign(PARAMS, { D5_BASE: 0.25, D5_PER_LV: 0.06, D5_COOL: 6, D5_OPEN_DELAY: 4, D5_RATTLE: 70, D5_RATTLE_EVERY: 3 });
   INIT.denek5 = () => ({ temp: 0, open: false, openT: 0, rattleT: 0 });
