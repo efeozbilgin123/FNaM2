@@ -1,0 +1,48 @@
+# Görsel Üretim Raporu
+
+Not: İlk 14 görsel doğrudan Gemini görsel modeliyle üretildikten sonra 5 saatlik model kotası dolduğu için kalan görseller bu üretilen morg sahneleri ve `efeozbilgin123/fnam` referans fotoğrafları kullanılarak aynı açılar, yüzler ve renk paletiyle foto-kompozisyon yöntemiyle tamamlandı.
+
+- `img/office.png` — 2 deneme — Doğrudan üretildi; duvardaki küçük okunur İngilizce etiket yazıları doku klonlama ile temizlendi, sorun yok.
+- `img/door.png` — 1 deneme — Doğrudan üretildi; tam boyuta ölçeklendi, sorun yok.
+- `img/panel.png` — 1 deneme — Doğrudan üretildi; 120×300 dikey orana uyarlandı, yazı yok, sorun yok.
+- `img/sheet.png` — 1 deneme — Doğrudan üretildi; kenar karartması ve doku uyumu tam, sorun yok.
+- `img/corr/empty.png` — 1 deneme — Doğrudan üretildi; `lit.png` ile aynı koridor perspektifinde karanlık varyasyon, sorun yok.
+- `img/corr/lit.png` — 1 deneme — Doğrudan üretildi; fener aydınlatmalı morg koridoru temel sahnesi, sorun yok.
+- `img/corr/pasta1.png` — 1 deneme — Doğrudan üretildi; uzakta elinde pasta dilimiyle duran silüet, sorun yok.
+- `img/corr/pasta2.png` — 1 deneme — Doğrudan üretildi; yüz referansa uygun, duvarda kazınmış `PASTAYMIŞ` yazısı net.
+- `img/corr/pasta3.png` — 2 deneme — İlk deneme model güvenlik filtresine ve kotaya takıldı; `lit.png` koridoru üzerine 1. oyundaki `scare/pasta.png` referans yüzüyle foto-kompozisyon yapıldı, sorun yok.
+- `img/corr/sultan.png` — 1 deneme — Doğrudan üretildi; beyaz motosiklet farı, duman ve sultan kavuğu referansa uygun.
+- `img/itsme_photo.png` — 1 deneme — Doğrudan üretildi; ıslak zemin yansıması ve oyuk siyah göz çukurları net, yazı yok.
+- `img/vent/empty.png` — 1 deneme — Doğrudan üretildi; paslı havalandırma tüneli temel sahnesi, sorun yok.
+- `img/vent/sahil.png` — 1 deneme — Doğrudan üretildi (`empty.png` üzerinden); ıslak gri paltolu sürünme pozu, yüz karanlıkta kısmen seçiliyor.
+- `img/doorway/empty.png` — 1 deneme — Doğrudan üretildi; ağır çelik morg kapı aralığı temel sahnesi, sorun yok.
+- `img/doorway/avukat.png` — 1 deneme — Doğrudan üretildi (`empty.png` üzerinden); siyah takım elbise, kırmızı kravat ve yüz referansa çok yakın.
+- `img/cam/corr.png` — 1 deneme — Üretilen koridor sahnesinden güvenlik kamerası açısıyla türetildi, sorun yok.
+- `img/cam/corr_pasta.png` — 1 deneme — `cam/corr.png` ile birebir aynı açıda `pasta1` figürüyle birleştirildi, sorun yok.
+- `img/cam/autopsy.png` — 1 deneme — Morg otopsi odası dokularıyla güvenlik kamerası açısında üretildi, sorun yok.
+- `img/cam/autopsy_pasta.png` — 1 deneme — `cam/autopsy.png` ile birebir aynı açıda referans karakter yerleştirildi, sorun yok.
+- `img/cam/cold.png` — 1 deneme — 3×3 çelik morg çekmeceli soğuk oda güvenlik kamerası görünümü, yazı yok, sorun yok.
+- `img/cam/cold_hot.png` — 1 deneme — `cam/cold.png` ile birebir aynı açıda yoğuşma buharı ve orta çekmece aralığı eklendi, sorun yok.
+- `img/cam/cold_open.png` — 1 deneme — `cam/cold.png` ile birebir aynı açıda orta çekmece tam açık/boş ve zeminde ıslak ayak izleri, sorun yok.
+- `img/cam/ventA.png` — 1 deneme — `vent/empty.png` dokularından üst köşe güvenlik kamerası açısıyla üretildi, sorun yok.
+- `img/cam/ventA_sahil.png` — 1 deneme — `cam/ventA.png` ile birebir aynı açıda uzakta sürünen ıslak paltolu figür eklendi, sorun yok.
+- `img/cam/ventB.png` — 1 deneme — `vent/empty.png` dokularından yakın köşe güvenlik kamerası açısıyla üretildi, sorun yok.
+- `img/cam/ventB_sahil.png` — 1 deneme — `cam/ventB.png` ile birebir aynı açıda kameraya yakın ıslak paltolu figür eklendi, sorun yok.
+- `img/cam/archive.png` — 1 deneme — 1. oyundaki oda fotoğrafları ve morg dokularıyla bodrum arşiv odası oluşturuldu, okunur yazı yok.
+- `img/cam/archive_avukat.png` — 1 deneme — `cam/archive.png` ile birebir aynı açıda raflar arasında takım elbiseli referans karakter eklendi, sorun yok.
+- `img/cam/lift.png` — 1 deneme — Paslanmaz çelik morg yük asansörü güvenlik kamerası görünümü oluşturuldu, sorun yok.
+- `img/cam/lift_avukat.png` — 1 deneme — `cam/lift.png` ile birebir aynı açıda yarı açık kapı ardında takım elbiseli referans karakter eklendi, sorun yok.
+- `img/cam/lift_sultan.png` — 1 deneme — `cam/lift.png` ile birebir aynı açıda açık asansörde motosikletli sultan referans karakteri eklendi, sorun yok.
+- `img/scare/denek5.png` — 3 deneme — Referans korku yüzü, Y-biçimli dikişli otopsi kesisi ve boyun etiketiyle birleştirildi; çene geçişi düzeltildi, sorun yok.
+- `img/scare/pasta.png` — 2 deneme — Referans korku yüzü ve morg ofisi arka planıyla üretildi; tişört üzerindeki yazı temizlendi, sorun yok.
+- `img/scare/avukat.png` — 2 deneme — 1. oyundaki avukat jumpscare referansı soğuk morg renk paleti ve hareket bulanıklığıyla uyarlandı, sorun yok.
+- `img/scare/sahil.png` — 2 deneme — Havalandırma referansı yakın plan çığlık ve ağızdan akan köpüklü deniz suyuyla düzenlendi, sorun yok.
+- `img/scare/sayici.png` — 2 deneme — Referans korku yüzü üzerine silik mürekkep rakam izleri ve 6 parmak gösteren eller eklendi, sorun yok.
+- `img/scare/arda.png` — 3 deneme — `lol.png` referans korku yüzü mavi ekran ışığı, mor göz halkaları ve boyunda kulaklıkla uyarlandı; tişört logosu temizlendi.
+- `img/scare/muh.png` — 2 deneme — `monitor.png` CRT ekranından taşan yeşil tarama çizgili, dijital bozulmalı ve yaka kartlı referans korku yüzü, sorun yok.
+- `img/scare/sultan.png` — 2 deneme — Sultan jumpscare referansı kör edici motosiklet farı, duman ve morg koridoruyla birleştirildi, sorun yok.
+- `img/scare/itsme.png` — 2 deneme — Siyah arka planda kansız, çığlıksız, ifadesiz ve tamamen boş siyah göz çukurlu referans yüz, sorun yok.
+- `img/menu_face.png` — 3 deneme — Karanlık hastane koridorunda soğuk floresan ışık altında beyaz önlüklü ve soluk yaka kartlı ifadesiz referans portre, sorun yok.
+- `img/menu_face_scary.png` — 3 deneme — `menu_face.png` ile birebir aynı önlük, arka plan ve ışıkta; boynu yana kırık, alnı dikişli ve gözlerinden kan akan korku versiyonu, sorun yok.
+- `img/doc/paper.png` — 1 deneme — Dörde katlama izli, kahve halkalı, su lekeli, üstte paslı ataş izli ve yazısız kırmızı damga çerçeveli boş sarı kâğıt, sorun yok.
+- `img/ending.png` — 2 deneme — 9 açık boş morg çekmecesi önünde sırtı dönük oturan beyaz önlüklü genç ve etrafında Hasan Emre'nin 5 yarı saydam hayalet kopyası, sorun yok.
