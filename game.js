@@ -284,6 +284,7 @@ function render() {
   const h = clock();
   $('dcTime').textContent = `${String(h).padStart(2, '0')}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')}`;
   $('tPower').textContent = `%${Math.ceil(g.power)}`;
+  $('pscreen').classList.toggle('low', g.power < 20);
   const u = Core.usage(g), n = Math.min(6, Math.round(u / 0.12));
   $('tUsage').innerHTML = Array.from({ length: 6 }, (_, i) => `<i class="${i < n ? (i >= 4 ? 'hot' : 'on') : ''}"></i>`).join('');
   $('camTimeR').textContent = `${h} AM  │  JEN %${Math.ceil(g.power)}`;
@@ -332,8 +333,7 @@ function quadMatrix(w, h, p) {
 const QUADS = {
   dwL: { w: 320, h: 750, p: [[402, 82], [570, 160], [572, 672], [404, 664]] },
   vent: { w: 600, h: 440, p: [[1656, 522], [1952, 575], [1945, 812], [1658, 715]] },
-  pL: { w: 120, h: 300, p: [[597, 321], [651, 327], [651, 414], [597, 421]] },        // soldaki duvar girintisi
-  ventBtn: { w: 100, h: 100, p: [[1770, 437], [1818, 440], [1818, 489], [1770, 487]] }, // havalandırmanın üstündeki duvar
+  pscreen: { w: 400, h: 300, p: [[91, 254], [307, 275], [306, 450], [94, 472]] },     // duvardaki MIRIKVISION ekranı
 };
 for (const [id, q] of Object.entries(QUADS)) $(id).style.transform = quadMatrix(q.w, q.h, q.p);
 

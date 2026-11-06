@@ -140,18 +140,15 @@
   /* versiyonlar saydam PNG: sadece değişen pikseller görünür (tools/variants.py) */
   #game.vdoor #dwL, #game.vcorr #corr, #game.vvent #vent{visibility:hidden}
   /* panel duvardaki girintiye, ışık düğmesi havalandırmanın üstündeki duvara perspektifle oturur (game.js QUADS) */
-  #pL{position:absolute; left:0; top:0; width:120px; height:300px; transform-origin:0 0; z-index:2}
-  #pL::before{content:''; position:absolute; inset:0; background:url(img/panel.png) 0 0/100% 100%; filter:saturate(.35) sepia(.2) hue-rotate(130deg) brightness(.62) contrast(1.05); box-shadow:inset 0 22px 26px -8px rgba(0,0,0,.75), inset 0 -6px 10px rgba(0,0,0,.4)}
-  .pbtn{position:absolute; left:20px; width:80px; height:80px; border-radius:50%; cursor:pointer}
-  .pbtn.door{top:38px} .pbtn.lamp{top:175px}
-  #game.doorL .pbtn.door{background:radial-gradient(circle, rgba(255,90,80,.95), rgba(230,20,20,.55) 55%, transparent 72%); box-shadow:0 0 26px 8px rgba(255,40,40,.55)}
-  #game.lightL .pbtn.lamp{background:radial-gradient(circle, rgba(230,250,255,.95), rgba(190,235,255,.55) 55%, transparent 72%); box-shadow:0 0 26px 8px rgba(190,235,255,.5)}
-  #vent{left:0; top:0; width:600px; height:440px; transform-origin:0 0}
-  #ventImg{opacity:0} #game.ventLight #ventImg{opacity:1}
-  #ventBtn{position:absolute; left:0; top:0; width:100px; height:100px; transform-origin:0 0; border-radius:8px; border:0; padding:0; z-index:2; color:transparent; cursor:pointer;
-    background:radial-gradient(circle at 50% 50%, #c9cfc9 0 17px, #6d7470 18px 21px, transparent 22px), radial-gradient(circle at 12% 12%, #2a2e2c 3px, transparent 4px), radial-gradient(circle at 88% 88%, #2a2e2c 3px, transparent 4px), linear-gradient(160deg, #8d958f, #5b625e 60%, #474d4a);
-    filter:saturate(.4) brightness(.6) contrast(1.05); box-shadow:0 4px 8px rgba(0,0,0,.55), inset 0 0 0 2px rgba(0,0,0,.35)}
-  #game.ventLight #ventBtn{filter:saturate(.4) brightness(.9); box-shadow:0 4px 8px rgba(0,0,0,.55), 0 0 30px 8px rgba(190,235,255,.45)}
+  /* düğmeler ofis fotoğrafının içinde (Gemini). Burada sadece görünmez tıklama alanı + basınca yanan ışık var */
+  #pL{position:absolute; left:0; top:0; width:0; height:0; z-index:2}
+  .pbtn, #ventBtn{position:absolute; width:42px; height:42px; margin:-21px 0 0 -21px; border-radius:50%; cursor:pointer; border:0; padding:0; background:transparent; color:transparent; z-index:2; transition:box-shadow .08s, background .08s}
+  .pbtn.door{left:757px; top:333px} .pbtn.lamp{left:757px; top:387px}
+  #ventBtn{left:1792px; top:445px; width:38px; height:38px; margin:-19px 0 0 -19px}
+  .pbtn:hover, #ventBtn:hover{box-shadow:0 0 0 2px rgba(255,255,255,.12)}
+  #game.doorL .pbtn.door{background:radial-gradient(circle, rgba(255,120,100,.9), rgba(230,20,20,.55) 45%, transparent 70%); box-shadow:0 0 30px 10px rgba(255,40,40,.45)}
+  #game.lightL .pbtn.lamp{background:radial-gradient(circle, rgba(240,252,255,.95), rgba(190,235,255,.55) 45%, transparent 70%); box-shadow:0 0 30px 10px rgba(190,235,255,.45)}
+  #game.ventLight #ventBtn{background:radial-gradient(circle, rgba(240,252,255,.95), rgba(190,235,255,.55) 45%, transparent 70%); box-shadow:0 0 28px 9px rgba(190,235,255,.45)}
   #mon{position:absolute; left:670px; top:520px; width:178px; height:168px; border-radius:14px/18px; background:radial-gradient(ellipse,#0d2212,#020503 78%); box-shadow:inset 0 0 26px rgba(0,0,0,.95), 0 0 40px rgba(125,255,138,.12); color:#3f9a4f; font-size:20px; display:flex; align-items:center; justify-content:center; text-align:center; opacity:.85}
   #phone{position:absolute; left:585px; top:722px; width:165px; height:100px; cursor:pointer; z-index:2}
   #phoneLed{position:absolute; left:120px; top:14px; width:9px; height:9px; border-radius:50%; background:#400; }
@@ -159,8 +156,15 @@
   #dclock{position:absolute; left:880px; top:632px; width:140px; height:102px; pointer-events:none}
   #dclock img{width:100%; height:100%; filter:brightness(.45) saturate(.4) contrast(1.1)}
   #dclock .disp{position:absolute; left:26.2%; top:42.2%; width:56.8%; height:28.2%; background:#160303; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:30px; color:#ff3b2a; text-shadow:0 0 6px #ff2a1a, 0 0 14px rgba(255,40,20,.9)}
-  #gen{position:absolute; left:425px; top:700px; width:160px; height:70px; background:#0c1112; border:3px solid #1d2628; border-radius:6px; padding:4px 8px; font-size:17px; color:#9fd8e6; text-shadow:0 0 6px rgba(159,216,230,.6); line-height:1.1}
-  #gen .bars{display:flex; gap:3px; margin-top:4px} #gen .bars i{width:14px; height:14px; background:#16282c} #gen .bars i.on{background:#9fd8e6; box-shadow:0 0 6px #9fd8e6} #gen .bars i.hot{background:#ff5a4a; box-shadow:0 0 6px #ff5a4a}
+  /* elektrik göstergesi: duvardaki MIRIKVISION ekranına perspektifle oturur (game.js QUADS) */
+  #pscreen{position:absolute; left:0; top:0; width:400px; height:300px; transform-origin:0 0; padding:26px 30px; font-size:34px; line-height:1.05; color:#8dffa0; text-shadow:0 0 10px rgba(120,255,150,.7);
+    background:radial-gradient(ellipse at 50% 45%, rgba(20,60,28,.92), rgba(4,14,6,.96) 75%); border-radius:18px/22px; box-shadow:inset 0 0 40px rgba(0,0,0,.9); overflow:hidden; pointer-events:none}
+  #pscreen::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 5px), radial-gradient(ellipse 60% 40% at 30% 18%, rgba(255,255,255,.08), transparent 70%)}
+  #pscreen .lbl{font-size:30px; opacity:.85; letter-spacing:2px}
+  #pscreen #tPower{display:block; font-size:110px; line-height:1; margin:6px 0 10px}
+  #pscreen .bars{display:flex; gap:8px} #pscreen .bars i{flex:1; height:30px; background:rgba(120,255,150,.12); border:2px solid rgba(120,255,150,.35)} #pscreen .bars i.on{background:#8dffa0; box-shadow:0 0 10px #8dffa0} #pscreen .bars i.hot{background:#ff6a4a; border-color:#ff6a4a; box-shadow:0 0 10px #ff6a4a}
+  #pscreen.low #tPower{color:#ff7a5a; text-shadow:0 0 12px rgba(255,90,60,.8); animation:flick 1s steps(2) infinite}
+  #game.dark #pscreen{opacity:0}
   #view .shade{position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 1000px 560px at 1000px 460px, rgba(0,0,0,0), rgba(0,0,0,.35) 65%, rgba(0,0,0,.7)); opacity:calc(.75 + (1 - var(--lamp,1)) * .25)}
   #view .flk{position:absolute; inset:0; pointer-events:none; background:#020304; opacity:calc((1 - var(--lamp,1)) * .7)}
   #game.dark #view .shade{background:rgba(0,0,0,.96)}
@@ -284,10 +288,10 @@
         <div class="hole" id="dwL"><img id="dwImg" src="img/doorway/empty.png" alt=""><div class="shutter"></div></div>
         <div id="pL"><div class="pbtn door" id="bDoor" title="Kapı (Q)"></div><div class="pbtn lamp" id="bLight" title="Kapı ışığı (A, basılı tut)"></div></div>
         <div class="hole" id="vent"><img id="ventImg" src="img/vent/empty.png" alt=""></div>
-        <button id="ventBtn" title="Havalandırma ışığı (V, basılı tut)">IŞIK</button>
+        <button id="ventBtn" title="Havalandırma ışığı (V, basılı tut)"></button>
         <div id="mon">MORG-SEC</div>
         <div id="phone" title="Telefonu sustur"><div id="phoneLed"></div></div>
-        <div id="gen">JENERATÖR <span id="tPower">%100</span><div class="bars" id="tUsage"></div></div>
+        <div id="pscreen"><span class="lbl">JENERATÖR</span><span id="tPower">%100</span><div class="bars" id="tUsage"></div></div>
         <div id="dclock"><img src="img/ui/dclock.png" alt=""><div class="disp" id="dcTime">12:00</div></div>
         <div class="shade"></div><div class="flk"></div>
         <div id="corrHit" title="El feneri (F, basılı tut)"></div>
@@ -333,10 +337,10 @@
   <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
 </div>
 
-<script src="audio.js?v=20261106g"></script>
-<script src="core.js?v=20261106g"></script>
-<script src="nights.js?v=20261106g"></script>
-<script src="save.js?v=20261106g"></script>
-<script src="game.js?v=20261106g"></script>
+<script src="audio.js?v=20261106h"></script>
+<script src="core.js?v=20261106h"></script>
+<script src="nights.js?v=20261106h"></script>
+<script src="save.js?v=20261106h"></script>
+<script src="game.js?v=20261106h"></script>
 </body>
 </html>

@@ -53,10 +53,13 @@ def mask_for(img, base, zone):
 
 
 def main(names=None):
-    base = Image.open(ROOT / 'img/office.png').convert('RGB')
+    # versiyonlar eski ofisten üretildi; karşılaştırma onunla yapılır (yeni ofiste düğmeler/ekran var)
+    bp = RAW / '_base.png'
+    base = Image.open(bp if bp.exists() else ROOT / 'img/office.png').convert('RGB')
     OUT.mkdir(exist_ok=True)
     for src in sorted(RAW.iterdir()):
         name = src.stem
+        if name.startswith('_'): continue
         if names and name not in names: continue
         zone = next((z for k, z in ZONES.items() if name.startswith(k)), None)
         if not zone: print('bölge bilinmiyor, atlandı:', src.name); continue
