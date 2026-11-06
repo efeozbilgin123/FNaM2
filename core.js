@@ -122,6 +122,82 @@
     return out;
   }
 
+  // ---------- Pasta Mırık (koridor, fener) ----------
+  Object.assign(PARAMS, { PASTA_TICK: 5, PASTA_WINDOW: 6, PASTA_FLASH: 1.2 });
+  const PASTA_ROUTE = ['autopsy', 'corr', 'corr', 'end'];
+  INIT.pasta = () => ({ stage: 0, tick: 0, window: 0, flashT: 0 });
+  TICKS.push(function tickPasta(G, dt) {
+    const s = G.pasta;
+    if (s.stage === 3) {
+      if (G.dev.flash) s.flashT += dt;
+      if (s.flashT >= PARAMS.PASTA_FLASH) { s.stage = 0; s.flashT = 0; s.tick = 0; emit(G, { type: 'move', who: 'pasta', to: PASTA_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'retreat', from: 'corr' }); return; }
+      s.window -= dt;
+      if (s.window <= 0) die(G, 'pasta');
+      return;
+    }
+    s.tick += dt;
+    if (s.tick < PARAMS.PASTA_TICK) return;
+    s.tick = 0;
+    if (!roll(G, G.lv.pasta)) return;
+    s.stage++;
+    if (s.stage === 3) { s.window = PARAMS.PASTA_WINDOW; s.flashT = 0; }
+    emit(G, { type: 'move', who: 'pasta', to: PASTA_ROUTE[s.stage], stage: s.stage });
+    emit(G, { type: 'sound', id: 'step', from: 'corr' });
+  });
+
+  // ---------- Avukat Mırık (sol kapı) ----------
+  Object.assign(PARAMS, { AVUKAT_TICK: 5, AVUKAT_ATTACK: 8, AVUKAT_KNOCK: 10, AVUKAT_DRAIN: 0.12 });
+  INIT.avukat = () => ({ at: false, t: 0, knock: 0, tick: 0, pos: 'archive', knockSound: 0 });
+  TICKS.push(function tickAvukat(G, dt) {
+    const s = G.avukat;
+    G.pending.door = s.at && s.knock <= 0;
+    if (s.knock > 0) {
+      s.knock -= dt; G.extraDrain += PARAMS.AVUKAT_DRAIN;
+      s.knockSound -= dt;
+      if (s.knockSound <= 0) { s.knockSound = 1.6; emit(G, { type: 'sound', id: 'knock', from: 'door' }); }
+      if (s.knock <= 0) { s.at = false; s.pos = 'archive'; s.tick = 0; emit(G, { type: 'move', who: 'avukat', to: 'archive' }); }
+      return;
+    }
+    if (s.at) {
+      s.t += dt;
+      if (s.t >= PARAMS.AVUKAT_ATTACK) {
+        if (G.dev.doorL) { s.knock = PARAMS.AVUKAT_KNOCK; s.knockSound = 0; }
+        else die(G, 'avukat');
+      }
+      return;
+    }
+    s.tick += dt;
+    if (s.tick < PARAMS.AVUKAT_TICK) return;
+    s.tick = 0;
+    if (!roll(G, G.lv.avukat)) return;
+    if (s.pos === 'archive') { s.pos = 'lift'; emit(G, { type: 'move', who: 'avukat', to: 'lift' }); }
+    else { s.pos = 'door'; s.at = true; s.t = 0; emit(G, { type: 'move', who: 'avukat', to: 'door' }); emit(G, { type: 'sound', id: 'step', from: 'door' }); }
+  });
+
+  // ---------- Sultan Mırık Han (koridor, motor: her şeyi kapat) ----------
+  Object.assign(PARAMS, { SULTAN_TICK: 8, SULTAN_APPROACH: 6, SULTAN_HERE: 8 });
+  INIT.sultan = () => ({ phase: 'none', t: 0, tick: 0 });
+  TICKS.push(function tickSultan(G, dt) {
+    const s = G.sultan, d = G.dev;
+    if (s.phase === 'none') {
+      s.tick += dt;
+      if (s.tick < PARAMS.SULTAN_TICK) return;
+      s.tick = 0;
+      if (!roll(G, G.lv.sultan)) return;
+      s.phase = 'approach'; s.t = PARAMS.SULTAN_APPROACH;
+      emit(G, { type: 'phase', who: 'sultan', phase: 'approach' });
+      emit(G, { type: 'sound', id: 'motor', from: 'corr' });
+      return;
+    }
+    s.t -= dt;
+    if (s.phase === 'approach') {
+      if (s.t <= 0) { s.phase = 'here'; s.t = PARAMS.SULTAN_HERE; emit(G, { type: 'phase', who: 'sultan', phase: 'here' }); }
+      return;
+    }
+    if (d.lightL || d.flash || d.ventLight || d.monitor || d.cooling) { die(G, 'sultan'); return; }
+    if (s.t <= 0) { s.phase = 'none'; s.tick = 0; emit(G, { type: 'phase', who: 'sultan', phase: 'none' }); }
+  });
+
   // ---------- Denek 5 (soğuk oda) ----------
   Object.assign(PARAMS, { D5_BASE: 0.25, D5_PER_LV: 0.06, D5_COOL: 6, D5_OPEN_DELAY: 4, D5_RATTLE: 70, D5_RATTLE_EVERY: 3 });
   INIT.denek5 = () => ({ temp: 0, open: false, openT: 0, rattleT: 0 });
