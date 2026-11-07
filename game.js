@@ -9,7 +9,10 @@ addEventListener('resize', fit); fit();
 // ---------- kayıp görsel: yer tutucuya düş ----------
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
-function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = src; } }
+// görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
+const ASSET_V = '20261108f';
+const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
+function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
 // ---------- ses ----------
 const A = Audio5; // audio.js global (const, window özelliği değil)
@@ -191,7 +194,7 @@ function itsMe(v) {
   if (v === 'corr') itsmeCorrUntil = G.t + 6;
   if (v === 'crash') {
     stopPhone(); closeCam(true);
-    $('scareImg').src = 'img/scare/itsme.png'; show('scare'); A.stopMusic && A.stopMusic(0); snd('static');
+    $('scareImg').src = av('img/scare/itsme.png'); show('scare'); A.stopMusic && A.stopMusic(0); snd('static');
     setTimeout(() => { show('crash'); setTimeout(() => { refreshMenu(); show('title'); }, 2200); }, 1500);
   }
 }
@@ -213,7 +216,7 @@ const WHY = {
 function die(who) {
   cancelAnimationFrame(raf); stopPhone(); closeCam(true);
   const img = who === 'powerout' ? 'denek5' : who;
-  $('scareImg').src = `img/scare/${img}.png`;
+  $('scareImg').src = av(`img/scare/${img}.png`);
   show('scare'); snd('scream'); if (who === 'sayici') snd('sayScare'); $('scare').classList.add('shakeAll');
   // jumpscare -> parazitle bozulup yavaşça kararır -> "Öldün" ekranı karanlıktan belirir
   setTimeout(() => { $('scare').classList.remove('shakeAll'); $('scare').classList.add('dying'); snd('static'); }, 1500);
@@ -251,12 +254,12 @@ $('bMenu1').onclick = $('bMenu2').onclick = () => { if (endVoice) { endVoice.pau
 // Versiyonlar (tools/variants.py): sadece değişen bölgeye kırpılmış WebP + variants.json konumları.
 // Hepsi açılışta yüklenip çözülür; oyunda sadece görünürlükleri değişir (ilk basışta takılma olmaz).
 const haveVar = new Set(), varImg = {};
-const variantsReady = fetch('img/office_v/variants.json').then(r => r.ok ? r.json() : {}).catch(() => ({})).then(man => Promise.all(Object.entries(man).map(([name, [x, y, w, h]]) => {
+const variantsReady = fetch(av('img/office_v/variants.json')).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(man => Promise.all(Object.entries(man).map(([name, [x, y, w, h]]) => {
   const img = new Image(); img.alt = ''; img.className = 'vimg'; img.id = 'v_' + name;
   Object.assign(img.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px' });
   if (name === 'door_shutter') { img.id = 'vDoorS'; img.className = ''; $('doorClip').appendChild(img); } // kepenk hep görünür, CSS kaydırır
   else $('view').querySelector('.bg').after(img);
-  img.src = `img/office_v/${name}.webp`;
+  img.src = av(`img/office_v/${name}.webp`);
   return (img.decode ? img.decode() : Promise.resolve()).then(() => { haveVar.add(name); varImg[name] = img; }).catch(() => { });
 })));
 // bölgenin (door/corr/vent) istenen versiyonunu göster; yoksa eski düz katman kullanılır
@@ -533,7 +536,7 @@ function fileEl(node, onOpen) {
 function openNode(node) {
   if (node.dir) { pcStack.push(node); renderPc(); snd('click'); return; }
   if (node.text) { $('noteTitle').textContent = node.name + ' - Not Defteri'; $('noteText').textContent = node.text; $('noteText').scrollTop = 0; APPS.note.title = node.name; openApp('note'); return; }
-  if (node.img) { $('imgTitle').textContent = node.name + ' - Resim'; $('imgView').src = node.img; document.querySelector('.imgv .imgerr').textContent = node.note || 'Görüntü kısmen bozuk.'; APPS.img.title = node.name; openApp('img'); return; }
+  if (node.img) { $('imgTitle').textContent = node.name + ' - Resim'; $('imgView').src = av(node.img); document.querySelector('.imgv .imgerr').textContent = node.note || 'Görüntü kısmen bozuk.'; APPS.img.title = node.name; openApp('img'); return; }
   if (node.deny) showMsg(node.deny);
 }
 function renderPc() {
@@ -698,7 +701,7 @@ function renderArchive() {
 const CNAME = { pasta: 'PASTA', avukat: 'AVUKAT', sahil: 'SAHİL', sayici: 'SAYICI', muh: 'MÜHENDİS', arda: 'ARDA BAZ', sultan: 'SULTAN', denek5: 'DENEK 5' };
 let cLv = { pasta: 5, avukat: 5, sahil: 5, sayici: 5, muh: 5, arda: 5, sultan: 5, denek5: 5 };
 function renderCustom() {
-  $('ccards').innerHTML = Core.CHARS.map(c => `<div class="cc"><div class="pic" style="background-image:url(img/scare/${c}.png)"></div><b>${CNAME[c]}</b><div class="lvbar">${Array.from({ length: 20 }, (_, i) => `<i class="${i < cLv[c] ? (i >= 15 ? 'hot' : 'on') : ''}"></i>`).join('')}</div><button data-c="${c}" data-d="-1" aria-label="${CNAME[c]} azalt">◀</button><span class="v">${String(cLv[c]).padStart(2, '0')}</span><button data-c="${c}" data-d="1" aria-label="${CNAME[c]} artır">▶</button></div>`).join('');
+  $('ccards').innerHTML = Core.CHARS.map(c => `<div class="cc"><div class="pic" style="background-image:url(${av(`img/scare/${c}.png`)})"></div><b>${CNAME[c]}</b><div class="lvbar">${Array.from({ length: 20 }, (_, i) => `<i class="${i < cLv[c] ? (i >= 15 ? 'hot' : 'on') : ''}"></i>`).join('')}</div><button data-c="${c}" data-d="-1" aria-label="${CNAME[c]} azalt">◀</button><span class="v">${String(cLv[c]).padStart(2, '0')}</span><button data-c="${c}" data-d="1" aria-label="${CNAME[c]} artır">▶</button></div>`).join('');
   document.querySelectorAll('#ccards button').forEach(b => b.onclick = () => { cLv[b.dataset.c] = Math.max(0, Math.min(20, cLv[b.dataset.c] + +b.dataset.d)); snd('tick'); renderCustom(); });
 }
 document.querySelectorAll('#cpresets button').forEach(b => b.onclick = () => {
@@ -722,6 +725,12 @@ muteLabel();
 new MutationObserver(() => { for (const n of [...document.body.children]) if (n.id !== 'stage' && n.tagName !== 'SCRIPT') n.remove(); }).observe(document.body, { childList: true });
 
 // ---------- ön yükleme ----------
+// açılış: kaset karı (statik) ve yüklenince kaset takılır
+(function snow() {
+  const c = $('snow').getContext('2d'), im = c.createImageData(320, 180);
+  (function f() { if (!$('splash').classList.contains('on')) return; const d = im.data; for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; } c.putImageData(im, 0, 0); requestAnimationFrame(f); })();
+})();
+setTimeout(() => $('splash').querySelector('.cassette').classList.add('in'), 100);
 let ready = false;
 $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
 (function preload() {
@@ -730,9 +739,9 @@ $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusi
     ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan'].map(c => 'cam/' + c),
     ...Core.CHARS.concat('itsme').map(c => 'scare/' + c)].map(s => `img/${s}.png`);
   const keep = window.__preloaded = []; let done = 0; const total = imgs.length + 2;
-  const tick = () => { done++; $('splashTxt').textContent = `YÜKLENİYOR... %${Math.round(done / total * 100)}`; if (done >= total) finish(); };
-  const finish = () => { if (ready) return; ready = true; window.__m5g.ready = true; $('splashTxt').textContent = '[ BAŞLAMAK İÇİN TIKLA ]'; };
-  imgs.forEach(src => { const i = new Image(); keep.push(i); i.onload = i.onerror = tick; i.src = src; });
+  const tick = () => { done++; $('splashTxt').textContent = `KASET YÜKLENİYOR %${Math.round(done / total * 100)}`; if (done >= total) finish(); };
+  const finish = () => { if (ready) return; ready = true; window.__m5g.ready = true; $('splashTxt').textContent = '▶ OYNATMAK İÇİN TIKLA'; $('splash').classList.add('ready'); $('spOsd').textContent = '▶ PLAY'; };
+  imgs.forEach(src => { const i = new Image(); keep.push(i); i.onload = i.onerror = tick; i.src = av(src); });
   Promise.resolve(A.loadSamples ? A.loadSamples() : null).catch(() => { }).then(tick);
   variantsReady.then(tick);
   setTimeout(finish, 15000);
