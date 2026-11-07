@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109c';
+const ASSET_V = '20261109d';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -149,6 +149,7 @@ function loop(now) {
   itsmePopTick(dt);
   whisper(dt);
   ghostTick(dt);
+  darkSeq(dt);
   fixTick(dt);
   drawGrain(dt);
   const evs = Core.step(G, dt, input());
@@ -236,14 +237,32 @@ function itsMe(v) {
   if (v === 'cam') { $('feedBox').classList.add('itsme'); snd('static'); setTimeout(() => $('feedBox').classList.remove('itsme'), 1000); }
   if (v === 'corr') itsmeCorrUntil = G.t + 6;
   if (v === 'crash') {
-    stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false);
+    stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false); snd('darkTuneLoop', false);
     $('scareImg').src = av('img/scare/itsme.png'); show('scare'); A.stopMusic && A.stopMusic(0); snd('static');
     setTimeout(() => { show('crash'); setTimeout(() => { refreshMenu(); show('title'); }, 2200); }, 1500);
   }
 }
+// Elektrik bitince FNaF 1 gibi: önce karanlık ve sessizlik, sonra sol kapıda yüzü yanıp sönen Denek 5 ve müzik kutusu,
+// en sonda zifiri karanlık ve tam sessizlik. Ölüm anı core'daki darkT ile belirlenir (sabaha kadar dayanırsan kurtulursun).
+let darkStart = 0, faceFlick = 0;
+const FACE_AT = [383, 212];   // #view (ofis) koordinatı: kapı aralığında baş hizası
+function darkSeq(dt) {
+  const face = $('darkFace');
+  if (!G.dark) { face.style.opacity = 0; return; }
+  const elapsed = G.t - darkStart, left = G.darkT;
+  const phase = left <= 2.5 ? 'C' : elapsed >= 3 ? 'B' : 'A';
+  $('game').classList.toggle('blackout', phase === 'C');
+  snd('darkTuneLoop', phase === 'B');
+  if (phase !== 'B') { face.style.opacity = 0; return; }
+  const m = new DOMMatrix(getComputedStyle($('view')).transform);
+  const p = m.transformPoint(new DOMPoint(FACE_AT[0], FACE_AT[1]));
+  face.style.transform = `translate(${p.x}px,${p.y}px) scale(${m.a})`;
+  faceFlick -= dt;
+  if (faceFlick <= 0) { faceFlick = 0.06 + Math.random() * 0.22; face.style.opacity = [0, 0.15, 0.55, 0.9, 1, 1][Math.floor(Math.random() * 6)]; }
+}
 function powerOut() {
   stopPhone(); closeCam(true); Object.assign(ui, { lightL: false, flash: false, ventLight: false, monitor: false, cooling: false, reboot: false });
-  $('game').classList.add('dark'); snd('powerdown'); setTimeout(() => snd('darkTune'), 1500);
+  $('game').classList.add('dark'); snd('powerdown'); darkStart = G.t;
 }
 const WHY = {
   pasta: 'Koridordaki şeyi ışıkla tut. Işıktan hoşlanmaz. Ayak seslerini duyunca feneri yak.',
@@ -254,24 +273,26 @@ const WHY = {
   arda: 'Duyduğun her ses gerçek değildi. Sonundaki bozuk miyavı dinle ve tepki verme.',
   sultan: 'Motor sesini duyunca her şeyi kapat: monitör, ışıklar, fener. Karanlıkta bekle.',
   denek5: '5 numaralı çekmece ısındı. Soğuk oda kamerasında SOĞUT\'a basılı tut.',
-  powerout: 'Jeneratör bitti. Karanlıkta 5 numaralı çekmece açıldı.',
+  powerout: 'Jeneratör bitti. Karanlıkta Denek 5 kapına geldi. Elektriği idareli kullan; sabaha kadar dayanırsan kurtulabilirsin.',
 };
 function die(who) {
-  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false);
+  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false); snd('darkTuneLoop', false);
   const img = who === 'powerout' ? 'denek5' : who;
   $('scareImg').src = av(`img/scare/${img}.png`);
-  snd('doorBreath', false);
-  show('scare'); snd('scream'); if (who === 'sayici') snd('sayScare'); $('scare').classList.add('shakeAll');
+  snd('doorBreath', false); snd('darkTuneLoop', false); $('darkFace').style.opacity = 0;
+  if (who === 'powerout') {   // FNaF 1 gibi: sarsıntı ve çığlık yok; karanlıktan yüz belirir, tek bir darbe
+    $('scare').classList.add('pdeath'); show('scare'); A.stopMusic && A.stopMusic(0); snd('sting'); snd('boom');
+  } else { show('scare'); snd('scream'); if (who === 'sayici') snd('sayScare'); $('scare').classList.add('shakeAll'); }
   // jumpscare -> parazitle bozulup yavaşça kararır -> "Öldün" ekranı karanlıktan belirir
   setTimeout(() => { $('scare').classList.remove('shakeAll'); $('scare').classList.add('dying'); snd('static'); }, 1500);
   setTimeout(() => {
-    $('scare').classList.remove('dying'); $('overWhy').textContent = WHY[who] || '';
+    $('scare').classList.remove('dying', 'pdeath'); $('overWhy').textContent = WHY[who] || '';
     show('over'); $('over').classList.remove('rise'); void $('over').offsetWidth; $('over').classList.add('rise');
     setTimeout(() => snd('deathVoice', who), 700);
   }, 3300);
 }
 function win() {
-  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false);
+  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false); snd('darkTuneLoop', false);
   show('six'); $('sixClock').textContent = '5 AM'; $('sixMsg').textContent = ''; $('bNext').style.visibility = 'hidden';
   setTimeout(() => { $('sixClock').textContent = '6 AM'; snd('chime'); }, 1600);
   persist({ night, result: 'win', levels: night === 7 ? customLevels : undefined });

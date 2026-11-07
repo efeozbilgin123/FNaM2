@@ -56,6 +56,7 @@ const Audio5 = (() => {
     }));
   }
   const hums = {};
+  let tuneTimer = null;
   let breathNode = null, nearTimer = null, doorBreathNode = null, ambLevel = 1;
   function play(name, { pan = 0, vol = 1, wet = 0.15, rate = 1 } = {}) {
     const all = samples[name]; if (!all || !all.length) return false;
@@ -142,7 +143,7 @@ const Audio5 = (() => {
     // Ölüm ekranı: öldürenin bozuk, yavaşlatılmış sesi (sfx/death_<kim>.mp3 varsa o; yoksa eldeki kayıtlardan)
     deathVoice(who) {
       if (play('death_' + who, { vol: 0.8, wet: 0.5 })) return;
-      if (play('death_any', { vol: 0.75, wet: 0.45 })) return;
+      if (play('death_any', { vol: 0.85, wet: 0.45 })) return;
       const alt = { avukat: ['knock', 0.5], sayici: ['say6', 0.62], sahil: ['sting', 0.55], pasta: ['sting', 0.5], sultan: ['sting', 0.45] }[who] || ['sting', 0.5];
       play(alt[0], { vol: 0.7, wet: 0.7, rate: alt[1] });
     },
@@ -161,7 +162,7 @@ const Audio5 = (() => {
     say(n = 4, fake = false) { // Sayıcı: kayıt varsa onu, yoksa fısıltı sentezi
       if (![4, 5, 6].includes(n)) n = 4;
       const pan = 0.75, rate = fake ? 0.96 : 1;
-      if (play('say' + n, { pan, rate, vol: 1.1, wet: 0.45 })) return;
+      if (play('say' + n, { pan, rate, vol: 0.9, wet: 0.45 })) return;
       const t = now(), syll = n === 6 ? 2 : 1, loud = n === 6 ? 0.9 : 0.45;
       const form = { 4: [[700, 1200]], 5: [[500, 1900]], 6: [[750, 1250], [400, 2200]] }[n];
       for (let i = 0; i < syll; i++) {
@@ -173,8 +174,8 @@ const Audio5 = (() => {
       if (n === 6) osc({ t, f: 55, f2: 35, dur: 0.8, vol: 0.6, wet: 0.4 });
     },
     sayScare() { if (!play('say6_scare', { vol: 1.4, wet: 0.3 })) sfx.say(6); },
-    murmur(pan = 0.8) { play('murmur', { pan, vol: 0.45, wet: 0.7 }); }, // havalandırmadan uzak mırıltı
-    kitapta(pan = 0.8) { play('kitapta', { pan, vol: 0.5, wet: 0.7 }); },
+    murmur(pan = 0.8) { play('murmur', { pan, vol: 0.6, wet: 0.7 }); }, // havalandırmadan uzak mırıltı
+    kitapta(pan = 0.8) { play('kitapta', { pan, vol: 0.6, wet: 0.7 }); },
     miyav() { // Arda Baz'ın bozuk miyavı: kısa, boğuk, yarıda kesik
       if (play('miyav', { pan: 0.3, vol: 0.9, wet: 0.4, rate: 0.9 })) return;
       const t = now(), dur = 0.38;
@@ -194,14 +195,14 @@ const Audio5 = (() => {
       }
     },
     drawer() { // 5 numaralı çekmece açılıyor: uzun metal sürtünmesi + gümleme
-      if (play('drawer', { pan: -0.3, vol: 0.9, wet: 0.45 })) return;
+      if (play('drawer', { pan: -0.3, vol: 0.85, wet: 0.45 })) return;
       const t = now();
       noise({ t, dur: 1.6, type: 'bandpass', f: 900, f2: 500, q: 9, vol: 0.5, pan: -0.3, wet: 0.6 });
       osc({ t, f: 180, f2: 120, dur: 1.6, vol: 0.12, type: 'sawtooth', lp: 900, pan: -0.3, wet: 0.5 });
       osc({ t: t + 1.6, f: 60, f2: 30, dur: 0.8, vol: 1, wet: 0.6 });
     },
     motor() { // koridordan yaklaşan motor
-      if (play('motor', { vol: 0.9, wet: 0.35 })) return;
+      if (play('motor', { vol: 0.85, wet: 0.35 })) return;
       const t = now(), dur = 6;
       const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(38, t); o.frequency.linearRampToValueAtTime(70, t + dur);
       const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(200, t); lp.frequency.linearRampToValueAtTime(900, t + dur);
@@ -212,7 +213,7 @@ const Audio5 = (() => {
     },
     reboot() { noise({ dur: 0.6, type: 'bandpass', f: 600, f2: 3200, q: 1, vol: 0.3, wet: 0.1 }); osc({ f: 900, f2: 1800, dur: 0.5, vol: 0.05, type: 'square', wet: 0 }); },
     phoneRing() { // eski masa telefonu zili (sfx/phone_ring.mp3: tools/phone_ring.py ile üretildi)
-      if (play('phoneRing', { pan: 0.3, vol: 0.75, wet: 0.3 })) return;
+      if (play('phoneRing', { pan: 0.3, vol: 0.85, wet: 0.3 })) return;
       const t = now();
       for (let r = 0; r < 2; r++) for (let i = 0; i < 16; i++) { const tt = t + r * 1.2 + i * 0.05; osc({ t: tt, f: 1300, dur: 0.03, vol: 0.06, type: 'square', lp: 2500, pan: 0.3, wet: 0.3 }); }
     },
@@ -235,7 +236,7 @@ const Audio5 = (() => {
     },
     flashClick() { noise({ dur: 0.015, type: 'highpass', f: 3500, vol: 0.3, wet: 0 }); osc({ f: 3000, f2: 1500, dur: 0.02, vol: 0.05, wet: 0 }); },
     door(side = 0, closing = true) { // ağır sürgülü çelik kepenk
-      if (play(closing ? 'doorClose' : 'doorOpen', { pan: side * 0.6, vol: closing ? 1 : 0.85, wet: 0.18 })) return;
+      if (play(closing ? 'doorClose' : 'doorOpen', { pan: side * 0.6, vol: 0.85, wet: 0.18 })) return;
       const t = now(), p = side * 0.6, slide = closing ? 0.34 : 0.4;
       // motor/ray uğultusu
       noise({ t, dur: slide, type: 'lowpass', f: closing ? 420 : 300, f2: closing ? 220 : 520, vol: 0.5, a: 0.03, kind: 'brown', pan: p, wet: 0.25 });
@@ -263,7 +264,7 @@ const Audio5 = (() => {
     click() { noise({ dur: 0.012, type: 'highpass', f: 3000, vol: 0.35, wet: 0.05 }); osc({ f: 2400, f2: 1200, dur: 0.015, vol: 0.06, wet: 0 }); },
     light(on, side = 0) { // röle "klak" + ampul uğultusu
       const t = now(), p = side * 0.6;
-      const usedSample = play(on ? 'switchOn' : 'switchOff', { pan: p, vol: 0.9, wet: 0.08 });
+      const usedSample = play(on ? 'switchOn' : 'switchOff', { pan: p, vol: 0.85, wet: 0.08 });
       if (!usedSample) {
       noise({ t, dur: 0.015, type: 'highpass', f: 2500, vol: 0.4, pan: p, wet: 0.08 });
       noise({ t: t + 0.03, dur: 0.02, type: 'bandpass', f: 1400, q: 2, vol: 0.25, pan: p, wet: 0.08 });
@@ -292,7 +293,7 @@ const Audio5 = (() => {
       }
     },
     flicker() { // lamba titremesi: tel cızırtısı
-      if (play('flicker', { vol: 0.7, wet: 0.2 })) return;
+      if (play('flicker', { vol: 0.85, wet: 0.2 })) return;
       const t = now();
       for (let i = 0; i < 4; i++) { const tt = t + i * 0.06 + Math.random() * 0.03; noise({ t: tt, dur: 0.03, type: 'bandpass', f: 2800 + Math.random() * 2000, q: 3, vol: 0.12, pan: -0.25, wet: 0.2 }); osc({ t: tt, f: 100, dur: 0.04, vol: 0.05, type: 'sawtooth', lp: 600, pan: -0.25, wet: 0.1 }); }
     },
@@ -300,7 +301,7 @@ const Audio5 = (() => {
     camClose() { noise({ dur: 0.22, type: 'bandpass', f: 2500, f2: 300, q: 1, vol: 0.3, wet: 0.1 }); },
     blip() { sfx.click(); noise({ dur: 0.18, type: 'bandpass', f: 2600, q: 0.8, vol: 0.25, wet: 0.05 }); osc({ f: 1250, dur: 0.05, vol: 0.05, type: 'square', wet: 0 }); },
     step(side = 0) { // koridorda ayak sesleri
-      if (play('step', { pan: side * 0.8, vol: 0.75, wet: 0.4 })) return;
+      if (play('step', { pan: side * 0.8, vol: 0.85, wet: 0.4 })) return;
       const p = side * 0.8, t = now();
       for (let i = 0; i < 4; i++) {
         const tt = t + i * 0.42 + Math.random() * 0.05, v = 0.25 + i * 0.12;
@@ -309,7 +310,7 @@ const Audio5 = (() => {
       }
     },
     bang() { // Sahil Mırık kapıya çarpıyor
-      if (play('bang', { pan: 0.7, vol: 0.9, wet: 0.4 })) return;
+      if (play('bang', { pan: 0.7, vol: 0.85, wet: 0.4 })) return;
       const t = now();
       for (let i = 0; i < 5; i++) {
         const tt = t + i * 0.24 + Math.random() * 0.04;
@@ -324,7 +325,7 @@ const Audio5 = (() => {
     },
     tick() { osc({ f: 2200, dur: 0.03, vol: 0.05, type: 'square', wet: 0 }); },
     sting(pan = 0) { // ışıkta biri görününce: ani darbe + ürkütücü yaylılar (sfx/sting_*.mp3)
-      if (play('sting', { pan, vol: 0.8, wet: 0.15 })) return;
+      if (play('sting', { pan, vol: 1, wet: 0.15 })) return;
       const t = now();
       [0, 3, 6, 11].forEach((st, i) => osc({ t, f: 220 * Math.pow(2, st / 12), dur: 1.4, vol: 0.09, type: 'sawtooth', detune: (Math.random() - 0.5) * 30, lp: 1800, wet: 0.6 }));
       noise({ t, dur: 1.2, type: 'bandpass', f: 3000, f2: 6000, q: 4, vol: 0.12, wet: 0.6 });
@@ -384,8 +385,12 @@ const Audio5 = (() => {
     },
     powerdown() {
       sfx.light(false);
-      if (!play('powerdown', { vol: 0.95, wet: 0.4 })) { osc({ f: 420, f2: 25, dur: 2.6, vol: 0.25, type: 'sawtooth', lp: 1200, wet: 0.4 }); noise({ dur: 0.3, f: 400, vol: 0.8, kind: 'brown', wet: 0.5 }); }
+      if (!play('powerdown', { vol: 0.85, wet: 0.4 })) { osc({ f: 420, f2: 25, dur: 2.6, vol: 0.25, type: 'sawtooth', lp: 1200, wet: 0.4 }); noise({ dur: 0.3, f: 400, vol: 0.8, kind: 'brown', wet: 0.5 }); }
       stopAmbience(1.5);
+    },
+    darkTuneLoop(on) { // elektrik bitince kapıdaki yüzle birlikte dönen bozuk müzik kutusu (durdurulana kadar)
+      if (on && !tuneTimer) { const go = () => { sfx.darkTune(); tuneTimer = setTimeout(go, 4800); }; tuneTimer = -1; go(); }
+      else if (!on && tuneTimer) { clearTimeout(tuneTimer); tuneTimer = null; }
     },
     darkTune() { // elektrik bitince karanlıkta çalan bozuk müzik kutusu
       const mel = [76, 74, 72, 71, 72, 69, 71, 68, 69, 0, 64, 0];
