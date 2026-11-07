@@ -186,12 +186,7 @@
   /* CAMERA (CRT) */
   #cam{position:absolute; inset:0; display:none; z-index:20; overflow:hidden; transform-origin:0 0; will-change:transform,opacity}
   #cam.on{display:block}
-  #bezel{position:absolute; inset:0; background:url(img/ui/monitor.png) -23px -13px/1320px 737px no-repeat; clip-path:polygon(252px 0px, 1028px 0px, 1041px 18px, 1046px 80px, 1050px 220px, 1051px 360px, 1049px 500px, 1045px 610px, 1040px 670px, 1030px 704px, 1015px 720px, 265px 720px, 248px 704px, 237px 670px, 232px 610px, 229px 500px, 227px 360px, 229px 220px, 233px 80px, 237px 18px); filter:brightness(calc(.2 + .3 * var(--lamp,1))) saturate(.4) hue-rotate(150deg)}
-  #screenWrap{position:absolute; left:313px; top:74px; width:808px; height:632px; transform:scale(.81,.815); transform-origin:0 0}
-  #monPower{position:absolute; left:853px; top:652px; width:46px; height:46px; border-radius:6px; cursor:pointer; z-index:5}
-  #monPower:hover{box-shadow:0 0 14px 3px rgba(125,255,138,.5)}
-  #monLed{position:absolute; left:802px; top:672px; width:6px; height:6px; border-radius:50%; background:#5dff7a; box-shadow:0 0 8px #5dff7a; z-index:5}
-  #camPostit{position:absolute; left:316px; top:646px; width:132px; transform:rotate(-2.5deg); font-family:'Special Elite',monospace; font-size:12.5px; line-height:1.05; color:#22226e; background:rgba(240,230,120,.55); padding:3px 5px; z-index:5; pointer-events:none; filter:brightness(calc(.3 + .4 * var(--lamp,1)))}
+  #screenWrap{position:absolute; left:0; top:0; width:808px; height:632px; transform-origin:0 0} /* game.js: masadaki monitörün camına perspektifle oturur */
   #screen{filter:url(#crtBulge); position:absolute; left:0; top:0; width:808px; height:632px; border-radius:46px/42px; overflow:hidden; background:radial-gradient(ellipse at 50% 48%, #071409 0%, #020602 72%, #000 100%); color:#7dff8a; text-shadow:0 0 6px rgba(80,255,120,.55), 1.3px 0 rgba(255,60,60,.28), -1.3px 0 rgba(60,140,255,.28)}
   #screen .glass{position:absolute; inset:0; pointer-events:none; border-radius:inherit; background:radial-gradient(ellipse 46% 28% at 34% 16%, rgba(255,255,255,.13), transparent 72%), radial-gradient(ellipse 72% 68% at 50% 50%, transparent 52%, rgba(0,0,0,.42) 78%, rgba(0,0,0,.92) 100%); box-shadow:inset 0 0 70px rgba(0,0,0,.95); z-index:6}
   #screen .scan{background:repeating-linear-gradient(0deg, rgba(0,0,0,.3) 0 1px, transparent 1px 3px); z-index:5}
@@ -297,6 +292,11 @@
   #game.doorL.vdoorc #dwL .shutter{visibility:hidden}
   #stage.slam{animation:shake2 .06s 3}
 
+  /* monitöre yakınlaşınca oda bulanıklaşıp kararır, göz ekrana odaklanır */
+  #view{transition:filter .4s}
+  #game.cam-mode #view{filter:blur(1.6px) brightness(.5)}
+  #mon{cursor:pointer; pointer-events:auto}
+  #screen{border-radius:22px/24px}
   /* SCARE */
   #scare{background:#000}
   #scareImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:lunge .5s cubic-bezier(.15,.9,.3,1) forwards, shake .06s infinite}
@@ -360,8 +360,6 @@
       <div class="bar" id="barSheet">▲ ÖRTÜ</div>
     </div>
     <div id="cam">
-      <div id="bezel"></div><div id="monLed"></div><div id="monPower" title="Monitörü kapat"></div>
-      <div id="camPostit">KURUL: 5 gün<br>Brakiyal pleksus<br>kitapta mı??</div>
       <div id="screenWrap"><div id="screen">
         <div id="osTop"><span>MORG-SEC CCTV 4.5.6 - Anatomi B-1 Katı</span><span id="camTimeR"></span></div>
         <div id="feedWin">
@@ -391,10 +389,10 @@
   <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
 </div>
 
-<script src="audio.js?v=20261107a"></script>
-<script src="core.js?v=20261107a"></script>
-<script src="nights.js?v=20261107a"></script>
-<script src="save.js?v=20261107a"></script>
-<script src="game.js?v=20261107a"></script>
+<script src="audio.js?v=20261107b"></script>
+<script src="core.js?v=20261107b"></script>
+<script src="nights.js?v=20261107b"></script>
+<script src="save.js?v=20261107b"></script>
+<script src="game.js?v=20261107b"></script>
 </body>
 </html>

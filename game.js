@@ -365,36 +365,36 @@ function updateLook(dt) {
 }
 
 // ---------- monitör (1. oyundaki CRT geçişi) ----------
-const MON = { x: 759, y: 604 }, ZOOM = 3.13;
+// Monitör: kamera masadaki gerçek monitöre yakınlaşır, kamera arayüzü o monitörün camına perspektifle oturur.
+const MON_GLASS = QUADS.mon.p;                     // masadaki monitörün camı (ofis görseli koordinatı)
+const MON = { x: 762, y: 600 }, ZOOM = 4.4;        // camın merkezi ve yakınlaşma
 function zoomTransform() { return `translate(${640 - MON.x * ZOOM}px, ${360 - MON.y * ZOOM}px) scale(${ZOOM})`; }
-function camFromOfficeTransform() { const s = VIEW_SCALE / ZOOM; return `translate(${-look.x + (MON.x - 640 / ZOOM) * VIEW_SCALE}px, ${PAN_Y + (MON.y - 360 / ZOOM) * VIEW_SCALE}px) scale(${s})`; }
+// cam köşelerini yakınlaşmış sahnede ekrana çevir, kamera arayüzünü (808×632) oraya oturt
+$('screenWrap').style.transform = quadMatrix(808, 632, MON_GLASS.map(([x, y]) => [640 + (x - MON.x) * ZOOM, 360 + (y - MON.y) * ZOOM]));
 function openCam() {
   if (!G || G.over || G.dark || camBusy || ui.monitor || ui.sheet) return;
   camBusy = true; ui.monitor = true; ui.lightL = ui.flash = ui.ventLight = false; snd('camOpen');
   const v = $('view'), c = $('cam'), ease = 'cubic-bezier(.22,1,.36,1)';
-  c.classList.add('on'); c.style.transition = 'none'; c.style.transform = camFromOfficeTransform(); c.style.opacity = '0';
+  c.classList.add('on'); c.style.transition = 'none'; c.style.opacity = '0';
   renderCam(); void c.offsetWidth;
-  look.zoom = true;
-  v.style.transition = `transform .48s ${ease}`; v.style.transform = zoomTransform();
-  c.style.transition = `transform .48s ${ease}, opacity .32s ease-out`; c.style.transform = 'translate(0px, 0px) scale(1)'; c.style.opacity = '1';
-  clearTimeout(camTimer); camTimer = setTimeout(() => { c.style.transition = 'none'; c.style.transform = 'none'; camBusy = false; }, 490);
+  look.zoom = true; $('game').classList.add('cam-mode');
+  v.style.transition = `transform .5s ${ease}, filter .5s`; v.style.transform = zoomTransform();
+  c.style.transition = 'opacity .18s ease-out .3s'; c.style.opacity = '1';
+  clearTimeout(camTimer); camTimer = setTimeout(() => { snd('blip'); camBusy = false; }, 500);
 }
 function closeCam(silent) {
   const c = $('cam'), v = $('view');
   ui.monitor = false; ui.cooling = false; ui.reboot = false;
   if (silent || !c.classList.contains('on')) {
-    clearTimeout(camTimer); camBusy = false; c.classList.remove('on', 'booting'); c.style.transition = 'none'; c.style.transform = ''; c.style.opacity = '';
+    clearTimeout(camTimer); camBusy = false; c.classList.remove('on', 'booting'); c.style.transition = 'none'; c.style.opacity = '';
     look.zoom = false; v.style.transition = 'none'; applyLook(); $('game').classList.remove('cam-mode'); return;
   }
   camBusy = true; snd('camClose');
   const ease = 'cubic-bezier(.22,1,.36,1)';
-  v.style.transition = 'none'; v.style.transform = zoomTransform();
-  c.style.transition = 'none'; c.style.transform = 'translate(0px, 0px) scale(1)'; c.style.opacity = '1';
-  void v.offsetWidth;
+  c.style.transition = 'opacity .12s ease-in'; c.style.opacity = '0';
   look.zoom = false; $('game').classList.remove('cam-mode');
-  v.style.transition = `transform .44s ${ease}`; applyLook();
-  c.style.transition = `transform .44s ${ease}, opacity .3s ease-in .06s`; c.style.transform = camFromOfficeTransform(); c.style.opacity = '0';
-  clearTimeout(camTimer); camTimer = setTimeout(() => { c.classList.remove('on'); c.style.transition = 'none'; c.style.transform = ''; c.style.opacity = ''; v.style.transition = 'none'; camBusy = false; }, 450);
+  v.style.transition = `transform .44s ${ease} .06s, filter .4s`; applyLook();
+  clearTimeout(camTimer); camTimer = setTimeout(() => { c.classList.remove('on'); c.style.transition = 'none'; c.style.opacity = ''; v.style.transition = 'none'; camBusy = false; }, 500);
 }
 let camTimer = 0;
 // Animasyon sürerken gelen geçişler yok sayılır: monitörün açık/kapalı hali ekrandakiyle hep aynı kalır.
@@ -424,7 +424,8 @@ $('bDoor').onclick = () => {
 };
 $('barMon').addEventListener('mouseenter', toggleMonitor); $('barMon').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleMonitor(); });
 $('barSheet').addEventListener('mouseenter', toggleSheet); $('barSheet').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleSheet(); });
-$('camClose').onclick = () => closeCam(); $('monPower').onclick = () => { snd('click'); closeCam(); };
+$('camClose').onclick = () => closeCam();
+$('mon').addEventListener('click', () => { if (!ui.monitor) toggleMonitor(); }); // masadaki monitöre tıklayınca kameralar açılır
 const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling', r: 'reboot' };
 addEventListener('keydown', e => {
   if (!G || G.over || !$('game').classList.contains('on')) return;
