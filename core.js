@@ -219,7 +219,7 @@
 
   // ---------- Sahil Mırık (havalandırma, ölü taklidi) ----------
   // yol: soğuk oda -> yıkama odası -> havalandırma A -> B -> ağız (SAHIL_MOUTH = son durak)
-  Object.assign(PARAMS, { SAHIL_TICK: 4.4, SAHIL_ATTACK: 7, SAHIL_HIDE: 5, SAHIL_EARLY: 2, SAHIL_MOUTH: 4 });
+  Object.assign(PARAMS, { SAHIL_TICK: 4.4, SAHIL_ATTACK: 7, SAHIL_HIDE: 5, SAHIL_EARLY: 2, SAHIL_MOUTH: 4, SAHIL_COOLDOWN: 15 });
   const SAHIL_ROUTE = ['cold', 'wash', 'ventA', 'ventB', 'mouth'];
   INIT.sahil = () => ({ stage: 0, t: 0, hide: 0, tick: 0 });
   TICKS.push(function tickSahil(G, dt) {
@@ -228,7 +228,8 @@
       s.t -= dt;
       if (sheet) {
         s.hide += dt;
-        if (s.hide >= PARAMS.SAHIL_HIDE) { s.stage = 0; s.hide = 0; s.tick = 0; emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'dragAway', from: 'vent' }); }
+        if (s.hide >= PARAMS.SAHIL_HIDE) { s.stage = 0; s.hide = 0; s.tick = -PARAMS.SAHIL_COOLDOWN;   // gidince bir süre havalandırma sakin
+ emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'dragAway', from: 'vent' }); }
         return;
       }
       if (s.hide > 0) { s.hide = 0; s.t = Math.min(s.t, PARAMS.SAHIL_EARLY); }
@@ -289,7 +290,7 @@
 
   // ---------- Mühendis Hasan: soğuk oda kamerasını bozar ----------
   // Öldürmez. Bozukken sıcaklık okunmaz, soğutma kilitlenir, 5 numara MUH_HEAT kat hızlı ısınır; onarana kadar sürer.
-  Object.assign(PARAMS, { MUH_TICK: 9, MUH_REBOOT: 3, MUH_COOLDOWN: 8, MUH_HEAT: 2 });
+  Object.assign(PARAMS, { MUH_TICK: 20, MUH_REBOOT: 3, MUH_COOLDOWN: 30, MUH_HEAT: 2 });
   INIT.muh = () => ({ cam: null, age: 0, rebootT: 0, frozenTemp: 0, tick: 0 });
   function hack(G, cam) {
     const m = G.muh; m.cam = cam; m.age = 0; m.rebootT = 0; m.frozenTemp = G.denek5.temp;
