@@ -196,6 +196,16 @@ await check('closing the door shows the steel shutter', async (page) => {
   assert.ok(tr === 'none' || tr === 'matrix(1, 0, 0, 1, 0, 0)', 'shutter transform ' + tr);
 });
 
+await check('right-click menu and image dragging are disabled', async (page) => {
+  await boot(page);
+  const [ctx, drag] = await page.evaluate(() => {
+    const c = new MouseEvent('contextmenu', { bubbles: true, cancelable: true }); document.body.dispatchEvent(c);
+    const d = new DragEvent('dragstart', { bubbles: true, cancelable: true }); document.querySelector('img').dispatchEvent(d);
+    return [c.defaultPrevented, d.defaultPrevented];
+  });
+  assert.ok(ctx && drag, `contextmenu prevented=${ctx} dragstart prevented=${drag}`);
+});
+
 await browser.close(); server.kill();
 console.log(results.join('\n'));
 console.log(`# pass ${results.length - failed}\n# fail ${failed}`);

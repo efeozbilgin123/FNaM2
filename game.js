@@ -334,11 +334,11 @@ function render() {
   else if (g.pasta.stage === 2) corr = 'img/corr/pasta2.png';
   else if (g.pasta.stage === 1) corr = 'img/corr/pasta1.png';
   if (g.sultan.phase === 'here') corr = 'img/corr/sultan.png';
-  if (itsmeCorrUntil > g.t) corr = 'img/itsme_photo.png';
+  if (itsmeCorrUntil > g.t && g.pasta.stage === 0) corr = 'img/itsme_photo.png'; // Pasta gelirken gizlemesin
   setSrc($('corrImg'), corr);
   setSrc($('dwImg'), g.avukat.at ? 'img/doorway/avukat.png' : 'img/doorway/empty.png');
   setSrc($('ventImg'), g.sahil.stage === 3 ? 'img/vent/sahil.png' : 'img/vent/empty.png');
-  const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t ? 'corr_itsme' : g.pasta.stage ? 'corr_pasta' + g.pasta.stage : 'corr_lit';
+  const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t && !g.pasta.stage ? 'corr_itsme' : g.pasta.stage ? 'corr_pasta' + g.pasta.stage : 'corr_lit';
   useVar('corr', corrVar);
   // kapalı kapı ayrı katman (#vDoorS): çelik kepenk, CSS ile tavandan kayar
   $('game').classList.toggle('vdoorc', haveVar.has('door_shutter'));
@@ -651,7 +651,7 @@ document.querySelectorAll('#map button').forEach(b => b.onclick = () => selCam(b
 
 // ---------- kontroller ----------
 function hold(el, key) {
-  const on = e => { e.preventDefault(); if (G && !G.over) { ui[key] = true; if (key === 'flash') snd('flashClick'); if (key === 'reboot') snd('reboot'); if (key === 'lightL' || key === 'ventLight') snd('light', true, key === 'lightL' ? -1 : 1); } };
+  const on = e => { e.preventDefault(); if (G && !G.over && !G.dark) { ui[key] = true; if (key === 'flash') snd('flashClick'); if (key === 'reboot') snd('reboot'); if (key === 'lightL' || key === 'ventLight') snd('light', true, key === 'lightL' ? -1 : 1); } };
   const off = () => { if (ui[key]) { ui[key] = false; if (key !== 'flash' && key !== 'cooling' && key !== 'reboot') snd('light', false); } };
   el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointerleave', off); el.addEventListener('pointercancel', off);
 }
@@ -669,7 +669,7 @@ const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling' };
 addEventListener('keydown', e => {
   if (!G || G.over || !$('game').classList.contains('on')) return;
   const k = e.key.toLowerCase();
-  if (HOLD_KEYS[k]) { if (!e.repeat) { ui[HOLD_KEYS[k]] = true; if (k === 'f') snd('flashClick'); if (k === 'a' || k === 'v') snd('light', true, k === 'a' ? -1 : 1); } return; }
+  if (HOLD_KEYS[k]) { if (!e.repeat && !G.dark) { ui[HOLD_KEYS[k]] = true; if (k === 'f') snd('flashClick'); if (k === 'a' || k === 'v') snd('light', true, k === 'a' ? -1 : 1); } return; }
   if (e.repeat) return;
   if (k === 'q') $('bDoor').onclick();
   if (k === ' ' || k === 'tab') { e.preventDefault(); toggleMonitor(); }
@@ -761,6 +761,10 @@ $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusi
 })();
 const unlock = () => { try { A.init(); } catch (e) { } removeEventListener('pointerdown', unlock, true); removeEventListener('keydown', unlock, true); };
 addEventListener('pointerdown', unlock, true); addEventListener('keydown', unlock, true);
+
+// sağ tık menüsü ve görsel sürükleme kapalı
+addEventListener('contextmenu', e => e.preventDefault());
+addEventListener('dragstart', e => e.preventDefault());
 
 // test kancası
 window.__m5g = Object.assign(window.__m5g || {}, { startNight, get G() { return G; }, save: () => P, show });

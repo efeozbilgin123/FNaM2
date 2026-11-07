@@ -60,3 +60,9 @@ test('ITS ME fires once; crash variant ends the game as itsme', () => {
   run(H, 3);
   assert.ok(!H.over);
 });
+
+test('re-closing the door while the real Avukat is knocking is not an Arda mistake', () => {
+  const G = fakeGame('avukat'); G.avukat.at = true; G.avukat.knock = 5;
+  run(G, 0.2, { doorL: true }); run(G, 0.2); run(G, 0.2, { doorL: true });
+  assert.strictEqual(G.arda.mistakes, 0);
+});

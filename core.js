@@ -152,7 +152,7 @@
   INIT.avukat = () => ({ at: false, t: 0, knock: 0, tick: 0, pos: 'archive', knockSound: 0 });
   TICKS.push(function tickAvukat(G, dt) {
     const s = G.avukat;
-    G.pending.door = s.at && s.knock <= 0;
+    G.pending.door = s.at;   // kapıda bekliyor ya da vuruyor: kapı kapatmak gerçekten gerekli
     if (s.knock > 0) {
       s.knock -= dt; G.extraDrain += PARAMS.AVUKAT_DRAIN;
       s.knockSound -= dt;
