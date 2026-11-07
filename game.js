@@ -236,7 +236,7 @@ let endVoice = null;
 $('bMenu1').onclick = $('bMenu2').onclick = () => { if (endVoice) { endVoice.pause(); endVoice = null; } refreshMenu(); show('title'); };
 
 // ---------- ofis versiyonları: varsa düz katmanların yerine kullanılır ----------
-const VARIANTS = ['door_lit', 'door_avukat', 'door_closed', 'vent_lit', 'vent_sahil', 'corr_lit', 'corr_pasta1', 'corr_pasta2', 'corr_pasta3', 'corr_sultan', 'corr_itsme'];
+const VARIANTS = ['door_lit', 'door_avukat', 'door_shutter', 'vent_lit', 'vent_sahil', 'corr_lit', 'corr_pasta1', 'corr_pasta2', 'corr_pasta3', 'corr_sultan', 'corr_itsme'];
 const haveVar = new Set();
 VARIANTS.forEach(v => { const i = new Image(); i.onload = () => haveVar.add(v); i.src = `img/office_v/${v}.png`; });
 // istenen versiyon yoksa null döner ve eski katman kullanılır
@@ -278,8 +278,8 @@ function render() {
   setSrc($('ventImg'), g.sahil.stage === 3 ? 'img/vent/sahil.png' : 'img/vent/empty.png');
   const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t ? 'corr_itsme' : g.pasta.stage ? 'corr_pasta' + g.pasta.stage : 'corr_lit';
   useVar($('vCorr'), 'vcorr', corrVar);
-  // kapalı kapı ayrı katman (#vDoorC): CSS ile menteşesinden dönerek kapanır
-  $('game').classList.toggle('vdoorc', haveVar.has('door_closed'));
+  // kapalı kapı ayrı katman (#vDoorS): çelik kepenk, CSS ile tavandan kayar
+  $('game').classList.toggle('vdoorc', haveVar.has('door_shutter'));
   useVar($('vDoor'), 'vdoor', d.doorL ? null : d.lightL ? (g.avukat.at ? 'door_avukat' : 'door_lit') : null);
   useVar($('vVent'), 'vvent', d.ventLight ? (g.sahil.stage === 3 ? 'vent_sahil' : 'vent_lit') : null);
   // masa
@@ -420,7 +420,7 @@ hold($('corrHit'), 'flash'); hold($('bLight'), 'lightL'); hold($('ventBtn'), 've
 $('bDoor').onclick = () => {
   if (!G || G.over || G.dark) return;
   ui.doorL = !ui.doorL; snd('door', -1, ui.doorL);
-  if (ui.doorL) setTimeout(() => { stage.classList.add('slam'); setTimeout(() => stage.classList.remove('slam'), 200); }, 190);
+  if (ui.doorL) setTimeout(() => { stage.classList.add('slam'); setTimeout(() => stage.classList.remove('slam'), 200); }, 250);
 };
 $('barMon').addEventListener('mouseenter', toggleMonitor); $('barMon').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleMonitor(); });
 $('barSheet').addEventListener('mouseenter', toggleSheet); $('barSheet').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleSheet(); });
@@ -507,7 +507,7 @@ new MutationObserver(() => { for (const n of [...document.body.children]) if (n.
 let ready = false;
 $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
 (function preload() {
-  const imgs = ['office', 'door', 'panel', 'sheet', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor', 'office_v/door_closed',
+  const imgs = ['office', 'door', 'panel', 'sheet', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor', 'office_v/door_shutter',
     'corr/empty', 'corr/lit', 'corr/pasta1', 'corr/pasta2', 'corr/pasta3', 'corr/sultan', 'vent/empty', 'vent/sahil', 'doorway/empty', 'doorway/avukat',
     ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan'].map(c => 'cam/' + c),
     ...Core.CHARS.concat('itsme').map(c => 'scare/' + c)].map(s => `img/${s}.png`);
