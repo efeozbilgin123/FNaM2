@@ -225,7 +225,7 @@
       s.t -= dt;
       if (sheet) {
         s.hide += dt;
-        if (s.hide >= PARAMS.SAHIL_HIDE) { s.stage = 0; s.hide = 0; s.tick = 0; emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'drag', from: 'vent' }); }
+        if (s.hide >= PARAMS.SAHIL_HIDE) { s.stage = 0; s.hide = 0; s.tick = 0; emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'dragAway', from: 'vent' }); }
         return;
       }
       if (s.hide > 0) { s.hide = 0; s.t = Math.min(s.t, PARAMS.SAHIL_EARLY); }
@@ -236,7 +236,7 @@
     if (s.tick < PARAMS.SAHIL_TICK) return;
     s.tick = 0;
     if (!roll(G, G.lv.sahil)) return;
-    knockOut(G, 'ventLight');
+    if (s.stage + 1 === PARAMS.SAHIL_MOUTH) knockOut(G, 'ventLight');   // ışık sadece Sahil ağızda belirirken söner
     s.stage++;
     if (s.stage === PARAMS.SAHIL_MOUTH) { s.t = PARAMS.SAHIL_ATTACK; s.hide = 0; }
     emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[s.stage], stage: s.stage });

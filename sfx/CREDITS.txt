@@ -2,3 +2,15 @@ Ses efektleri: "Oculus Audio Pack 01" by Oculus VR, LLC (https://developers.meta
 knock_1.mp3, knock_2.mp3: aynı paketteki "DOORKnck_OfficeDoorKnock_OS_01" (Oculus Audio Pack 01, CC BY 4.0); perdesi düşürüldü, çelik kapı yankısı eklendi.
 phone_ring.mp3: tools/phone_ring.py ile sentezlendi (elektromekanik telefon zili taklidi), proje içi.
 sting_1..3.mp3: "DSGNImpt_ImpactCreepyReverb" + "MUSCStr_StringsCreepy" (Oculus Audio Pack 01, CC BY 4.0) karıştırıldı.
+
+Pixabay (Pixabay Content License, ücretsiz kullanım) — kesilip seviyesi ayarlandı:
+  step_1/2: "Concrete Footsteps 1" (freesound_community, 6265)
+  drag_1/2, drag_away: "Sound Effect 005 Object Dragging Body" (senhor_a, 265185)
+  bang: "Hitting Metal" (freesound_community, 31859)
+  drawer: "Metal Drawer Scratching" (nematoki, 360926)
+  motor: "Exhaust of a motorcycle Yamaha Tenere 250cc" (freesound_community, 27892)
+  scream_1..4: "Ascending Jumpscare" (102061), "Jumpscare" (94984), "Smile Dog Jumpscare" (jeremayjimenez, 167171), "Jumpscare" (68730)
+  death_any: "Sucked into Classroom" (freesound_community, 103774)
+  powerdown: "Power Outage" (hisound, 451574)
+  flicker_1: "Faulty fluorescent light starter amp hum" (freesound_community, 61228)
+  lamp_hum: "Fluorescent Light Buzzing" (freesound_community, 98373)

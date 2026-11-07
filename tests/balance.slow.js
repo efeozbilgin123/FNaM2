@@ -4,7 +4,7 @@ const assert = require('node:assert');
 const { simNight, simCustom, passiveBot, wastefulBot, expertBot } = require('../tools/sim.js');
 const { NIGHTS } = require('../nights.js');
 
-const TARGET = { 1: [0.85, 1], 2: [0.70, 0.85], 3: [0.45, 0.60], 4: [0.30, 0.45], 5: [0.08, 0.15], 6: [0.02, 0.06] };
+const TARGET = { 1: [0.85, 1], 2: [0.90, 0.99], 3: [0.45, 0.60], 4: [0.30, 0.45], 5: [0.08, 0.15], 6: [0.02, 0.06] };
 
 for (const n of [1, 2, 3, 4, 5, 6]) {
   test(`night ${n} good-bot win rate in ${TARGET[n]}`, () => {

@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108r';
+const ASSET_V = '20261108t';
 const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
@@ -103,7 +103,7 @@ function begin() {
     app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
   wm.open = []; wm.min.clear(); wm.z = []; wm.active = null; closeStart(); pcStack.length = 0; renderPc();
   document.querySelectorAll('.win').forEach(w => { w.style.left = ''; w.style.top = ''; });
-  frozen = null; itsmeCorrUntil = 0; lastNote = ''; for (const k in stung) delete stung[k]; whisperT = 25; itsmePop = { t: nextPop(true), due: 0 };
+  frozen = null; itsmeCorrUntil = 0; lastNote = ''; ghostT = 90 + Math.random() * 120; ghostUntil = 0; for (const k in stung) delete stung[k]; whisperT = 25; itsmePop = { t: nextPop(true), due: 0 };
   closeCam(true);
   $('game').className = 'screen on';
   show('game');
@@ -146,6 +146,7 @@ function loop(now) {
   updateLook(dt);
   whisper(dt);
   itsmePopTick(dt);
+  ghostTick(dt);
   fixTick(dt);
   drawGrain(dt);
   const evs = Core.step(G, dt, input());
@@ -172,6 +173,15 @@ function itsmePopTick(dt) {
   if (itsmePop.t <= 0) itsmePop.due = ui.monitor ? 0.05 : 0.4 + Math.random() * 1.2;
 }
 
+// Koridor kamerasında çok nadiren bir an için Hasan belirir (gerçek bir tehlike değil). 2. geceden itibaren.
+let ghostT = 120, ghostUntil = 0;
+function ghostTick(dt) {
+  if (quiet || night < 2 || G.over || !ui.monitor || !cctvOn() || ui.cam !== 'corr' || frozen || G.pasta.stage) return;
+  ghostT -= dt; if (ghostT > 0) return;
+  ghostT = 100 + Math.random() * 160;
+  ghostUntil = performance.now() + 170; staticBurst();
+}
+
 // Sayıcı aktif gecelerde havalandırmadan arada bir mırıltı / "kitapta mı" fısıltısı (zararsız, sadece atmosfer)
 let whisperT = 25;
 function whisper(dt) {
@@ -186,7 +196,7 @@ function whisper(dt) {
 function handle(e) {
   switch (e.type) {
     case 'sound': return sound(e);
-    case 'move': if (e.who !== 'pasta' || e.stage < 3) note(moveNote(e)); return;
+    case 'move': if (e.who === 'sahil' && e.to === 'mouth') snd('bang'); if (e.who !== 'pasta' || e.stage < 3) note(moveNote(e)); return;
     case 'hack': frozen = { cam: e.cam, src: camSrc(e.cam), time: clock() }; note('UYARI: ' + CAM_SHORT[e.cam] + ' sinyali kararsız'); return;
     case 'unhack': frozen = null; note(CAM_SHORT[e.cam] + ' yeniden başlatıldı.'); snd('blip'); return;
     case 'phase':
@@ -210,6 +220,7 @@ function sound(e) {
     case 'step': case 'retreat': return snd('step', p);
     case 'knock': return snd('knock', p);
     case 'drag': return snd('drag', p);
+    case 'dragAway': return snd('dragAway', p);
     case 'say4': case 'say5': case 'say6': return snd('say', +e.id[3], !!e.fake);
     default: return snd(e.id); // miyav, rattle, drawer, motor
   }
@@ -222,7 +233,7 @@ function itsMe(v) {
   if (v === 'cam') { $('feedBox').classList.add('itsme'); snd('static'); setTimeout(() => $('feedBox').classList.remove('itsme'), 1000); }
   if (v === 'corr') itsmeCorrUntil = G.t + 6;
   if (v === 'crash') {
-    stopPhone(); closeCam(true); snd('breathing', false);
+    stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false);
     $('scareImg').src = av('img/scare/itsme.png'); show('scare'); A.stopMusic && A.stopMusic(0); snd('static');
     setTimeout(() => { show('crash'); setTimeout(() => { refreshMenu(); show('title'); }, 2200); }, 1500);
   }
@@ -243,19 +254,21 @@ const WHY = {
   powerout: 'Jeneratör bitti. Karanlıkta 5 numaralı çekmece açıldı.',
 };
 function die(who) {
-  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false);
+  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false);
   const img = who === 'powerout' ? 'denek5' : who;
   $('scareImg').src = av(`img/scare/${img}.png`);
+  snd('doorBreath', false);
   show('scare'); snd('scream'); if (who === 'sayici') snd('sayScare'); $('scare').classList.add('shakeAll');
   // jumpscare -> parazitle bozulup yavaşça kararır -> "Öldün" ekranı karanlıktan belirir
   setTimeout(() => { $('scare').classList.remove('shakeAll'); $('scare').classList.add('dying'); snd('static'); }, 1500);
   setTimeout(() => {
     $('scare').classList.remove('dying'); $('overWhy').textContent = WHY[who] || '';
     show('over'); $('over').classList.remove('rise'); void $('over').offsetWidth; $('over').classList.add('rise');
+    setTimeout(() => snd('deathVoice', who), 700);
   }, 3300);
 }
 function win() {
-  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false);
+  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false);
   show('six'); $('sixClock').textContent = '5 AM'; $('sixMsg').textContent = ''; $('bNext').style.visibility = 'hidden';
   setTimeout(() => { $('sixClock').textContent = '6 AM'; snd('chime'); }, 1600);
   persist({ night, result: 'win', levels: night === 7 ? customLevels : undefined });
@@ -355,6 +368,11 @@ function render() {
   c.toggle('doorL', d.doorL); c.toggle('lightL', d.lightL); c.toggle('flash', d.flash); c.toggle('ventLight', d.ventLight);
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
   snd('breathing', !!d.sheet && !g.over);
+  snd('sahilNear', g.sahil.stage === Core.PARAMS.SAHIL_MOUTH && !g.over);
+  snd('doorBreath', g.avukat.at && g.avukat.knock <= 0 && !g.over);
+  // atmosfer: saat ilerledikçe azalır, biri çok yakınken neredeyse tamamen susar
+  const near = (g.avukat.at && g.avukat.knock <= 0) || g.sahil.stage === Core.PARAMS.SAHIL_MOUTH || g.pasta.stage === 3 || g.sultan.phase !== 'none';
+  try { A.setAmbLevel && A.setAmbLevel(near ? 0.06 : 1 - 0.65 * Math.min(1, g.t / Core.PARAMS.NIGHT_SEC)); } catch (e) { }
   if (d.sheet && ui.monitor) { ui.monitor = false; closeCam(); }
   // koridor
   // ışık titrerken hareketten önceki durum gösterilir (karakter ışık sönmeden yer değiştirmez)
@@ -392,10 +410,11 @@ function renderCam() {
   const g = G, cam = ui.cam, fb = $('feedBox');
   $('camName').textContent = CAM_NAMES[cam];
   const hacked = frozen && frozen.cam === cam;
-  const src = hacked ? frozen.src : camSrc(cam);
+  const ghost = cam === 'corr' && ghostUntil > performance.now();
+  const src = ghost ? 'img/cam/menu_hasan.png' : hacked ? frozen.src : camSrc(cam);
   // izlediğin kamerada biri gelir/giderse görüntü bir an parazitlenir (FNaF gibi)
-  if (lastFeed.cam === cam && lastFeed.src !== src && !hacked) staticBurst();
-  lastFeed = { cam, src };
+  if (lastFeed.cam === cam && lastFeed.src !== src && !hacked && !ghost && !lastFeed.ghost) staticBurst();
+  lastFeed = { cam, src, ghost };
   setSrc($('feedImg'), src);
   fb.classList.toggle('frozen', !!hacked);
   fb.classList.toggle('blind', !!g.dev.camBlind);
@@ -800,8 +819,7 @@ let ready = false;
 $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
 (function preload() {
   const imgs = ['office', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor',
-    'corr/empty', 'corr/lit', 'corr/pasta1', 'corr/pasta2', 'corr/pasta3', 'corr/sultan', 'vent/empty', 'vent/sahil', 'doorway/empty', 'doorway/avukat',
-    ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan', 'wash', 'wash_sahil'].map(c => 'cam/' + c),
+    ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan', 'wash', 'wash_sahil', 'menu_hasan'].map(c => 'cam/' + c),
     ...Core.CHARS.concat('itsme').map(c => 'scare/' + c)].map(s => `img/${s}.png`);
   const keep = window.__preloaded = []; let done = 0; const total = imgs.length + 2;
   const tick = () => { done++; $('splashTxt').textContent = `KASET YÜKLENİYOR %${Math.round(done / total * 100)}`; if (done >= total) finish(); };
@@ -819,4 +837,4 @@ addEventListener('contextmenu', e => e.preventDefault());
 addEventListener('dragstart', e => e.preventDefault());
 
 // test kancası
-window.__m5g = Object.assign(window.__m5g || {}, { startNight, get G() { return G; }, save: () => P, show, popItsme: () => { itsmePop.t = 0; } });
+window.__m5g = Object.assign(window.__m5g || {}, { startNight, get G() { return G; }, save: () => P, show, popItsme: () => { itsmePop.t = 0; }, ghost: () => { ghostT = 0; } });

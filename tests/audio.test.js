@@ -39,7 +39,7 @@ test('audio.js loads even when localStorage access throws', () => {
   assert.doesNotThrow(() => { ctx.Audio5.init(); ctx.Audio5.setMuted(true); });
 });
 
-const NEW_SFX = ['sayScare', 'murmur', 'kitapta', 'knock', 'drag', 'say', 'miyav', 'rattle', 'drawer', 'motor', 'reboot', 'phoneRing', 'breath', 'sheet', 'flashClick'];
+const NEW_SFX = ['dragAway', 'sahilNear', 'doorBreath', 'deathVoice', 'sayScare', 'murmur', 'kitapta', 'knock', 'drag', 'say', 'miyav', 'rattle', 'drawer', 'motor', 'reboot', 'phoneRing', 'breath', 'sheet', 'flashClick'];
 
 test('every new sound effect exists and plays without throwing', () => {
   const A = loadAudio();

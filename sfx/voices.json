@@ -35,5 +35,43 @@
   "sfx/sting_1.mp3",
   "sfx/sting_2.mp3",
   "sfx/sting_3.mp3"
+ ],
+ "step": [
+  "sfx/step_1.mp3",
+  "sfx/step_2.mp3"
+ ],
+ "drag": [
+  "sfx/drag_1.mp3",
+  "sfx/drag_2.mp3"
+ ],
+ "dragAway": [
+  "sfx/drag_away.mp3"
+ ],
+ "bang": [
+  "sfx/bang.mp3"
+ ],
+ "drawer": [
+  "sfx/drawer.mp3"
+ ],
+ "motor": [
+  "sfx/motor.mp3"
+ ],
+ "scream": [
+  "sfx/scream_1.mp3",
+  "sfx/scream_2.mp3",
+  "sfx/scream_3.mp3",
+  "sfx/scream_4.mp3"
+ ],
+ "death_any": [
+  "sfx/death_any.mp3"
+ ],
+ "powerdown": [
+  "sfx/powerdown.mp3"
+ ],
+ "flicker": [
+  "sfx/flicker_1.mp3"
+ ],
+ "lampHum": [
+  "sfx/lamp_hum.mp3"
  ]
 }
