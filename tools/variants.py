@@ -10,7 +10,7 @@ taşarsa taşsın kesilmez; kenarlar yumuşak geçer.
 import sys
 from pathlib import Path
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW, OUT = ROOT / 'img/office_v_raw', ROOT / 'img/office_v'
@@ -22,19 +22,38 @@ ZONES = {
     'corr': (700, 40, 1300, 848),
 }
 THRESH = 34      # renk farkı eşiği (0-255)
+# Ofiste sonradan eklenen sabit parçalar: versiyonlar bunları asla örtmez (ofisin kendi hali görünür).
+KEEP = [
+    (40, 205, 342, 506),     # duvardaki MIRIKVISION ekranı
+    (582, 286, 672, 452),    # kapı paneli (girintide)
+    (1756, 392, 1838, 500),  # havalandırma ışık düğmesi
+]
 FEATHER = 10     # kenar yumuşatma (px)
 
 
-def fit(im):
-    """Oranı farklıysa ortadan kırpıp 2000×848 yapar."""
+def fit(im, base=None):
+    """2000x848'e getirir. Flow gibi araçlar görüntüyü 16:9'a ESNETİR (yeniden çizmez):
+    o durumda genişliği 2000 yapıp dikey ölçek/kaymayı ofisle en iyi örtüşecek şekilde arar."""
     w, h = im.size
-    target = W / H
-    if abs(w / h - target) > 0.01:
-        if w / h > target:
-            nw = round(h * target); im = im.crop(((w - nw) // 2, 0, (w - nw) // 2 + nw, h))
-        else:
-            nh = round(w / target); im = im.crop((0, (h - nh) // 2, w, (h - nh) // 2 + nh))
-    return im.resize((W, H), Image.LANCZOS)
+    if abs(w / h - W / H) < 0.01:
+        return im.resize((W, H), Image.LANCZOS)
+    g = im.resize((W, round(h * W / w)), Image.LANCZOS)
+    if base is None:
+        return g.resize((W, H), Image.LANCZOS)
+    B = np.asarray(base.convert('L').resize((W // 4, H // 4)), float)
+    best = None
+    for sy in np.arange(0.70, 0.86, 0.005):
+        gh = round(g.size[1] * sy)
+        G = np.asarray(g.convert('L').resize((W // 4, gh // 4)), float)
+        for dy in range(-12, 13):          # 4x küçültülmüş ölçekte (gerçekte -48..48 px)
+            if dy > 0 or -dy + H // 4 > G.shape[0]: continue
+            e = np.abs(G[-dy:-dy + H // 4, :] - B).mean()
+            if best is None or e < best[0]: best = (e, sy, dy * 4)
+    _, sy, dy = best
+    G = g.resize((W, round(g.size[1] * sy)), Image.LANCZOS)
+    out = Image.new('RGB', (W, H)); out.paste(G, (0, dy))
+    print(f'  esnetilmiş görsel hizalandı: dikey ölçek {sy:.3f}, kayma {dy}px')
+    return out
 
 
 def mask_for(img, base, zone):
@@ -49,6 +68,8 @@ def mask_for(img, base, zone):
     mi = Image.fromarray(m)
     mi = mi.filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MaxFilter(31))   # benekleri at, deliği kapat
     mi = mi.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.MinFilter(9))    # kenarı toparla
+    d = ImageDraw.Draw(mi)
+    for box in KEEP: d.rectangle(box, fill=0)
     return mi.filter(ImageFilter.GaussianBlur(FEATHER)), float((np.asarray(mi) > 0).mean())
 
 
@@ -63,7 +84,7 @@ def main(names=None):
         if names and name not in names: continue
         zone = next((z for k, z in ZONES.items() if name.startswith(k)), None)
         if not zone: print('bölge bilinmiyor, atlandı:', src.name); continue
-        img = fit(Image.open(src).convert('RGB'))
+        img = fit(Image.open(src).convert('RGB'), base)
         alpha, cover = mask_for(img, base, zone)
         out = img.convert('RGBA'); out.putalpha(alpha)
         out.save(OUT / f'{name}.png', optimize=True)
