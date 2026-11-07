@@ -41,7 +41,7 @@ def fit(im, base=None):
     """2000x848'e getirir. Flow/Antigravity görüntüyü 16:9'a ESNETİP biraz kaydırabiliyor (yeniden çizmez):
     o durumda yatay+dikey ölçek ve kaymayı ofisle en iyi örtüşecek şekilde arar (kaba->ince)."""
     w, h = im.size
-    if base is None or abs(w / h - W / H) < 0.01 and base is None:
+    if base is None or abs(w / h - W / H) < 0.01:   # oran doğruysa (21:9) düz ölçekle; esnetilmemiş
         return im.resize((W, H), Image.LANCZOS)
     g0 = im.resize((W, round(h * W / w)), Image.LANCZOS)
     def err(k, sx, sy, dx, dy, B, g):
