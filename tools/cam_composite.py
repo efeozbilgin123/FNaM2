@@ -58,9 +58,12 @@ if __name__ == '__main__':
         ('ventB_sahil', 'ventB', 'sahil', 322, 392, 225, .9),
         ('wash_sahil', 'wash', 'sahil', 418, 322, 118, .62),
     ]
+    gem = lambda n: any((ROOT / 'img/cam_raw').glob(n + '.*'))   # Gemini görseli varsa o kullanılır (tools/cam_import.py)
     for out, bg, cut, x, y, h, l in jobs:
+        if gem(out): continue
         cctv(place(B(bg), C(cut), x, y, h, l)).save(ROOT / f'img/cam/{out}.png'); print(f'img/cam/{out}.png')
     sx, foot, h = 402, 262, 175
+    if gem('lift_sultan'): raise SystemExit
     im = place(B('lift'), C('sultan'), sx, foot, h, 1.0)
     im = glow(im, sx, foot - h * .55, 70, .45)
     cctv(im).save(ROOT / 'img/cam/lift_sultan.png'); print('img/cam/lift_sultan.png')

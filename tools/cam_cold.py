@@ -101,4 +101,7 @@ def opened(src):
 if __name__ == '__main__':
     np.random.seed(7)
     src = base()
-    save(src, 'cold'); hot(src); opened(src)
+    save(src, 'cold')
+    gem = lambda n: any((ROOT / 'img/cam_raw').glob(n + '.*'))   # Gemini görseli varsa dokunma
+    if not gem('cold_hot'): hot(src)
+    if not gem('cold_open'): opened(src)
