@@ -104,7 +104,8 @@
     applyInput(G, inp);
     G.extraDrain = 0;
     const calm = G.t < G.grace;
-    for (const f of TICKS) { if (G.over) return; if (calm && /^tick/.test(f.name) && f.name !== 'tickDenek5') continue; f(G, dt, inp); }   // 5 numara telefon sırasında da ısınır
+    // elektrik bitince kimse saldırmaz (sadece karanlıktaki özel son); telefon sırasında sadece 5 numara ısınır
+    for (const f of TICKS) { if (G.over) return; if (/^tick/.test(f.name) && (G.dark || (calm && f.name !== 'tickDenek5'))) continue; f(G, dt, inp); }
     if (G.over) return;
     if (!G.dark) {
       G.power -= usage(G) * dt;

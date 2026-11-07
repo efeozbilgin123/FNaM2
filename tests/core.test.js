@@ -74,3 +74,10 @@ test('after the game is over, step returns nothing and time stops', () => {
   assert.deepStrictEqual(Core.step(G, 1, IDLE), []);
   assert.strictEqual(G.t, t);
 });
+
+test('once the power is out, only the power-out ending can kill', () => {
+  const G = game(); for (const k in G.lv) G.lv[k] = 20; G.power = 0.01;
+  const evs = run(G, 30);
+  const d = evs.filter(e => e.type === 'death');
+  assert.strictEqual(d.length, 1); assert.strictEqual(d[0].who, 'powerout');
+});
