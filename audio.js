@@ -54,6 +54,7 @@ const Audio5 = (() => {
       try { const r = await fetch(url); if (!r.ok) return; const ab = await r.arrayBuffer(); const p = ctx.decodeAudioData(ab, b => { (samples[k] = samples[k] || []).push(b); }, () => {}); if (p && p.catch) await p.catch(() => {}); } catch (e) {}
     }));
   }
+  let breathNode = null;
   function play(name, { pan = 0, vol = 1, wet = 0.15, rate = 1 } = {}) {
     const all = samples[name]; if (!all || !all.length) return false;
     const b = all[Math.floor(Math.random() * all.length)];
@@ -164,7 +165,22 @@ const Audio5 = (() => {
       for (let r = 0; r < 2; r++) for (let i = 0; i < 16; i++) { const tt = t + r * 1.2 + i * 0.05; osc({ t: tt, f: 1300, dur: 0.03, vol: 0.06, type: 'square', lp: 2500, pan: 0.3, wet: 0.3 }); }
     },
     breath() { if (play('breath', { vol: 0.5, wet: 0.2 })) return; noise({ dur: 1.4, type: 'bandpass', f: 900, f2: 500, q: 1.2, vol: 0.12, a: 0.5, wet: 0.2 }); },
-    sheet() { for (let i = 0; i < 4; i++) noise({ t: now() + i * 0.05, dur: 0.18, type: 'bandpass', f: 1800 + Math.random() * 1500, q: 0.9, vol: 0.12, wet: 0.15 }); sfx.breath(); },
+    sheet() { for (let i = 0; i < 4; i++) noise({ t: now() + i * 0.05, dur: 0.18, type: 'bandpass', f: 1800 + Math.random() * 1500, q: 0.9, vol: 0.12, wet: 0.15 }); },
+    // örtü altında nefes: tek bir döngü, her karede çağrılabilir (açıksa tekrar başlatmaz); kapanınca yumuşakça söner
+    breathing(on) {
+      const t = now();
+      if (on && !breathNode) {
+        const all = samples.breath; if (!all || !all.length) return;
+        const s = ctx.createBufferSource(); s.buffer = all[0]; s.loop = true;
+        const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.14, t + 0.9);
+        s.connect(g); out(g, { wet: 0.15 }); s.start(t, Math.random() * all[0].duration);
+        breathNode = { s, g };
+      } else if (!on && breathNode) {
+        const { s, g } = breathNode; breathNode = null;
+        g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(Math.max(g.gain.value, 0.0001), t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+        s.stop(t + 0.45);
+      }
+    },
     flashClick() { noise({ dur: 0.015, type: 'highpass', f: 3500, vol: 0.3, wet: 0 }); osc({ f: 3000, f2: 1500, dur: 0.02, vol: 0.05, wet: 0 }); },
     door(side = 0, closing = true) { // ağır sürgülü çelik kepenk
       if (play(closing ? 'doorClose' : 'doorOpen', { pan: side * 0.6, vol: closing ? 1 : 0.85, wet: 0.18 })) return;

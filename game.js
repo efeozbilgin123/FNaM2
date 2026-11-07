@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108n';
+const ASSET_V = '20261108o';
 const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
@@ -193,7 +193,7 @@ function itsMe(v) {
   if (v === 'cam') { $('feedBox').classList.add('itsme'); snd('static'); setTimeout(() => $('feedBox').classList.remove('itsme'), 1000); }
   if (v === 'corr') itsmeCorrUntil = G.t + 6;
   if (v === 'crash') {
-    stopPhone(); closeCam(true);
+    stopPhone(); closeCam(true); snd('breathing', false);
     $('scareImg').src = av('img/scare/itsme.png'); show('scare'); A.stopMusic && A.stopMusic(0); snd('static');
     setTimeout(() => { show('crash'); setTimeout(() => { refreshMenu(); show('title'); }, 2200); }, 1500);
   }
@@ -214,7 +214,7 @@ const WHY = {
   powerout: 'Jeneratör bitti. Karanlıkta 5 numaralı çekmece açıldı.',
 };
 function die(who) {
-  cancelAnimationFrame(raf); stopPhone(); closeCam(true);
+  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false);
   const img = who === 'powerout' ? 'denek5' : who;
   $('scareImg').src = av(`img/scare/${img}.png`);
   show('scare'); snd('scream'); if (who === 'sayici') snd('sayScare'); $('scare').classList.add('shakeAll');
@@ -226,7 +226,7 @@ function die(who) {
   }, 3300);
 }
 function win() {
-  cancelAnimationFrame(raf); stopPhone(); closeCam(true);
+  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false);
   show('six'); $('sixClock').textContent = '5 AM'; $('sixMsg').textContent = ''; $('bNext').style.visibility = 'hidden';
   setTimeout(() => { $('sixClock').textContent = '6 AM'; snd('chime'); }, 1600);
   persist({ night, result: 'win', levels: night === 7 ? customLevels : undefined });
@@ -324,6 +324,7 @@ function render() {
   const d = Object.assign({}, g.dev); if (!G.dark && !g.dev.sheet && !ui.monitor) for (const k in fl) if (fl[k]) d[k] = true;
   c.toggle('doorL', d.doorL); c.toggle('lightL', d.lightL); c.toggle('flash', d.flash); c.toggle('ventLight', d.ventLight);
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
+  snd('breathing', !!d.sheet && !g.over);
   if (d.sheet && ui.monitor) { ui.monitor = false; closeCam(); }
   // koridor
   // ışık titrerken hareketten önceki durum gösterilir (karakter ışık sönmeden yer değiştirmez)
