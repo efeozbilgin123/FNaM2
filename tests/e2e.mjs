@@ -78,6 +78,22 @@ async function openCold(page) {
   await page.keyboard.press('Space'); await page.waitForTimeout(700);
   await page.keyboard.press('3'); await page.waitForTimeout(700); // kamera uygulaması açılır
 }
+await check('toggle mode: one press turns the flashlight on, a second press turns it off', async (page) => {
+  await page.addInitScript(() => localStorage.setItem('m5g_morg_opts', JSON.stringify({ toggle: true })));
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.press('f'); await page.waitForTimeout(200);
+  assert.strictEqual(await page.evaluate(() => window.__game.dev.flash), true);
+  await page.keyboard.press('f'); await page.waitForTimeout(200);
+  assert.strictEqual(await page.evaluate(() => window.__game.dev.flash), false);
+});
+await check('toggle mode: lights switch off when the monitor opens and stay off after it closes', async (page) => {
+  await page.addInitScript(() => localStorage.setItem('m5g_morg_opts', JSON.stringify({ toggle: true })));
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.press('a'); await page.waitForTimeout(200);
+  assert.strictEqual(await page.evaluate(() => window.__game.dev.lightL), true);
+  await page.keyboard.press('Space'); await page.waitForTimeout(900); await page.keyboard.press('Space'); await page.waitForTimeout(900);
+  assert.strictEqual(await page.evaluate(() => window.__game.dev.lightL), false);
+});
 await check('holding C on the cold cam lowers the temperature', async (page) => {
   await boot(page); await startNight(page, 1, { quiet: true });
   await page.evaluate(() => { window.__game.denek5.temp = 50; });
@@ -85,15 +101,14 @@ await check('holding C on the cold cam lowers the temperature', async (page) => 
   await page.keyboard.down('c'); await page.waitForTimeout(800); await page.keyboard.up('c');
   assert.ok(await page.evaluate(() => window.__game.denek5.temp) < 47);
 });
-await check('a hacked cold cam shows a frozen temperature', async (page) => {
+await check('a hacked cold cam shows an unreadable temperature and locks cooling', async (page) => {
   await boot(page); await startNight(page, 2, { quiet: true });
   await page.evaluate(() => { window.__game.denek5.temp = 30; Core._internal.hack(window.__game, 'cold'); });
   await openCold(page);
-  const a = await page.textContent('#tempTxt');
-  await page.evaluate(() => { window.__game.denek5.temp = 60; });
-  await page.waitForTimeout(300);
-  assert.strictEqual(await page.textContent('#tempTxt'), a);
-  assert.strictEqual(a, '30°');
+  assert.ok(!/\d/.test(await page.textContent('#tempTxt')), 'temperature should be unreadable');
+  assert.strictEqual(await page.textContent('#bCool'), 'KİLİTLİ');
+  await page.keyboard.down('c'); await page.waitForTimeout(600); await page.keyboard.up('c');
+  assert.ok(await page.evaluate(() => window.__game.denek5.temp) >= 30);
 });
 await check('holding R for 3 s reboots the hacked camera', async (page) => {
   await boot(page); await startNight(page, 1, { quiet: true });
@@ -169,12 +184,12 @@ await check('without variants the flat door overlay is used', async (page) => {
 await check('the repair app fixes a hacked camera with the mouse; a healthy one reports no problem', async (page) => {
   await boot(page); await startNight(page, 1, { quiet: true });
   await page.keyboard.press('Space'); await page.waitForTimeout(800);
-  await page.evaluate(() => Core._internal.hack(window.__game, 'archive'));
+  await page.evaluate(() => Core._internal.hack(window.__game, 'cold'));
   await page.click('#bStart'); await page.click('#startMenu .smi[data-app="fix"]'); await page.waitForTimeout(500);
   await page.click('#fixList div[data-cam="lift"]'); await page.click('#bFix'); await page.waitForTimeout(3400);
   assert.strictEqual(await page.textContent('#fixMsg'), 'Sorun bulunamadı.');
-  assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), 'archive');
-  await page.click('#fixList div[data-cam="archive"]'); await page.click('#bFix'); await page.waitForTimeout(3400);
+  assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), 'cold');
+  await page.click('#fixList div[data-cam="cold"]'); await page.click('#bFix'); await page.waitForTimeout(3400);
   assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), null);
   assert.ok((await page.textContent('#fixMsg')).includes('onarıldı'));
 });

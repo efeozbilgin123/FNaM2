@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109n';
+const ASSET_V = '20261109o';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -74,8 +74,11 @@ $('doc').onclick = () => { if (!docNext) return; const f = docNext; docNext = nu
 
 // ---------- oyun durumu ----------
 let G = null, raf = 0, last = 0, night = 1, customLevels = null, quiet = false;
+// Ayarlar (tarayıcıda saklanır): toggle = ışıklar/soğutma aç-kapa; barsHover = monitör/örtü çubukları üstüne gelince de çalışır
+const OPTS = Object.assign({ toggle: false, barsHover: true }, (() => { try { return JSON.parse(localStorage.getItem('m5g_morg_opts')) || {}; } catch (e) { return {}; } })());
+function saveOpts() { try { localStorage.setItem('m5g_morg_opts', JSON.stringify(OPTS)); } catch (e) { } }
 const ui = { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false,
-  app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: '' };
+  app: 'cctv', loading: false, fixing: false, fixCam: 'cold', fixT: 0, fixMsg: '' };
 const look = { x: 209, mouse: null, keys: 0, zoom: false, drag: null };
 const VIEW_SCALE = 720 / 848, PAN_MAX = 2000 * VIEW_SCALE - 1280, PAN_Y = 0;
 const CAM_NAMES = { corr: 'CAM 01 — KORİDOR', autopsy: 'CAM 02 — OTOPSİ SALONU', cold: 'CAM 03 — SOĞUK ODA', ventA: 'CAM 04 — HAVALANDIRMA A', ventB: 'CAM 05 — HAVALANDIRMA B', archive: 'CAM 06 — ARŞİV', lift: 'CAM 07 — ASANSÖR', wash: 'CAM 08 — YIKAMA ODASI' };
@@ -101,7 +104,7 @@ function begin() {
   G = Core.createGame({ night, levels, noItsMe: quiet, grace: night <= 6 && !quiet ? NIGHTS[night].grace || 0 : 0 });
   window.__game = G;
   Object.assign(ui, { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false,
-    app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
+    app: 'cctv', loading: false, fixing: false, fixCam: 'cold', fixT: 0, fixMsg: 'Arızalı aygıtı seçip Onar\'a basın.' });
   wm.open = []; wm.min.clear(); wm.z = []; wm.active = null; closeStart(); pcStack.length = 0; renderPc();
   document.querySelectorAll('.win').forEach(w => { w.style.left = ''; w.style.top = ''; });
   frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 60 + Math.random() * 90; ghostT = 90 + Math.random() * 120; ghostUntil = 0; for (const k in stung) delete stung[k]; itsmePop = { t: nextPop(true), due: 0 };
@@ -204,13 +207,13 @@ function handle(e) {
     case 'sound': return sound(e);
     // Sahil ağza gelince metal çarpma: 2. gecede her zaman, 3. geceden itibaren yarı yarıya sessiz gelir (ışıkla bakmak gerekir)
     case 'move': if (e.who === 'sahil' && e.to === 'mouth' && (night <= 2 || Math.random() < 0.5)) snd('bang'); if (e.who !== 'pasta' || e.stage < 3) note(moveNote(e)); return;
-    case 'hack': frozen = { cam: e.cam, src: camSrc(e.cam), time: clockFull() }; note('UYARI: ' + CAM_SHORT[e.cam] + ' sinyali kararsız'); return;
+    case 'hack': frozen = { cam: e.cam, src: camSrc(e.cam), time: clockFull() }; ui.fixCam = e.cam; note('UYARI: Soğuk oda kamerası arızalı. Soğutma kilitli. Sistem Onarım (R)'); return;
     case 'unhack': frozen = null; note(CAM_SHORT[e.cam] + ' yeniden başlatıldı.'); snd('blip'); return;
     case 'phase':
       $('game').classList.toggle('sultanA', e.phase === 'approach');
       $('game').classList.toggle('sultanH', e.phase === 'here');
       return;
-    case 'lightout': snd('flicker'); flick[e.light] = { t0: performance.now(), was: e.was }; setTimeout(() => snd('light', false), FLICK_MS); return;
+    case 'lightout': if (OPTS.toggle) ui[e.light] = false; snd('flicker'); flick[e.light] = { t0: performance.now(), was: e.was }; setTimeout(() => snd('light', false), FLICK_MS); return;
     case 'powerout': return powerOut();
     case 'itsme': return itsMe(e.variant);
     case 'death': return die(e.who);
@@ -224,7 +227,9 @@ function moveNote(e) {
 function sound(e) {
   const p = PAN[e.from] ?? 0;
   switch (e.id) {
-    case 'step': case 'retreat': return snd('step', p);
+    // 3. geceden itibaren Pasta koridorun sonuna yarı yarıya sessiz gelir: kamera ya da fenerle bakmak gerekir
+    case 'step': if (e.stage === 3 && night >= 3 && Math.random() < 0.5) return; return snd('step', p);
+    case 'retreat': return snd('step', p);
     case 'knock': return snd('knock', p);
     // havalandırma: sürünme sesi yok; sadece Sahil ağızda belirirken (move olayında) ve giderken metal çarpma.
     // Arda'nın sahte 'drag' taklidi de çarpma gibi duyulur.
@@ -274,7 +279,6 @@ const WHY = {
   avukat: 'Kapıda biri vardı. Ayak sesi duyunca kapı ışığını yak; görürsen kapıyı kapat.',
   sahil: 'Havalandırmaya ara ara ışıkla bak; Sahil her zaman ses çıkararak gelmez. Oradaysa örtüyü çek; çarpmayı duyana kadar kıpırdama.',
   sayici: '"Beş"i duyduğunda örtünün altında olmalıydın. Altıya kadar saydı.',
-  muh: 'Donmuş bir kamera fark etmedin. Saat ilerlemiyorsa o kamerayı yeniden başlat.',
   arda: 'Duyduğun her ses gerçek değildi. Sonundaki bozuk miyavı dinle ve tepki verme.',
   sultan: 'Motor sesini duyunca her şeyi kapat: monitör, ışıklar, fener. Karanlıkta bekle.',
   denek5: '5 numaralı çekmece ısındı. Soğuk oda kamerasında SOĞUT\'a basılı tut.',
@@ -428,7 +432,7 @@ function render() {
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
   snd('breathing', !!d.sheet && !g.over);
   snd('lampHum', 'lightL', !!d.lightL && !g.over, -1); snd('lampHum', 'ventLight', !!d.ventLight && !g.over, 1);
-  snd('doorBreath', g.avukat.at && g.avukat.knock <= 0 && !g.over);
+  snd('doorBreath', g.avukat.at && g.avukat.knock <= 0 && g.avukat.t >= 5.5 && !g.over);   // geç başlar: erken uyarı değil
   // atmosfer: saat ilerledikçe azalır, biri çok yakınken neredeyse tamamen susar
   const near = (g.avukat.at && g.avukat.knock <= 0) || g.sahil.stage === Core.PARAMS.SAHIL_MOUTH || g.pasta.stage === 3 || g.sultan.phase !== 'none';
   try { A.setAmbLevel && A.setAmbLevel(near ? 0.06 : 1 - 0.65 * Math.min(1, g.t / Core.PARAMS.NIGHT_SEC)); } catch (e) { }
@@ -482,11 +486,16 @@ function renderCam() {
   fb.classList.toggle('cold', cam === 'cold');
   $('stamp').textContent = `${hacked ? frozen.time : clockFull()} AM  ${CAM_SHORT[cam]}`;   // bozuk kamerada saat donar
   $('d5').style.opacity = hacked && Math.random() < 0.04 ? 1 : 0;
-  const temp = Core.shownTemp(g);
-  $('tempFill').style.width = Math.min(100, temp) + '%';
-  $('tempTxt').textContent = Math.round(temp) + '°';
-  $('coldPanel').classList.toggle('hot', temp >= 70);
+  // Mühendis soğuk oda kamerasını bozduysa: sıcaklık okunmaz (bozuk karakterler), soğutma kilitli
+  const broken = g.muh.cam === 'cold', temp = Core.shownTemp(g);
+  const GL = '#%&?@▒▓░§¤¿!/\\';
+  const gl = n => Array.from({ length: n }, () => GL[Math.floor(Math.random() * GL.length)]).join('');
+  $('tempFill').style.width = (broken ? 10 + Math.random() * 90 : Math.min(100, temp)) + '%';
+  $('tempTxt').textContent = broken ? gl(2) + '°' : Math.round(temp) + '°';
+  $('coldPanel').classList.toggle('hot', !broken && temp >= 70);
+  $('coldPanel').classList.toggle('glitch', broken);
   $('bCool').classList.toggle('on', !!g.dev.cooling);
+  $('bCool').textContent = broken ? 'KİLİTLİ' : 'Soğut (C)';
   document.querySelectorAll('#map button').forEach(b => b.classList.toggle('sel', b.dataset.cam === cam));
   $('mapSel').textContent = `CAM ${Core.CAMS.indexOf(cam) + 1} - ${CAM_SHORT[cam]}`;
   $('camPow').textContent = `JEN %${Math.ceil(g.power)}`;
@@ -592,6 +601,7 @@ function toggleMonitor() { if (camBusy) return; if (ui.monitor) closeCam(); else
 function toggleSheet() {
   if (!G || G.over) return;
   if (!ui.sheet && ui.monitor) closeCam(true);
+  if (!ui.sheet && OPTS.toggle) ['flash', 'lightL', 'ventLight'].forEach(k => setHold(k, false));   // aç/kapa modunda örtü çekilince açık ışıklar söner
   ui.sheet = !ui.sheet; snd('sheet');
 }
 let lastFeed = {}, burstT = null;
@@ -738,7 +748,7 @@ addEventListener('pointerup', () => { drag = null; });
 // eski adlar: kamera ve onarım
 function cctvOn() { return visible('cctv'); }
 // Sistem Onarım: kamerayı seç, Onar. 3 sn video yok. Hangi kameranın bozuk olduğunu söylemez.
-$('fixList').innerHTML = Core.CAMS.map(c => `<div data-cam="${c}">${CAM_NAMES[c]}</div>`).join('');
+$('fixList').innerHTML = Core.CAMS.map(c => `<div data-cam="${c}">${CAM_NAMES[c]}<em></em></div>`).join('');
 document.querySelectorAll('#fixList div').forEach(d => d.addEventListener('click', () => { if (ui.fixing) return; ui.fixCam = d.dataset.cam; ui.fixMsg = 'Onar düğmesine basın.'; snd('tick'); renderFix(); }));
 $('bFix').addEventListener('click', () => startFix());
 function startFix() {
@@ -757,6 +767,7 @@ function fixTick(dt) {
 }
 function renderFix() {
   $('fixSel').textContent = CAM_NAMES[ui.fixCam];
+  document.querySelectorAll('#fixList div').forEach(d => { const bad = G && G.muh.cam === d.dataset.cam; d.classList.toggle('bad', bad); d.querySelector('em').textContent = bad ? 'ARIZALI' : 'Çalışıyor'; });
   document.querySelectorAll('#fixList div').forEach(d => d.classList.toggle('sel', d.dataset.cam === ui.fixCam));
   $('fixBar').style.width = (ui.fixing ? Math.min(1, ui.fixT / Core.PARAMS.MUH_REBOOT) * 100 : 0) + '%';
   $('bFix').classList.toggle('on', ui.fixing);
@@ -773,10 +784,19 @@ $('map').insertAdjacentHTML('beforeend', Core.CAMS.map(c => `<button data-cam="$
 document.querySelectorAll('#map button').forEach(b => b.onclick = () => selCam(b.dataset.cam));
 
 // ---------- kontroller ----------
+// Işık/fener/soğutma durumunu değiştir (sesleriyle). Ayarlarda "aç/kapa" seçiliyse basış açıp kapatır, bırakmak bir şey yapmaz.
+function setHold(key, on) {
+  if (ui[key] === on) return;
+  ui[key] = on;
+  if (on) { if (key === 'flash') snd('flashClick'); if (key === 'reboot') snd('reboot'); if (key === 'lightL' || key === 'ventLight') snd('light', true, key === 'lightL' ? -1 : 1); }
+  else if (key === 'lightL' || key === 'ventLight') snd('light', false);
+}
+function press(key) { if (!G || G.over || G.dark) return; setHold(key, OPTS.toggle ? !ui[key] : true); }
+function release(key) { if (!OPTS.toggle) setHold(key, false); }
 function hold(el, key) {
-  const on = e => { e.preventDefault(); if (G && !G.over && !G.dark) { ui[key] = true; if (key === 'flash') snd('flashClick'); if (key === 'reboot') snd('reboot'); if (key === 'lightL' || key === 'ventLight') snd('light', true, key === 'lightL' ? -1 : 1); } };
-  const off = () => { if (ui[key]) { ui[key] = false; if (key !== 'flash' && key !== 'cooling' && key !== 'reboot') snd('light', false); } };
-  el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointerleave', off); el.addEventListener('pointercancel', off);
+  el.addEventListener('pointerdown', e => { e.preventDefault(); press(key); });
+  const off = () => release(key);
+  el.addEventListener('pointerup', off); el.addEventListener('pointerleave', off); el.addEventListener('pointercancel', off);
 }
 hold($('corrHit'), 'flash'); hold($('bLight'), 'lightL'); hold($('ventBtn'), 'ventLight'); hold($('bCool'), 'cooling');
 $('bDoor').onclick = () => {
@@ -788,7 +808,7 @@ $('bDoor').onclick = () => {
 // Üstüne gelir gelmez yapılan tıklama yok sayılır (yoksa açıp hemen geri kapatırdı).
 function barControl(el, fn) {
   let hoverAt = -1e9;
-  el.addEventListener('mouseenter', () => { hoverAt = performance.now(); fn(); });
+  el.addEventListener('mouseenter', () => { if (!OPTS.barsHover) return; hoverAt = performance.now(); fn(); });
   el.addEventListener('click', e => { if (e.pointerType === 'mouse' && performance.now() - hoverAt < 700) return; fn(); });
 }
 barControl($('barMon'), toggleMonitor); barControl($('barSheet'), toggleSheet);
@@ -798,13 +818,13 @@ const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling' };
 addEventListener('keydown', e => {
   if (!G || G.over || !$('game').classList.contains('on')) return;
   const k = e.key.toLowerCase();
-  if (HOLD_KEYS[k]) { if (!e.repeat && !G.dark) { ui[HOLD_KEYS[k]] = true; if (k === 'f') snd('flashClick'); if (k === 'a' || k === 'v') snd('light', true, k === 'a' ? -1 : 1); } return; }
+  if (HOLD_KEYS[k]) { if (!e.repeat) press(HOLD_KEYS[k]); return; }
   if (e.repeat) return;
   if (k === 'q') $('bDoor').onclick();
   if (k === ' ' || k === 'tab') { e.preventDefault(); toggleMonitor(); }
   if (k === 's') toggleSheet();
   if (k >= '1' && k <= '8' && ui.monitor) { if (cctvOn()) selCam(Core.CAMS[+k - 1]); else { ui.cam = Core.CAMS[+k - 1]; openApp('cctv'); } }
-  if (k === 'r' && ui.monitor) { const c = cctvOn() && wm.active !== 'fix' ? ui.cam : ui.fixCam; openApp('fix'); ui.fixCam = c; startFix(); }
+  if (k === 'r' && ui.monitor) { openApp('fix'); ui.fixCam = 'cold'; startFix(); }   // R: soğuk oda kamerasını onar
   if (e.key === 'Escape' && ui.monitor) closeCam();
   if (e.key === 'ArrowLeft') { look.keys = -1; e.preventDefault(); } if (e.key === 'ArrowRight') { look.keys = 1; e.preventDefault(); }
 });
@@ -814,7 +834,7 @@ addEventListener('blur', releaseHolds);
 document.addEventListener('visibilitychange', () => { if (document.hidden) releaseHolds(); });
 addEventListener('keyup', e => {
   const k = e.key.toLowerCase();
-  if (HOLD_KEYS[k]) { ui[HOLD_KEYS[k]] = false; if (k === 'a' || k === 'v') snd('light', false); }
+  if (HOLD_KEYS[k]) release(HOLD_KEYS[k]);
   if (e.key === 'ArrowLeft' && look.keys < 0) look.keys = 0; if (e.key === 'ArrowRight' && look.keys > 0) look.keys = 0;
 });
 
@@ -837,7 +857,14 @@ $('bCont').onclick = () => startNight(P.night || 1);
 $('bSix').onclick = () => startNight(6);
 $('bCustom').onclick = () => { renderCustom(); show('custom'); };
 $('bArchive').onclick = () => { renderArchive(); show('archive'); };
-$('bArcBack').onclick = $('bCusBack').onclick = () => show('title');
+$('bArcBack').onclick = $('bCusBack').onclick = $('bSetBack').onclick = () => show('title');
+$('bSettings').onclick = () => { renderSettings(); show('settings'); };
+function renderSettings() {
+  document.querySelectorAll('#setList .opts[data-opt]').forEach(o => o.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.v === +OPTS[o.dataset.opt])));
+  const v = Math.round(A.volume * 100); $('setVol').value = v; $('setVol').style.setProperty('--v', v + '%'); $('setVolTxt').textContent = v;
+}
+document.querySelectorAll('#setList .opts[data-opt] button').forEach(b => b.onclick = () => { OPTS[b.parentNode.dataset.opt] = !!+b.dataset.v; saveOpts(); snd('tick'); renderSettings(); });
+$('setVol').addEventListener('input', e => { A.init(); if (A.muted) A.setMuted(false); A.setVolume(e.target.value / 100); muteLabel(); renderSettings(); });
 
 function renderArchive() {
   const tape = (id, t, sub, lock) => lock ? `<div class="tapebox lock"><div class="lab">???<small>${sub}</small></div></div>` : `<div class="tapebox" tabindex="0" ${id ? `data-doc="${id}"` : ''}><div class="lab">${t}<small>${sub}</small></div></div>`;

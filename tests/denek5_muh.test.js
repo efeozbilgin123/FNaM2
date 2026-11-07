@@ -64,10 +64,16 @@ test('reboot blinds the camera while held', () => {
   assert.strictEqual(G.dev.camBlind, true);
 });
 
-test('an unfixed hack kills after 25 s', () => {
-  const G = game(1, {}); hack(G, 'archive');
-  const evs = run(G, 26);
-  assert.ok(evs.some(e => e.type === 'death' && e.who === 'muh'));
+test('a cold-cam hack never kills by itself, but locks cooling and doubles the heating', () => {
+  const G = game(1, { denek5: 3 }); G.denek5.temp = 10; hack(G, 'cold');
+  const evs = run(G, 10, { monitor: true, cam: 'cold', cooling: true });
+  assert.ok(!evs.some(e => e.type === 'death'));
+  assert.strictEqual(G.dev.cooling, false);
+  assert.ok(Math.abs(G.denek5.temp - (10 + 10 * 2 * (P.D5_BASE + 3 * P.D5_PER_LV))) < 0.1, 'temp ' + G.denek5.temp);
+  run(G, 3.05, { monitor: true, cam: 'cold', reboot: 'cold' });
+  assert.strictEqual(G.muh.cam, null);
+  const t = G.denek5.temp; run(G, 1, { monitor: true, cam: 'cold', cooling: true });
+  assert.ok(G.denek5.temp < t, 'cooling works again after repair');
 });
 
 test('Mühendis at level 0 never hacks; at 20 hacks within one tick', () => {
@@ -75,5 +81,5 @@ test('Mühendis at level 0 never hacks; at 20 hacks within one tick', () => {
   assert.ok(!run(G, 120).some(e => e.type === 'hack'));
   const H = game(1, { muh: 20 });
   const evs = run(H, P.MUH_TICK + 1);
-  assert.ok(evs.some(e => e.type === 'hack' && Core.CAMS.includes(e.cam)));
+  assert.ok(evs.some(e => e.type === 'hack' && e.cam === 'cold'));   // sadece soğuk oda kamerası
 });

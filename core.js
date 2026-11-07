@@ -76,7 +76,7 @@
     d.lightL = hands && !!inp.lightL && lo.lightL <= 0;
     d.flash = hands && !!inp.flash && lo.flash <= 0;
     d.ventLight = hands && !!inp.ventLight && lo.ventLight <= 0;
-    d.cooling = d.monitor && !!inp.cooling;
+    d.cooling = d.monitor && !!inp.cooling && !(G.muh && G.muh.cam === 'cold');   // soğuk oda kamerası bozukken soğutma kilitli
     d.cam = d.monitor && CAMS.includes(inp.cam) ? inp.cam : null;
     d.reboot = d.monitor && CAMS.includes(inp.reboot) ? inp.reboot : null;
   }
@@ -158,7 +158,7 @@
     s.stage++;
     if (s.stage === 3) { s.window = PARAMS.PASTA_WINDOW; s.flashT = 0; }
     emit(G, { type: 'move', who: 'pasta', to: PASTA_ROUTE[s.stage], stage: s.stage });
-    emit(G, { type: 'sound', id: 'step', from: 'corr' });
+    emit(G, { type: 'sound', id: 'step', from: 'corr', stage: s.stage });
   });
 
   // ---------- Avukat Mırık (sol kapı) ----------
@@ -186,7 +186,8 @@
     if (s.tick < PARAMS.AVUKAT_TICK) return;
     s.tick = 0;
     if (!roll(G, G.lv.avukat)) return;
-    if (s.pos === 'archive') { s.pos = 'lift'; emit(G, { type: 'move', who: 'avukat', to: 'lift' }); }
+    // asansöre geçerken de aynı ayak sesi: ses 'kapıda' demez, sadece 'hareket etti' der; nerede olduğunu kamera söyler
+    if (s.pos === 'archive') { s.pos = 'lift'; emit(G, { type: 'move', who: 'avukat', to: 'lift' }); emit(G, { type: 'sound', id: 'step', from: 'door', far: true }); }
     else { knockOut(G, 'lightL'); s.pos = 'door'; s.at = true; s.t = 0; emit(G, { type: 'move', who: 'avukat', to: 'door' }); emit(G, { type: 'sound', id: 'step', from: 'door' }); }
   });
 
@@ -275,7 +276,7 @@
   TICKS.push(function tickDenek5(G, dt) {
     const s = G.denek5, lv = G.lv.denek5;
     if (s.open) { s.openT -= dt; if (s.openT <= 0) die(G, 'denek5'); return; }
-    if (lv > 0) s.temp += (PARAMS.D5_BASE + PARAMS.D5_PER_LV * lv) * dt;
+    if (lv > 0) s.temp += (PARAMS.D5_BASE + PARAMS.D5_PER_LV * lv) * dt * (G.muh.cam === 'cold' ? PARAMS.MUH_HEAT : 1);
     if (G.dev.cooling) s.temp -= PARAMS.D5_COOL * dt;
     s.temp = Math.max(0, s.temp);
     if (s.temp >= 100) { s.temp = 100; s.open = true; s.openT = PARAMS.D5_OPEN_DELAY; emit(G, { type: 'sound', id: 'drawer', from: 'cold' }); return; }
@@ -285,8 +286,9 @@
     } else s.rattleT = 0;
   });
 
-  // ---------- Mühendis Hasan (sahte kamera) ----------
-  Object.assign(PARAMS, { MUH_TICK: 9, MUH_KILL: 25, MUH_REBOOT: 3, MUH_COOLDOWN: 8 });
+  // ---------- Mühendis Hasan: soğuk oda kamerasını bozar ----------
+  // Öldürmez. Bozukken sıcaklık okunmaz, soğutma kilitlenir, 5 numara MUH_HEAT kat hızlı ısınır; onarana kadar sürer.
+  Object.assign(PARAMS, { MUH_TICK: 9, MUH_REBOOT: 3, MUH_COOLDOWN: 8, MUH_HEAT: 2 });
   INIT.muh = () => ({ cam: null, age: 0, rebootT: 0, frozenTemp: 0, tick: 0 });
   function hack(G, cam) {
     const m = G.muh; m.cam = cam; m.age = 0; m.rebootT = 0; m.frozenTemp = G.denek5.temp;
@@ -302,13 +304,12 @@
         m.rebootT += dt;
         if (m.rebootT >= PARAMS.MUH_REBOOT) { const cam = m.cam; m.cam = null; m.rebootT = 0; m.tick = -PARAMS.MUH_COOLDOWN; emit(G, { type: 'unhack', cam }); return; }
       }
-      if (m.age > PARAMS.MUH_KILL) die(G, 'muh');
       return;
     }
     m.tick += dt;
     if (m.tick < PARAMS.MUH_TICK) return;
     m.tick = 0;
-    if (roll(G, G.lv.muh)) hack(G, CAMS[Math.floor(G.rng() * CAMS.length)]);
+    if (roll(G, G.lv.muh)) hack(G, 'cold');
   });
   // ---------- Arda Baz (Denek 4, taklitçi) ----------
   Object.assign(PARAMS, { ARDA_TICK: 10, ARDA_WINDOW: 6, ARDA_MIYAV: 5.5, ARDA_MAX: 3 });
