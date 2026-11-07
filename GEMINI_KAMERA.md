@@ -16,7 +16,7 @@
 
    Beğenmezsen "Try again" de ya da altta yazan düzeltme cümlelerinden birini ekle.
 5. Beğendiğin görseli indir ve **tablodaki çıktı adıyla** `img/cam_raw/` klasörüne koy (örnek: `img/cam_raw/archive_avukat.png`). Boyutu dert etme, ben 640×360'a kendim indiririm.
-6. Hepsini yükleyince bana "yükledim" de. `python3 tools/cam_import.py` ile oyuna alırım.
+6. Toplam **10 görsel** var. Hepsini yükleyince bana "yükledim" de. `python3 tools/cam_import.py` ile oyuna alırım.
 
 > Bir sohbette en fazla 2–3 görsel yap. Uzayan sohbetlerde Gemini eski görselleri karıştırmaya başlıyor, yeni sohbet aç.
 
@@ -121,6 +121,16 @@ Edit this image, which is a night-vision security camera frame of a morgue cold 
 
 ```
 Edit the first image, which is a night-vision security camera frame of a morgue cold room with a wall of nine steel body drawers in three rows of three. Keep the camera angle, every other drawer, the trolley and the lighting exactly the same. Change only the drawer in the exact center of the grid (middle row, middle column): its door hangs wide open on its hinges and its steel body tray has slid out toward the camera. The young man from the second image is sitting upright on the tray, a white morgue sheet fallen to his waist, his bare pale shoulders visible, hands resting on the edge of the tray, his face turned straight to the camera. Make him terrifying but keep his face recognizable: grey dead skin, completely black glossy eyes with no whites, dried blood under both eyes, lips slightly parted. Cold mist pours out of the open drawer and down to the floor. Same grain, same night-vision tone, same soft focus. No text, no numbers, no timestamp, no watermark.
+```
+
+## 10. `wash_sahil`: Yıkama odası, Sahil havalandırmaya gidiyor (YENİ ODA)
+
+- Oda: `img/cam_src/wash.png`
+- Karakter: `img/ref/sahil_genis.png`
+- Çıktı: `img/cam_raw/wash_sahil.png`
+
+```
+Edit the first image, which is a night-vision security camera frame of a morgue body washing room with a steel washing table, a hose, a shower head and a wet tiled floor. Keep the camera angle, the table, the hose, the ventilation grille on the right wall and the lighting exactly the same. Add the man from the second image on the wet floor between the washing table and the ventilation grille, on his hands and knees, crawling toward the grille, his head turned back over his shoulder to stare at the camera. Show his whole body from head to feet, touching the wet floor, with his reflection in the water and ripples around his hands, life-size for that distance. He is soaking wet, wearing the same grey coat, wet hair plastered to his face, seawater and seaweed dripping from him and leaving a wet trail back toward the table. Make him terrifying but keep his face recognizable: pale grey wet skin, completely black glossy eyes. He must look like part of the same CCTV footage: same grain, same night-vision tone, same soft focus. No text, no timestamp, no watermark.
 ```
 
 ---
