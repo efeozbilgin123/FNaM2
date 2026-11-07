@@ -57,7 +57,7 @@ function goodBot({ delay = DELAY, spot = FAKE_SPOT } = {}) {
     inp.doorL = mem.door;
 
     const needSheet = p.sahilMouth || p.sayici || mem.fakeSheet > 0;
-    if (p.sultan) { inp.sheet = needSheet; return inp; } // her şeyi kapat, karanlıkta bekle
+    if (p.sultan) { inp.sheet = needSheet; inp.doorL = false; return inp; } // her şeyi kapat (kapı dahil), karanlıkta bekle
     if (needSheet) { inp.sheet = true; return inp; }
     if (p.pasta) { inp.flash = true; return inp; }
     if (mem.peek > 0) {

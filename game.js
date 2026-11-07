@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109x';
+const ASSET_V = '20261109y';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -210,6 +210,7 @@ function handle(e) {
     case 'hack': frozen = { cam: e.cam, src: camSrc(e.cam), time: clockFull() }; ui.fixCam = e.cam; note('UYARI: Soğuk oda kamerası arızalı. Soğutma kilitli. Sistem Onarım (R)'); return;
     case 'unhack': frozen = null; note(CAM_SHORT[e.cam] + ' yeniden başlatıldı.'); snd('blip'); return;
     case 'phase':
+      $('game').classList.toggle('sultanL', e.phase === 'lurk');
       $('game').classList.toggle('sultanA', e.phase === 'approach');
       $('game').classList.toggle('sultanH', e.phase === 'here');
       return;
@@ -279,7 +280,7 @@ const WHY = {
   avukat: 'Kapıda biri vardı. Ayak sesi duyunca kapı ışığını yak; görürsen kapıyı kapat.',
   sahil: 'Havalandırmada metal sesleri duyunca ışıkla bak; ağza sessizce gelir. Oradaysa örtüyü çek; çarpmayı duyana kadar kıpırdama.',
   sayici: '"Beş"i duyduğunda örtünün altında olmalıydın. Altıya kadar saydı.',
-  sultan: 'Motor sesini duyunca her şeyi kapat: monitör, ışıklar, fener. Karanlıkta bekle.',
+  sultan: 'Sultan geçerken SADECE ÖRTÜ serbest: monitör, ışıklar, fener, soğutma ve KAPI kapalı olmalı. Asansör kamerasında motoruyla beklerken onu erkenden görebilirsin.',
   denek5: '5 numaralı çekmece ısındı. Soğuk oda kamerasında SOĞUT\'a basılı tut.',
   powerout: 'Jeneratör bitti. Karanlıkta Denek 5 kapına geldi. Elektriği idareli kullan; sabaha kadar dayanırsan kurtulabilirsin.',
 };
@@ -409,7 +410,7 @@ function camSrc(cam) {
     ventA: g.sahil.stage === 2 ? 'ventA_sahil' : 'ventA',
     ventB: g.sahil.stage === 3 ? 'ventB_sahil' : 'ventB',
     archive: g.avukat.pos === 'archive' && !g.avukat.at && g.lv.avukat > 0 ? 'archive_avukat' : 'archive',
-    lift: g.sultan.phase === 'approach' ? 'lift_sultan' : g.avukat.pos === 'lift' ? 'lift_avukat' : 'lift',
+    lift: g.sultan.phase === 'lurk' || g.sultan.phase === 'approach' ? 'lift_sultan' : g.avukat.pos === 'lift' ? 'lift_avukat' : 'lift',
   }[cam];
   return `img/cam/${v}.png`;
 }

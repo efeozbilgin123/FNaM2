@@ -48,10 +48,21 @@ test('Sultan here: monitor on kills', () => {
   assert.ok(evs.some(e => e.type === 'death' && e.who === 'sultan'));
 });
 
-test('Sultan here: everything off survives, closed door is allowed', () => {
+test('Sultan here: only the sheet is allowed (a closed door kills, the sheet does not)', () => {
   const G = game(1); G.sultan.phase = 'here'; G.sultan.t = 8;
-  run(G, 9, { doorL: true });
+  run(G, 9, { sheet: true });
   assert.ok(!G.over); assert.strictEqual(G.sultan.phase, 'none');
+  const H = game(1); H.sultan.phase = 'here'; H.sultan.t = 8;
+  const evs = run(H, 1, { doorL: true });
+  assert.ok(evs.some(e => e.type === 'death' && e.who === 'sultan'));
+});
+
+test('Sultan first waits in the lift (lurk) with a quiet idle, then approaches with the motor', () => {
+  const G = game(1); for (const k in G.lv) G.lv[k] = 0; G.lv.sultan = 20; G.t = 100; G.sultan.tick = 999;
+  let evs = run(G, 0.2);
+  assert.strictEqual(G.sultan.phase, 'lurk'); assert.ok(evs.some(e => e.id === 'motorIdle'));
+  evs = run(G, Core.PARAMS.SULTAN_LURK + 0.1);
+  assert.strictEqual(G.sultan.phase, 'approach'); assert.ok(evs.some(e => e.id === 'motor'));
 });
 
 test('Sultan approach lasts 6 s with motor sound, then here', () => {

@@ -14,7 +14,7 @@
     2: { levels: L(14, 15, 14, 0, 0, 0, 0, 8), doc: 'doc2', phone: 'voice/phone2.mp3', grace: 58 },
     3: { levels: L(11, 10, 12, 8, 8, 0, 0, 6), doc: 'doc3', phone: 'voice/phone3.mp3', grace: 67 },
     4: { levels: L(12, 10, 13, 9, 12, 7, 4, 7), doc: 'doc4', phone: 'voice/phone4.mp3', grace: 70 },
-    5: { levels: L(14, 14, 14, 11, 18, 8, 8, 9), doc: 'doc5', phone: 'voice/phone5.mp3', grace: 69 },
+    5: { levels: L(15, 15, 15, 12, 19, 8, 8, 9), doc: 'doc5', phone: 'voice/phone5.mp3', grace: 69 },
     6: { levels: L(14, 14, 14, 13, 13, 10, 10, 8), doc: null, phone: 'voice/phone6_secret.mp3' },
   };
 

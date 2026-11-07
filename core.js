@@ -189,11 +189,14 @@
     if (!roll(G, G.lv.avukat)) return;
     // asansöre geçerken de aynı ayak sesi: ses 'kapıda' demez, sadece 'hareket etti' der; nerede olduğunu kamera söyler
     if (s.pos === 'archive') { s.pos = 'lift'; emit(G, { type: 'move', who: 'avukat', to: 'lift' }); emit(G, { type: 'sound', id: 'step', from: 'door', far: true }); }
+    else if (G.sultan.phase !== 'none') return;   // Sultan gelirken Avukat kapıya gelmez
     else { knockOut(G, 'lightL'); s.pos = 'door'; s.at = true; s.t = 0; emit(G, { type: 'move', who: 'avukat', to: 'door' }); emit(G, { type: 'sound', id: 'step', from: 'door' }); }
   });
 
   // ---------- Sultan Mırık Han (koridor, motor: her şeyi kapat) ----------
-  Object.assign(PARAMS, { SULTAN_TICK: 15, SULTAN_APPROACH: 6, SULTAN_HERE: 8, SULTAN_GRACE: 60 });
+  // lurk: asansörde bekler (kamerada görünür, motor rölantide çok kısık) -> approach: koridordan gelir (motor sesi) -> here: kapıda.
+  // Kapıdayken sadece örtü serbest: kapı, ışıklar, fener, monitör ya da soğutma açıksa öldürür.
+  Object.assign(PARAMS, { SULTAN_TICK: 15, SULTAN_LURK: 5, SULTAN_APPROACH: 6, SULTAN_HERE: 8, SULTAN_GRACE: 60 });
   INIT.sultan = () => ({ phase: 'none', t: 0, tick: 0 });
   TICKS.push(function tickSultan(G, dt) {
     const s = G.sultan, d = G.dev;
@@ -203,20 +206,27 @@
       if (s.tick < PARAMS.SULTAN_TICK) return;
       s.tick = 0;
       // havalandırmada ya da soğuk odada iş varken gelmez: Sultan 'her şeyi kapat' der, diğerleriyle üst üste binerse çıkış kalmaz
-      if (G.sayici.active || G.arda.fake || G.muh.cam) return;
+      if (G.sayici.active || G.arda.fake || G.muh.cam || G.avukat.at) return;   // Avukat kapıdayken de gelmez (kapı kapalı olmamalı)
       if (!roll(G, G.lv.sultan)) return;
+      s.phase = 'lurk'; s.t = PARAMS.SULTAN_LURK;
+      emit(G, { type: 'phase', who: 'sultan', phase: 'lurk' });
+      emit(G, { type: 'sound', id: 'motorIdle', from: 'corr' });
+      return;
+    }
+    s.t -= dt;
+    if (s.phase === 'lurk') {
+      if (s.t > 0) return;
       s.phase = 'approach'; s.t = PARAMS.SULTAN_APPROACH;
       if (G.pasta.stage >= 2) { knockOut(G, 'flash'); G.pasta.stage = 1; G.pasta.flashT = 0; emit(G, { type: 'move', who: 'pasta', to: 'corr', stage: 1 }); }
       emit(G, { type: 'phase', who: 'sultan', phase: 'approach' });
       emit(G, { type: 'sound', id: 'motor', from: 'corr' });
       return;
     }
-    s.t -= dt;
     if (s.phase === 'approach') {
       if (s.t <= 0) { s.phase = 'here'; s.t = PARAMS.SULTAN_HERE; emit(G, { type: 'phase', who: 'sultan', phase: 'here' }); }
       return;
     }
-    if (d.lightL || d.flash || d.ventLight || d.monitor || d.cooling) { die(G, 'sultan'); return; }
+    if (d.lightL || d.flash || d.ventLight || d.monitor || d.cooling || d.doorL) { die(G, 'sultan'); return; }
     if (s.t <= 0) { s.phase = 'none'; s.tick = 0; emit(G, { type: 'phase', who: 'sultan', phase: 'none' }); }
   });
 

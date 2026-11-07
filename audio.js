@@ -202,6 +202,14 @@ const Audio5 = (() => {
       osc({ t, f: 180, f2: 120, dur: 1.6, vol: 0.12, type: 'sawtooth', lp: 900, pan: -0.3, wet: 0.5 });
       osc({ t: t + 1.6, f: 60, f2: 30, dur: 0.8, vol: 1, wet: 0.6 });
     },
+    motorIdle() { // Sultan asansörde bekliyor: uzaktan, çok kısık motor rölantisi (5 sn)
+      const t = now(), dur = 5;
+      const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 34;
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 160;
+      const am = ctx.createGain(); const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 7; lg.gain.value = 0.4; lfo.connect(lg).connect(am.gain);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.06, t + 1.2); g.gain.setValueAtTime(0.06, t + dur - 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(lp).connect(am).connect(g); out(g, { pan: -0.2, wet: 0.7 }); o.start(t); lfo.start(t); o.stop(t + dur + 0.1); lfo.stop(t + dur + 0.1);
+    },
     motor() { // koridordan yaklaşan motor
       if (play('motor', { vol: 0.85, wet: 0.35 })) return;
       const t = now(), dur = 6;
