@@ -309,8 +309,8 @@ const Audio5 = (() => {
         noise({ t: tt, dur: 0.09, f: 700, f2: 200, vol: v * 0.8, kind: 'pink', pan: p, wet: 0.5 });
       }
     },
-    bang() { // Sahil Mırık kapıya çarpıyor
-      if (play('bang', { pan: 0.7, vol: 0.85, wet: 0.4 })) return;
+    bang(vol = 0.85) { // Sahil havalandırmada metale çarpıyor
+      if (play('bang', { pan: 0.7, vol, wet: vol < 0.6 ? 0.7 : 0.4 })) return;
       const t = now();
       for (let i = 0; i < 5; i++) {
         const tt = t + i * 0.24 + Math.random() * 0.04;

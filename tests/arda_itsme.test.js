@@ -66,3 +66,13 @@ test('re-closing the door while the real Avukat is knocking is not an Arda mista
   run(G, 0.2, { doorL: true }); run(G, 0.2); run(G, 0.2, { doorL: true });
   assert.strictEqual(G.arda.mistakes, 0);
 });
+
+test('Arda never starts a mimic while Sahil is in the vents, and Sahil waits while Arda mimics', () => {
+  const { Core, game, run } = require('./helpers');
+  const G = game(4, { arda: 20, sahil: 0 }); G.sahil.stage = 2;
+  const evs = run(G, Core.PARAMS.ARDA_TICK * 3);
+  assert.ok(!G.arda.fake && !evs.some(e => e.fake));
+  const H = game(4, { arda: 0, sahil: 20 }); Core._internal.startFake(H, 'avukat');
+  const st = H.sahil.stage; run(H, Core.PARAMS.SAHIL_TICK * 1.1);
+  assert.strictEqual(H.sahil.stage, st);
+});

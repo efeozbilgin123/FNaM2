@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109p';
+const ASSET_V = '20261109q';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -146,7 +146,7 @@ $('phoneHang').onclick = e => { e.stopPropagation(); if (phone || answerPhone) {
 function input() {
   return { doorL: ui.doorL, lightL: ui.lightL, flash: ui.flash, ventLight: ui.ventLight, monitor: ui.monitor, sheet: ui.sheet,
     cam: ui.monitor && cctvOn() ? ui.cam : null, cooling: ui.monitor && cctvOn() && ui.cam === 'cold' && ui.cooling,
-    reboot: ui.monitor && ui.fixing ? ui.fixCam : null };
+    reboot: ui.fixing ? ui.fixCam : null };
 }
 
 function loop(now) {
@@ -205,8 +205,8 @@ function whisper(dt) {
 function handle(e) {
   switch (e.type) {
     case 'sound': return sound(e);
-    // Sahil ağza gelince metal çarpma: 2. gecede her zaman, 3. geceden itibaren yarı yarıya sessiz gelir (ışıkla bakmak gerekir)
-    case 'move': if (e.who === 'sahil' && e.to === 'mouth' && (night <= 2 || Math.random() < 0.5)) snd('bang'); if (e.who !== 'pasta' || e.stage < 3) note(moveNote(e)); return;
+    // Sahil kanalda ilerlerken metal çarpma: Hav. A'da uzaktan, Hav. B'de yakından. Ağza gelişi sessiz (ışıkla bak); giderken de çarpar.
+    case 'move': if (e.who === 'sahil' && (e.to === 'ventA' || e.to === 'ventB')) snd('bang', e.to === 'ventA' ? 0.45 : 0.85); if (e.who !== 'pasta' || e.stage < 3) note(moveNote(e)); return;
     case 'hack': frozen = { cam: e.cam, src: camSrc(e.cam), time: clockFull() }; ui.fixCam = e.cam; note('UYARI: Soğuk oda kamerası arızalı. Soğutma kilitli. Sistem Onarım (R)'); return;
     case 'unhack': frozen = null; note(CAM_SHORT[e.cam] + ' yeniden başlatıldı.'); snd('blip'); return;
     case 'phase':
@@ -277,7 +277,7 @@ function powerOut() {
 const WHY = {
   pasta: 'Koridordaki şeyi ışıkla tut. Işıktan hoşlanmaz. Ayak seslerini duyunca feneri yak.',
   avukat: 'Kapıda biri vardı. Ayak sesi duyunca kapı ışığını yak; görürsen kapıyı kapat.',
-  sahil: 'Havalandırmaya ara ara ışıkla bak; Sahil her zaman ses çıkararak gelmez. Oradaysa örtüyü çek; çarpmayı duyana kadar kıpırdama.',
+  sahil: 'Havalandırmada metal sesleri duyunca ışıkla bak; ağza sessizce gelir. Oradaysa örtüyü çek; çarpmayı duyana kadar kıpırdama.',
   sayici: '"Beş"i duyduğunda örtünün altında olmalıydın. Altıya kadar saydı.',
   arda: 'Duyduğun her ses gerçek değildi. Sonundaki bozuk miyavı dinle ve tepki verme.',
   sultan: 'Motor sesini duyunca her şeyi kapat: monitör, ışıklar, fener. Karanlıkta bekle.',
@@ -756,7 +756,7 @@ function startFix() {
   ui.fixing = true; ui.fixT = 0; ui.fixHadHack = G.muh.cam === ui.fixCam; ui.fixMsg = 'Onarılıyor: ' + CAM_SHORT[ui.fixCam] + '...'; snd('reboot');
 }
 function fixTick(dt) {
-  if (!ui.fixing || !ui.monitor) return;          // monitörden kalkınca onarım duraklar
+  if (!ui.fixing) return;          // monitör kapalıyken de sürer
   ui.fixT += dt;
   // bitiş oyunun gerçek durumuna bağlı: bozuk kamera düzelince ya da (bozuk değilse) süre dolunca
   const fixed = ui.fixHadHack && G.muh.cam !== ui.fixCam;

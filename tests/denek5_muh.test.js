@@ -83,3 +83,9 @@ test('Mühendis at level 0 never hacks; at 20 hacks within one tick', () => {
   const evs = run(H, P.MUH_TICK + 1);
   assert.ok(evs.some(e => e.type === 'hack' && e.cam === 'cold'));   // sadece soğuk oda kamerası
 });
+
+test('a started repair keeps going with the monitor down', () => {
+  const G = game(1, {}); hack(G, 'cold');
+  run(G, 3.05, { monitor: false, reboot: 'cold' });
+  assert.strictEqual(G.muh.cam, null);
+});

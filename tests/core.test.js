@@ -38,10 +38,10 @@ test('lights and flashlight cannot be used while the monitor is up', () => {
   assert.deepStrictEqual([G.dev.monitor, G.dev.flash, G.dev.lightL, G.dev.ventLight], [true, false, false, false]);
 });
 
-test('with the monitor down, cooling, cam and reboot are ignored', () => {
+test('with the monitor down, cooling and cam are ignored (a started repair still runs)', () => {
   const G = game();
   Core.step(G, 0.05, { ...IDLE, monitor: false, cooling: true, cam: 'cold', reboot: 'cold' });
-  assert.strictEqual(G.dev.cooling, false); assert.strictEqual(G.dev.cam, null); assert.strictEqual(G.dev.reboot, null);
+  assert.strictEqual(G.dev.cooling, false); assert.strictEqual(G.dev.cam, null); assert.strictEqual(G.dev.reboot, 'cold');
 });
 
 test('power out: one powerout event, devices off, then death within 10-20 s', () => {

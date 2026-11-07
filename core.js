@@ -78,7 +78,7 @@
     d.ventLight = hands && !!inp.ventLight && lo.ventLight <= 0;
     d.cooling = d.monitor && !!inp.cooling && !(G.muh && G.muh.cam === 'cold');   // soğuk oda kamerası bozukken soğutma kilitli
     d.cam = d.monitor && CAMS.includes(inp.cam) ? inp.cam : null;
-    d.reboot = d.monitor && CAMS.includes(inp.reboot) ? inp.reboot : null;
+    d.reboot = CAMS.includes(inp.reboot) ? inp.reboot : null;   // onarım başladıysa monitör kapalıyken de sürer
   }
 
   // FNaF tarzı: ışık tutulan yerde biri hareket ederse o ışık bir süre bozulur
@@ -235,6 +235,7 @@
       if (s.t <= 0) die(G, 'sahil');
       return;
     }
+    if (G.arda.fake) return;   // Arda taklit yaparken Sahil ilerlemez
     s.tick += dt;
     if (s.tick < PARAMS.SAHIL_TICK) return;
     s.tick = 0;
@@ -346,6 +347,7 @@
     a.tick += dt;
     if (a.tick < PARAMS.ARDA_TICK) return;
     a.tick = 0;
+    if (G.sahil.stage >= 2) return;   // Sahil havalandırmadayken Arda taklide başlamaz (ikisi aynı anda gelmez)
     if (!roll(G, G.lv.arda)) return;
     const opts = ['sahil', 'sayici', 'avukat'].filter(c => G.lv[c] > 0);
     if (!opts.length) return;
