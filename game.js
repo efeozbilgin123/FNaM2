@@ -278,11 +278,14 @@ function render() {
   setSrc($('ventImg'), g.sahil.stage === 3 ? 'img/vent/sahil.png' : 'img/vent/empty.png');
   const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t ? 'corr_itsme' : g.pasta.stage ? 'corr_pasta' + g.pasta.stage : 'corr_lit';
   useVar($('vCorr'), 'vcorr', corrVar);
-  useVar($('vDoor'), 'vdoor', d.doorL ? 'door_closed' : d.lightL ? (g.avukat.at ? 'door_avukat' : 'door_lit') : null);
+  // kapalı kapı ayrı katman (#vDoorC): CSS ile menteşesinden dönerek kapanır
+  $('game').classList.toggle('vdoorc', haveVar.has('door_closed'));
+  useVar($('vDoor'), 'vdoor', d.doorL ? null : d.lightL ? (g.avukat.at ? 'door_avukat' : 'door_lit') : null);
   useVar($('vVent'), 'vvent', d.ventLight ? (g.sahil.stage === 3 ? 'vent_sahil' : 'vent_lit') : null);
   // masa
   const h = clock();
-  $('dcTime').textContent = `${String(h).padStart(2, '0')}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')}`;
+  const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;
+  $('monClock').textContent = clk; $('camClock').textContent = clk;
   $('tPower').textContent = `%${Math.ceil(g.power)}`;
   $('pscreen').classList.toggle('low', g.power < 20);
   const u = Core.usage(g), n = Math.min(6, Math.round(u / 0.12));
@@ -334,6 +337,7 @@ const QUADS = {
   dwL: { w: 320, h: 750, p: [[402, 82], [570, 160], [572, 672], [404, 664]] },
   vent: { w: 600, h: 440, p: [[1656, 522], [1952, 575], [1945, 812], [1658, 715]] },
   pscreen: { w: 400, h: 300, p: [[91, 254], [307, 275], [306, 450], [94, 472]] },     // duvardaki MIRIKVISION ekranı
+  mon: { w: 400, h: 300, p: [[674, 530], [848, 520], [850, 658], [678, 676]] },        // masadaki monitörün camı
 };
 for (const [id, q] of Object.entries(QUADS)) $(id).style.transform = quadMatrix(q.w, q.h, q.p);
 
@@ -413,7 +417,11 @@ function hold(el, key) {
   el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointerleave', off); el.addEventListener('pointercancel', off);
 }
 hold($('corrHit'), 'flash'); hold($('bLight'), 'lightL'); hold($('ventBtn'), 'ventLight'); hold($('bCool'), 'cooling'); hold($('bReboot'), 'reboot');
-$('bDoor').onclick = () => { if (!G || G.over || G.dark) return; ui.doorL = !ui.doorL; snd('door', -1, ui.doorL); };
+$('bDoor').onclick = () => {
+  if (!G || G.over || G.dark) return;
+  ui.doorL = !ui.doorL; snd('door', -1, ui.doorL);
+  if (ui.doorL) setTimeout(() => { stage.classList.add('slam'); setTimeout(() => stage.classList.remove('slam'), 200); }, 190);
+};
 $('barMon').addEventListener('mouseenter', toggleMonitor); $('barMon').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleMonitor(); });
 $('barSheet').addEventListener('mouseenter', toggleSheet); $('barSheet').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleSheet(); });
 $('camClose').onclick = () => closeCam(); $('monPower').onclick = () => { snd('click'); closeCam(); };
@@ -498,7 +506,7 @@ new MutationObserver(() => { for (const n of [...document.body.children]) if (n.
 let ready = false;
 $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
 (function preload() {
-  const imgs = ['office', 'door', 'panel', 'sheet', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor', 'ui/dclock',
+  const imgs = ['office', 'door', 'panel', 'sheet', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor', 'office_v/door_closed',
     'corr/empty', 'corr/lit', 'corr/pasta1', 'corr/pasta2', 'corr/pasta3', 'corr/sultan', 'vent/empty', 'vent/sahil', 'doorway/empty', 'doorway/avukat',
     ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan'].map(c => 'cam/' + c),
     ...Core.CHARS.concat('itsme').map(c => 'scare/' + c)].map(s => `img/${s}.png`);
