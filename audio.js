@@ -259,7 +259,8 @@ const Audio5 = (() => {
       [[880, 0], [1318.5, 0.16], [1760, 0.32]].forEach(([f, d]) => { osc({ t: t + d, f, dur: 0.7, vol: 0.14, type: 'triangle', wet: 0.4 }); osc({ t: t + d, f: f * 2, dur: 0.4, vol: 0.04, wet: 0.4 }); });
     },
     tick() { osc({ f: 2200, dur: 0.03, vol: 0.05, type: 'square', wet: 0 }); },
-    sting() { // ışıkta biri görününce
+    sting(pan = 0) { // ışıkta biri görününce: ani darbe + ürkütücü yaylılar (sfx/sting_*.mp3)
+      if (play('sting', { pan, vol: 0.8, wet: 0.15 })) return;
       const t = now();
       [0, 3, 6, 11].forEach((st, i) => osc({ t, f: 220 * Math.pow(2, st / 12), dur: 1.4, vol: 0.09, type: 'sawtooth', detune: (Math.random() - 0.5) * 30, lp: 1800, wet: 0.6 }));
       noise({ t, dur: 1.2, type: 'bandpass', f: 3000, f2: 6000, q: 4, vol: 0.12, wet: 0.6 });

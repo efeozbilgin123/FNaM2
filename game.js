@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108q';
+const ASSET_V = '20261108r';
 const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
@@ -103,7 +103,7 @@ function begin() {
     app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
   wm.open = []; wm.min.clear(); wm.z = []; wm.active = null; closeStart(); pcStack.length = 0; renderPc();
   document.querySelectorAll('.win').forEach(w => { w.style.left = ''; w.style.top = ''; });
-  frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 25; itsmePop = { t: nextPop(true), due: 0 };
+  frozen = null; itsmeCorrUntil = 0; lastNote = ''; for (const k in stung) delete stung[k]; whisperT = 25; itsmePop = { t: nextPop(true), due: 0 };
   closeCam(true);
   $('game').className = 'screen on';
   show('game');
@@ -338,6 +338,7 @@ function camSrc(cam) {
   }[cam];
   return `img/cam/${v}.png`;
 }
+const stung = {};
 // ışık bozulunca önce birkaç kez yanıp söner, sonra kapanır (aç/kapa süreleri, ms)
 const FLICK = [70, 60, 110, 80, 50, 140, 60], FLICK_MS = FLICK.reduce((a, b) => a + b, 0);
 const flick = {};
@@ -363,8 +364,17 @@ function render() {
   useVar('corr', corrVar);
   // kapalı kapı ayrı katman (#vDoorS): çelik kepenk, CSS ile tavandan kayar
   $('game').classList.toggle('vdoorc', haveVar.has('door_shutter'));
-  useVar('door', d.doorL ? null : d.lightL ? ((was('lightL') ? was('lightL').avukat : g.avukat.at) ? 'door_avukat' : 'door_lit') : null);
-  useVar('vent', d.ventLight ? ((was('ventLight') ? was('ventLight').sahil : g.sahil.stage) === Core.PARAMS.SAHIL_MOUTH ? 'vent_sahil' : 'vent_lit') : null);
+  const doorVar = d.doorL ? null : d.lightL ? ((was('lightL') ? was('lightL').avukat : g.avukat.at) ? 'door_avukat' : 'door_lit') : null;
+  const ventVar = d.ventLight ? ((was('ventLight') ? was('ventLight').sahil : g.sahil.stage) === Core.PARAMS.SAHIL_MOUTH ? 'vent_sahil' : 'vent_lit') : null;
+  useVar('door', doorVar); useVar('vent', ventVar);
+  // ışıkta biri ilk kez görününce gerilim sesi: her geliş için bir kez (ışığa tekrar tekrar basınca çalmaz, kapı kapalıyken görünmediği için çalmaz)
+  if (!g.avukat.at) delete stung.door;
+  if (g.sahil.stage !== Core.PARAMS.SAHIL_MOUTH) delete stung.vent;
+  if (!g.pasta.stage) for (const k in stung) if (k.startsWith('corr')) delete stung[k];
+  const sting = (key, on, pan) => { if (on && !stung[key]) { stung[key] = true; snd('sting', pan); } };
+  sting('door', doorVar === 'door_avukat', -0.8);
+  sting('vent', ventVar === 'vent_sahil', 0.8);
+  sting('corr' + pst, !!corrVar && corrVar.startsWith('corr_pasta'), 0);
   // masa
   const h = clock();
   const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;

@@ -30,5 +30,10 @@
  ],
  "phoneRing": [
   "sfx/phone_ring.mp3"
+ ],
+ "sting": [
+  "sfx/sting_1.mp3",
+  "sfx/sting_2.mp3",
+  "sfx/sting_3.mp3"
  ]
 }
