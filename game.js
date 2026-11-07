@@ -10,8 +10,9 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108t';
-const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
+const ASSET_V = '20261108v';
+const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
+window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
 // ---------- ses ----------
@@ -124,7 +125,7 @@ function playPhone() {
   snd('phoneRing'); at(3800, () => snd('phoneRing'));
   at(7300, () => {
     snd('click');
-    phone = A.playVoice(src, 0.95);
+    phone = A.playVoice(src, 1);
     phone.onended = phone.onerror = () => { $('game').classList.remove('ringing'); phone = null; };
   });
 }
@@ -233,7 +234,7 @@ function itsMe(v) {
   if (v === 'cam') { $('feedBox').classList.add('itsme'); snd('static'); setTimeout(() => $('feedBox').classList.remove('itsme'), 1000); }
   if (v === 'corr') itsmeCorrUntil = G.t + 6;
   if (v === 'crash') {
-    stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false);
+    stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false);
     $('scareImg').src = av('img/scare/itsme.png'); show('scare'); A.stopMusic && A.stopMusic(0); snd('static');
     setTimeout(() => { show('crash'); setTimeout(() => { refreshMenu(); show('title'); }, 2200); }, 1500);
   }
@@ -254,7 +255,7 @@ const WHY = {
   powerout: 'Jeneratör bitti. Karanlıkta 5 numaralı çekmece açıldı.',
 };
 function die(who) {
-  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false);
+  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false);
   const img = who === 'powerout' ? 'denek5' : who;
   $('scareImg').src = av(`img/scare/${img}.png`);
   snd('doorBreath', false);
@@ -268,7 +269,7 @@ function die(who) {
   }, 3300);
 }
 function win() {
-  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false);
+  cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false);
   show('six'); $('sixClock').textContent = '5 AM'; $('sixMsg').textContent = ''; $('bNext').style.visibility = 'hidden';
   setTimeout(() => { $('sixClock').textContent = '6 AM'; snd('chime'); }, 1600);
   persist({ night, result: 'win', levels: night === 7 ? customLevels : undefined });
@@ -368,6 +369,7 @@ function render() {
   c.toggle('doorL', d.doorL); c.toggle('lightL', d.lightL); c.toggle('flash', d.flash); c.toggle('ventLight', d.ventLight);
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
   snd('breathing', !!d.sheet && !g.over);
+  snd('lampHum', 'lightL', !!d.lightL && !g.over, -1); snd('lampHum', 'ventLight', !!d.ventLight && !g.over, 1);
   snd('sahilNear', g.sahil.stage === Core.PARAMS.SAHIL_MOUTH && !g.over);
   snd('doorBreath', g.avukat.at && g.avukat.knock <= 0 && !g.over);
   // atmosfer: saat ilerledikçe azalır, biri çok yakınken neredeyse tamamen susar
@@ -388,11 +390,12 @@ function render() {
   // ışıkta biri ilk kez görününce gerilim sesi: her geliş için bir kez (ışığa tekrar tekrar basınca çalmaz, kapı kapalıyken görünmediği için çalmaz)
   if (!g.avukat.at) delete stung.door;
   if (g.sahil.stage !== Core.PARAMS.SAHIL_MOUTH) delete stung.vent;
-  if (!g.pasta.stage) for (const k in stung) if (k.startsWith('corr')) delete stung[k];
+  if (g.pasta.stage !== 3) delete stung.corr;
   const sting = (key, on, pan) => { if (on && !stung[key]) { stung[key] = true; snd('sting', pan); } };
-  sting('door', doorVar === 'door_avukat', -0.8);
-  sting('vent', ventVar === 'vent_sahil', 0.8);
-  sting('corr' + pst, !!corrVar && corrVar.startsWith('corr_pasta'), 0);
+  // titreme sırasında değil, sadece ışık gerçekten yanarken; koridorda sadece Pasta en yakın (3.) noktadayken
+  sting('door', g.dev.lightL && doorVar === 'door_avukat', -0.8);
+  sting('vent', g.dev.ventLight && ventVar === 'vent_sahil', 0.8);
+  sting('corr', g.dev.flash && g.pasta.stage === 3 && corrVar === 'corr_pasta3', 0);
   // masa
   const h = clock();
   const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;

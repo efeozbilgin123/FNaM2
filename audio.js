@@ -23,7 +23,7 @@ const Audio5 = (() => {
     verbIn = ctx.createGain(); verbIn.gain.value = 1;
     const verbOut = ctx.createGain(); verbOut.gain.value = 0.55;
     verbIn.connect(verb).connect(verbOut).connect(master);
-    sfxBus = bus(1); musicBus = bus(0.75); ambBus = bus(0.8); breathBus = ctx.createGain(); breathBus.connect(sfxBus);
+    sfxBus = bus(0.8); musicBus = bus(0.75); ambBus = bus(0.8); breathBus = ctx.createGain(); breathBus.connect(sfxBus);
     buffers.white = noiseBuf('white', 2); buffers.brown = noiseBuf('brown', 4); buffers.pink = noiseBuf('pink', 3);
   }
   function bus(v) { const g = ctx.createGain(); g.gain.value = v; g.connect(master); return g; }
@@ -49,11 +49,13 @@ const Audio5 = (() => {
     if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.suspend && ctx.suspend(); initGraph(); }
     const list = [['doorClose', 'sfx/door_close.mp3'], ['doorOpen', 'sfx/door_open.mp3'], ['switchOn', 'sfx/switch_on.mp3'], ['switchOff', 'sfx/switch_off.mp3']];
     // Kayıtlı sesler (tools/voice.py üretir): her ad için bir ya da birkaç varyant. Yoksa sentez kullanılır.
-    try { const r = await fetch('sfx/voices.json'); if (r.ok) for (const [k, urls] of Object.entries(await r.json())) for (const u of urls) list.push([k, u]); } catch (e) {}
+    const V = u => u + (u.includes('?') ? '' : '?v=' + (window.ASSET_V || Date.now()));
+    try { const r = await fetch(V('sfx/voices.json')); if (r.ok) for (const [k, urls] of Object.entries(await r.json())) for (const u of urls) list.push([k, u]); } catch (e) {}
     await Promise.all(list.map(async ([k, url]) => {
-      try { const r = await fetch(url); if (!r.ok) return; const ab = await r.arrayBuffer(); const p = ctx.decodeAudioData(ab, b => { (samples[k] = samples[k] || []).push(b); }, () => {}); if (p && p.catch) await p.catch(() => {}); } catch (e) {}
+      try { const r = await fetch(V(url)); if (!r.ok) return; const ab = await r.arrayBuffer(); const p = ctx.decodeAudioData(ab, b => { (samples[k] = samples[k] || []).push(b); }, () => {}); if (p && p.catch) await p.catch(() => {}); } catch (e) {}
     }));
   }
+  const hums = {};
   let breathNode = null, nearTimer = null, doorBreathNode = null, ambLevel = 1;
   function play(name, { pan = 0, vol = 1, wet = 0.15, rate = 1 } = {}) {
     const all = samples[name]; if (!all || !all.length) return false;
@@ -267,24 +269,19 @@ const Audio5 = (() => {
       noise({ t: t + 0.03, dur: 0.02, type: 'bandpass', f: 1400, q: 2, vol: 0.25, pan: p, wet: 0.08 });
       osc({ t, f: 180, f2: 110, dur: 0.05, vol: 0.12, pan: p, wet: 0.05 });
       }
-      if (buzz) { try { buzz.stop(); } catch (e) {} buzz = null; }
-      if (!on) return;
-      const hum = samples.lampHum && samples.lampHum[0];
-      if (hum) {   // floresan uğultusu kaydı
+    },
+    // lamba uğultusu: gerçekten yanan ışığa bağlı (her karede çağrılır), anahtar: 'lightL' | 'ventLight'
+    lampHum(key, on, side = 0) {
+      const cur = hums[key], t = now();
+      if (on && !cur) {
+        const hum = samples.lampHum && samples.lampHum[0]; if (!hum) return;
         const src = ctx.createBufferSource(); src.buffer = hum; src.loop = true;
-        const hg = ctx.createGain(); hg.gain.setValueAtTime(0.0001, t); hg.gain.linearRampToValueAtTime(0.22, t + 0.08);
-        src.connect(hg); out(hg, { pan: p, wet: 0.12 }); src.start(t, Math.random() * hum.duration);
-        buzz = { stop() { const s0 = now(); hg.gain.cancelScheduledValues(s0); hg.gain.setValueAtTime(hg.gain.value, s0); hg.gain.linearRampToValueAtTime(0.0001, s0 + 0.05); src.stop(s0 + 0.08); } };
-        return;
+        const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.22, t + 0.06);
+        src.connect(g); out(g, { pan: side * 0.6, wet: 0.12 }); src.start(t, Math.random() * hum.duration);
+        hums[key] = { src, g };
+      } else if (!on && cur) {
+        hums[key] = null; cur.g.gain.cancelScheduledValues(t); cur.g.gain.setValueAtTime(cur.g.gain.value, t); cur.g.gain.linearRampToValueAtTime(0.0001, t + 0.05); cur.src.stop(t + 0.08);
       }
-      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.035, t + 0.08);
-      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700;
-      const os = [[50, 1], [100, .6], [150, .35], [200, .15]].map(([f, v]) => { const o = ctx.createOscillator(), og = ctx.createGain(); o.frequency.value = f; og.gain.value = v; o.connect(og).connect(lp); o.start(t); return o; });
-      const cr = ctx.createBufferSource(); cr.buffer = buffers.white; cr.loop = true; const cf = ctx.createBiquadFilter(); cf.type = 'bandpass'; cf.frequency.value = 3500; cf.Q.value = 1; const cg = ctx.createGain(); cg.gain.value = 0.12;
-      const cl = ctx.createOscillator(); cl.type = 'square'; cl.frequency.value = 9; const clg = ctx.createGain(); clg.gain.value = 0.1; cl.connect(clg).connect(cg.gain);
-      cr.connect(cf).connect(cg).connect(lp); cr.start(t); cl.start(t);
-      lp.connect(g); out(g, { pan: p, wet: 0.12 });
-      buzz = { stop() { const s0 = now(); g.gain.cancelScheduledValues(s0); g.gain.setValueAtTime(g.gain.value, s0); g.gain.linearRampToValueAtTime(0.0001, s0 + 0.05); [...os, cr, cl].forEach(x => x.stop(s0 + 0.08)); } };
     },
     flicker() { // lamba titremesi: tel cızırtısı
       if (play('flicker', { vol: 0.7, wet: 0.2 })) return;
@@ -523,11 +520,12 @@ const Audio5 = (() => {
   function duck(on) {
     if (!ctx || !graphReady) return;
     const t = now();
-    ambBus.gain.setTargetAtTime(on ? 0.28 : 0.8, t, on ? 0.15 : 0.6);
-    breathBus.gain.setTargetAtTime(on ? 0.3 : 1, t, on ? 0.15 : 0.6);
+    ambBus.gain.setTargetAtTime(on ? 0.2 : 0.8, t, on ? 0.15 : 0.6);
+    breathBus.gain.setTargetAtTime(on ? 0.25 : 1, t, on ? 0.15 : 0.6);
+    sfxBus.gain.setTargetAtTime(on ? 0.4 : 0.8, t, on ? 0.15 : 0.6);   // telefon konuşurken efektler de kısılır
   }
   function playVoice(url, vol = 0.9) {
-    const a = new Audio(url); a.volume = muted ? 0 : vol * volume; a.play().catch(() => {});
+    const a = new Audio(url + (url.includes('?') ? '' : '?v=' + (window.ASSET_V || ''))); a.volume = muted ? 0 : vol * volume; a.play().catch(() => {});
     voices++; duck(true); let done = false;
     const end = () => { if (done) return; done = true; voices = Math.max(0, voices - 1); if (!voices) duck(false); };
     a.addEventListener('ended', end); a.addEventListener('pause', end); a.addEventListener('error', end);
