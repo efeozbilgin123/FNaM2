@@ -160,7 +160,7 @@ el yazısıyla altına eklenmiş:
   const proje = DIR('PROJE_456', [
     T('prof_kisisel.txt', profNot),
     T('345_yazisma.txt', yazisma),
-    { name: 'denek4_5_1998.bmp', ico: 'img', img: 'img/lore/etut_foto.jpg', note: 'Denek 4 ve Denek 5. Birey Koleji etüt odası, 13.06.1998. Saat 23:59. İkisi de kameraya bakıyor.' },
+    { name: 'denek5_1998.bmp', ico: 'img', img: 'img/lore/denek5_1998.jpg', note: 'H.E.M., Birey Koleji. Haziran 1998, projeden bir hafta önce. Arkasında: "bilgisayar mühendisi olacağım".' },
   ]);
   proje.lock = '14061998';
   proje.hint = 'Bu klasör şifreli.\nŞifre ipucu: "geldiği gün"';
