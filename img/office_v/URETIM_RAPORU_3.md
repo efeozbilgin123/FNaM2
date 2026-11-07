@@ -1,8 +1,8 @@
 - `door_avukat`: 2 deneme | değişen alan %8.9 | sorun yok (ilk 16:9 denemesinde kadraj daraldığı için 21:9 ile yeniden üretildi)
 - `vent_sahil`: 1 deneme | değişen alan %4.3 | sorun yok
 - `corr_pasta1`: 1 deneme | değişen alan %8.0 | sorun yok
-- `corr_pasta2`: 2 deneme | değişen alan %9.6 | sorun yok (ilk denemede masaya leke taştığı için yeniden üretildi)
-- `corr_pasta3`: 1 deneme | değişen alan %10.5 | sorun yok
+- `corr_pasta2`: 6 deneme | değişen alan %6.2 | sorun yok (kemer ve fener halkası içinde, koridor ortasında)
+- `corr_pasta3`: 5 deneme | değişen alan %6.1 | sorun yok (kemer ve fener halkası içinde, koridor ön kısmında karanlıkta)
 - `corr_sultan`: 2 deneme | değişen alan %8.5 | sorun yok (ilk denemede far parlaması %16.3 olduğu için yeniden üretildi)
 - `corr_itsme`: 1 deneme | değişen alan %8.0 | sorun yok
 - `img/cam/cold_open.png`: 3 deneme | 640×360 CCTV | ilk 2 deneme güvenlik filtresine takıldı; 3. denemede orta sıra sağ çekmece açık üretildi
