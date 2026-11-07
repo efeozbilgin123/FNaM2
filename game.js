@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108j';
+const ASSET_V = '20261108k';
 const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
@@ -77,11 +77,11 @@ const ui = { doorL: false, lightL: false, flash: false, ventLight: false, monito
   app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: '' };
 const look = { x: 209, mouse: null, keys: 0, zoom: false, drag: null };
 const VIEW_SCALE = 720 / 848, PAN_MAX = 2000 * VIEW_SCALE - 1280, PAN_Y = 0;
-const CAM_NAMES = { corr: 'CAM 01 — KORİDOR', autopsy: 'CAM 02 — OTOPSİ SALONU', cold: 'CAM 03 — SOĞUK ODA', ventA: 'CAM 04 — HAVALANDIRMA A', ventB: 'CAM 05 — HAVALANDIRMA B', archive: 'CAM 06 — ARŞİV', lift: 'CAM 07 — ASANSÖR' };
-const CAM_SHORT = { corr: 'KORİDOR', autopsy: 'OTOPSİ', cold: 'SOĞUK', ventA: 'HAV. A', ventB: 'HAV. B', archive: 'ARŞİV', lift: 'ASANSÖR' };
+const CAM_NAMES = { corr: 'CAM 01 — KORİDOR', autopsy: 'CAM 02 — OTOPSİ SALONU', cold: 'CAM 03 — SOĞUK ODA', ventA: 'CAM 04 — HAVALANDIRMA A', ventB: 'CAM 05 — HAVALANDIRMA B', archive: 'CAM 06 — ARŞİV', lift: 'CAM 07 — ASANSÖR', wash: 'CAM 08 — YIKAMA ODASI' };
+const CAM_SHORT = { corr: 'KORİDOR', autopsy: 'OTOPSİ', cold: 'SOĞUK', ventA: 'HAV. A', ventB: 'HAV. B', archive: 'ARŞİV', lift: 'ASANSÖR', wash: 'YIKAMA' };
 // Kat planı: oda merkezleri (348×286 harita). Koridor çizgileri merkezden merkeze, dik açılı.
-const MAP_C = { archive: [64, 66], lift: [174, 66], cold: [64, 130], ventA: [284, 130], autopsy: [64, 196], corr: [174, 196], ventB: [284, 196], you: [174, 254] };
-const MAP_LINKS = [['archive', 'lift'], ['lift', 'corr'], ['cold', 'autopsy'], ['autopsy', 'corr'], ['corr', 'you'], ['cold', 'ventA'], ['ventA', 'ventB'], ['ventB', 'you', 'v']];
+const MAP_C = { archive: [64, 66], lift: [174, 66], cold: [64, 130], wash: [174, 130], ventA: [284, 130], autopsy: [64, 196], corr: [174, 196], ventB: [284, 196], you: [174, 254] };
+const MAP_LINKS = [['archive', 'lift'], ['lift', 'wash'], ['wash', 'corr'], ['cold', 'autopsy'], ['autopsy', 'corr'], ['corr', 'you'], ['cold', 'wash'], ['wash', 'ventA'], ['ventA', 'ventB'], ['ventB', 'you', 'v']];
 const CAM_POS = Object.fromEntries(Object.entries(MAP_C).map(([k, [x, y]]) => [k, [x - 38, y - 14]]));
 let phone = null, itsmeCorrUntil = 0, frozen = null, camBusy = false, lastNote = '';
 
@@ -164,7 +164,7 @@ function handle(e) {
       $('game').classList.toggle('sultanA', e.phase === 'approach');
       $('game').classList.toggle('sultanH', e.phase === 'here');
       return;
-    case 'lightout': snd('flicker'); flick[e.light] = { t0: performance.now(), pasta: e.pasta }; setTimeout(() => snd('light', false), FLICK_MS); return;
+    case 'lightout': snd('flicker'); flick[e.light] = { t0: performance.now(), was: e.was }; setTimeout(() => snd('light', false), FLICK_MS); return;
     case 'powerout': return powerOut();
     case 'itsme': return itsMe(e.variant);
     case 'death': return die(e.who);
@@ -172,7 +172,7 @@ function handle(e) {
   }
 }
 function moveNote(e) {
-  const where = { autopsy: 'OTOPSİ', corr: 'KORİDOR', archive: 'ARŞİV', lift: 'ASANSÖR', door: 'SOL KAPI', cold: 'SOĞUK ODA', ventA: 'HAV. A', ventB: 'HAV. B', mouth: 'HAVALANDIRMA ÇIKIŞI', end: 'KORİDOR' }[e.to] || e.to;
+  const where = { autopsy: 'OTOPSİ', corr: 'KORİDOR', archive: 'ARŞİV', lift: 'ASANSÖR', door: 'SOL KAPI', cold: 'SOĞUK ODA', wash: 'YIKAMA ODASI', ventA: 'HAV. A', ventB: 'HAV. B', mouth: 'HAVALANDIRMA ÇIKIŞI', end: 'KORİDOR' }[e.to] || e.to;
   return 'Hareket algılandı: ' + where;
 }
 function sound(e) {
@@ -301,8 +301,9 @@ function camSrc(cam) {
     corr: g.pasta.stage === 1 || g.pasta.stage === 2 ? 'corr_pasta' : 'corr',
     autopsy: g.pasta.stage === 0 && g.lv.pasta > 0 && g.t > 8 ? 'autopsy_pasta' : 'autopsy',
     cold: g.denek5.open ? 'cold_open' : g.denek5.temp >= 70 ? 'cold_hot' : 'cold',
-    ventA: g.sahil.stage === 1 ? 'ventA_sahil' : 'ventA',
-    ventB: g.sahil.stage === 2 ? 'ventB_sahil' : 'ventB',
+    wash: g.sahil.stage === 1 ? 'wash_sahil' : 'wash',
+    ventA: g.sahil.stage === 2 ? 'ventA_sahil' : 'ventA',
+    ventB: g.sahil.stage === 3 ? 'ventB_sahil' : 'ventB',
     archive: g.avukat.pos === 'archive' && !g.avukat.at && g.lv.avukat > 0 ? 'archive_avukat' : 'archive',
     lift: g.sultan.phase === 'approach' ? 'lift_sultan' : g.avukat.pos === 'lift' ? 'lift_avukat' : 'lift',
   }[cam];
@@ -325,13 +326,15 @@ function render() {
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
   if (d.sheet && ui.monitor) { ui.monitor = false; closeCam(); }
   // koridor
-  const pst = flick.flash && !g.dev.flash ? flick.flash.pasta : g.pasta.stage;   // sönerken son görülen yer
+  // ışık titrerken hareketten önceki durum gösterilir (karakter ışık sönmeden yer değiştirmez)
+  const was = k => flick[k] && !g.dev[k] ? flick[k].was : null;
+  const pst = was('flash') ? was('flash').pasta : g.pasta.stage;
   const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t && !g.pasta.stage ? 'corr_itsme' : pst ? 'corr_pasta' + pst : 'corr_lit';
   useVar('corr', corrVar);
   // kapalı kapı ayrı katman (#vDoorS): çelik kepenk, CSS ile tavandan kayar
   $('game').classList.toggle('vdoorc', haveVar.has('door_shutter'));
-  useVar('door', d.doorL ? null : d.lightL ? (g.avukat.at ? 'door_avukat' : 'door_lit') : null);
-  useVar('vent', d.ventLight ? (g.sahil.stage === 3 ? 'vent_sahil' : 'vent_lit') : null);
+  useVar('door', d.doorL ? null : d.lightL ? ((was('lightL') ? was('lightL').avukat : g.avukat.at) ? 'door_avukat' : 'door_lit') : null);
+  useVar('vent', d.ventLight ? ((was('ventLight') ? was('ventLight').sahil : g.sahil.stage) === Core.PARAMS.SAHIL_MOUTH ? 'vent_sahil' : 'vent_lit') : null);
   // masa
   const h = clock();
   const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;
@@ -674,7 +677,7 @@ addEventListener('keydown', e => {
   if (k === 'q') $('bDoor').onclick();
   if (k === ' ' || k === 'tab') { e.preventDefault(); toggleMonitor(); }
   if (k === 's') toggleSheet();
-  if (k >= '1' && k <= '7' && ui.monitor) { if (cctvOn()) selCam(Core.CAMS[+k - 1]); else { ui.cam = Core.CAMS[+k - 1]; openApp('cctv'); } }
+  if (k >= '1' && k <= '8' && ui.monitor) { if (cctvOn()) selCam(Core.CAMS[+k - 1]); else { ui.cam = Core.CAMS[+k - 1]; openApp('cctv'); } }
   if (k === 'r' && ui.monitor) { const c = cctvOn() && wm.active !== 'fix' ? ui.cam : ui.fixCam; openApp('fix'); ui.fixCam = c; startFix(); }
   if (e.key === 'Escape' && ui.monitor) closeCam();
   if (e.key === 'ArrowLeft') { look.keys = -1; e.preventDefault(); } if (e.key === 'ArrowRight') { look.keys = 1; e.preventDefault(); }
@@ -758,7 +761,7 @@ $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusi
 (function preload() {
   const imgs = ['office', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor',
     'corr/empty', 'corr/lit', 'corr/pasta1', 'corr/pasta2', 'corr/pasta3', 'corr/sultan', 'vent/empty', 'vent/sahil', 'doorway/empty', 'doorway/avukat',
-    ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan'].map(c => 'cam/' + c),
+    ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan', 'wash', 'wash_sahil'].map(c => 'cam/' + c),
     ...Core.CHARS.concat('itsme').map(c => 'scare/' + c)].map(s => `img/${s}.png`);
   const keep = window.__preloaded = []; let done = 0; const total = imgs.length + 2;
   const tick = () => { done++; $('splashTxt').textContent = `KASET YÜKLENİYOR %${Math.round(done / total * 100)}`; if (done >= total) finish(); };

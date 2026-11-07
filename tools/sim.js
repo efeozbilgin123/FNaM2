@@ -15,7 +15,7 @@ function perceive(G, mem) {
   return {
     t: G.t,
     sultan: G.sultan.phase !== 'none' && mem.heardMotor,
-    sahilMouth: G.sahil.stage === 3 && mem.ventSeen,
+    sahilMouth: G.sahil.stage === Core.PARAMS.SAHIL_MOUTH && mem.ventSeen,
     sayici: G.sayici.active && G.sayici.count === 5,
     avukat: G.avukat.at && G.avukat.knock <= 0 && mem.doorSeen,
     knocking: G.avukat.knock > 0,
@@ -63,7 +63,7 @@ function goodBot({ delay = DELAY, spot = FAKE_SPOT } = {}) {
     if (mem.peek > 0) {
       mem.peek -= DT;
       if (mem.peekWhat === 'door') { inp.lightL = true; if (G.avukat.at) mem.doorSeen = true; }
-      if (mem.peekWhat === 'vent') { inp.ventLight = true; if (G.sahil.stage === 3) mem.ventSeen = true; }
+      if (mem.peekWhat === 'vent') { inp.ventLight = true; if (G.sahil.stage === Core.PARAMS.SAHIL_MOUTH) mem.ventSeen = true; }
       if (mem.peekWhat === 'corr') { inp.flash = true; if (G.pasta.stage === 3) mem.corrSeen = true; }
       return inp;
     }

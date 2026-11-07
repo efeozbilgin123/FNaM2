@@ -15,7 +15,7 @@
     LIGHT_OUT: 2.2,        // ışık tutulan yerde hareket olunca o ışık bu kadar saniye yanmaz
   };
 
-  const CAMS = ['corr', 'autopsy', 'cold', 'ventA', 'ventB', 'archive', 'lift'];
+  const CAMS = ['corr', 'autopsy', 'cold', 'ventA', 'ventB', 'archive', 'lift', 'wash'];
   const CHARS = ['pasta', 'avukat', 'sahil', 'sayici', 'muh', 'arda', 'sultan', 'denek5'];
 
   function mulberry32(a) {
@@ -84,7 +84,8 @@
   function knockOut(G, light) {
     if (!G.dev[light]) return;
     G.lightOut[light] = PARAMS.LIGHT_OUT; G.dev[light] = false;
-    emit(G, { type: 'lightout', light, pasta: G.pasta ? G.pasta.stage : 0 });  // anlık durum: sönerken son kare
+    // hareketten ÖNCEKİ durum: ışık titrerken karakter hâlâ eski yerinde görünür, ışık gelince gitmiş olur
+    emit(G, { type: 'lightout', light, was: { pasta: G.pasta ? G.pasta.stage : 0, avukat: G.avukat ? G.avukat.at : false, sahil: G.sahil ? G.sahil.stage : 0 } });
   }
   function die(G, who) {
     if (G.over) return;
@@ -151,9 +152,9 @@
     if (s.tick < PARAMS.PASTA_TICK) return;
     s.tick = 0;
     if (!roll(G, G.lv.pasta)) return;
+    knockOut(G, 'flash');
     s.stage++;
     if (s.stage === 3) { s.window = PARAMS.PASTA_WINDOW; s.flashT = 0; }
-    knockOut(G, 'flash');
     emit(G, { type: 'move', who: 'pasta', to: PASTA_ROUTE[s.stage], stage: s.stage });
     emit(G, { type: 'sound', id: 'step', from: 'corr' });
   });
@@ -168,7 +169,7 @@
       s.knock -= dt; G.extraDrain += PARAMS.AVUKAT_DRAIN;
       s.knockSound -= dt;
       if (s.knockSound <= 0) { s.knockSound = 1.6; emit(G, { type: 'sound', id: 'knock', from: 'door' }); }
-      if (s.knock <= 0) { s.at = false; s.pos = 'archive'; s.tick = -PARAMS.AVUKAT_COOLDOWN; knockOut(G, 'lightL'); emit(G, { type: 'move', who: 'avukat', to: 'archive' }); }
+      if (s.knock <= 0) { knockOut(G, 'lightL'); s.at = false; s.pos = 'archive'; s.tick = -PARAMS.AVUKAT_COOLDOWN; emit(G, { type: 'move', who: 'avukat', to: 'archive' }); }
       return;
     }
     if (s.at) {
@@ -184,7 +185,7 @@
     s.tick = 0;
     if (!roll(G, G.lv.avukat)) return;
     if (s.pos === 'archive') { s.pos = 'lift'; emit(G, { type: 'move', who: 'avukat', to: 'lift' }); }
-    else { s.pos = 'door'; s.at = true; s.t = 0; knockOut(G, 'lightL'); emit(G, { type: 'move', who: 'avukat', to: 'door' }); emit(G, { type: 'sound', id: 'step', from: 'door' }); }
+    else { knockOut(G, 'lightL'); s.pos = 'door'; s.at = true; s.t = 0; emit(G, { type: 'move', who: 'avukat', to: 'door' }); emit(G, { type: 'sound', id: 'step', from: 'door' }); }
   });
 
   // ---------- Sultan Mırık Han (koridor, motor: her şeyi kapat) ----------
@@ -199,7 +200,7 @@
       s.tick = 0;
       if (!roll(G, G.lv.sultan)) return;
       s.phase = 'approach'; s.t = PARAMS.SULTAN_APPROACH;
-      if (G.pasta.stage >= 2) { G.pasta.stage = 1; G.pasta.flashT = 0; knockOut(G, 'flash'); emit(G, { type: 'move', who: 'pasta', to: 'corr', stage: 1 }); }
+      if (G.pasta.stage >= 2) { knockOut(G, 'flash'); G.pasta.stage = 1; G.pasta.flashT = 0; emit(G, { type: 'move', who: 'pasta', to: 'corr', stage: 1 }); }
       emit(G, { type: 'phase', who: 'sultan', phase: 'approach' });
       emit(G, { type: 'sound', id: 'motor', from: 'corr' });
       return;
@@ -214,12 +215,13 @@
   });
 
   // ---------- Sahil Mırık (havalandırma, ölü taklidi) ----------
-  Object.assign(PARAMS, { SAHIL_TICK: 5.5, SAHIL_ATTACK: 7, SAHIL_HIDE: 5, SAHIL_EARLY: 2 });
-  const SAHIL_ROUTE = ['cold', 'ventA', 'ventB', 'mouth'];
+  // yol: soğuk oda -> yıkama odası -> havalandırma A -> B -> ağız (SAHIL_MOUTH = son durak)
+  Object.assign(PARAMS, { SAHIL_TICK: 4.4, SAHIL_ATTACK: 7, SAHIL_HIDE: 5, SAHIL_EARLY: 2, SAHIL_MOUTH: 4 });
+  const SAHIL_ROUTE = ['cold', 'wash', 'ventA', 'ventB', 'mouth'];
   INIT.sahil = () => ({ stage: 0, t: 0, hide: 0, tick: 0 });
   TICKS.push(function tickSahil(G, dt) {
     const s = G.sahil, sheet = G.dev.sheet;
-    if (s.stage === 3) {
+    if (s.stage === PARAMS.SAHIL_MOUTH) {
       s.t -= dt;
       if (sheet) {
         s.hide += dt;
@@ -234,9 +236,9 @@
     if (s.tick < PARAMS.SAHIL_TICK) return;
     s.tick = 0;
     if (!roll(G, G.lv.sahil)) return;
-    s.stage++;
-    if (s.stage === 3) { s.t = PARAMS.SAHIL_ATTACK; s.hide = 0; }
     knockOut(G, 'ventLight');
+    s.stage++;
+    if (s.stage === PARAMS.SAHIL_MOUTH) { s.t = PARAMS.SAHIL_ATTACK; s.hide = 0; }
     emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[s.stage], stage: s.stage });
     emit(G, { type: 'sound', id: 'drag', from: 'vent' });
   });
@@ -263,7 +265,7 @@
     s.active = true; s.count = 4; s.t = 0;
     emit(G, { type: 'sound', id: 'say4', from: 'vent' });
   });
-  TICKS.push(function pendingSheet(G) { G.pending.sheet = G.sahil.stage === 3 || G.sayici.active; });
+  TICKS.push(function pendingSheet(G) { G.pending.sheet = G.sahil.stage === PARAMS.SAHIL_MOUTH || G.sayici.active; });
 
   // ---------- Denek 5 (soğuk oda) ----------
   Object.assign(PARAMS, { D5_BASE: 0.35, D5_PER_LV: 0.08, D5_COOL: 6, D5_OPEN_DELAY: 4, D5_RATTLE: 70, D5_RATTLE_EVERY: 3 });

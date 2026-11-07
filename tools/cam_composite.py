@@ -56,6 +56,7 @@ if __name__ == '__main__':
         ('lift_avukat', 'lift', 'avukat', 402, 258, 150, 1.35),
         ('ventA_sahil', 'ventA', 'sahil', 318, 232, 100, 1.0),
         ('ventB_sahil', 'ventB', 'sahil', 322, 392, 225, .9),
+        ('wash_sahil', 'wash', 'sahil', 418, 322, 118, .62),
     ]
     for out, bg, cut, x, y, h, l in jobs:
         cctv(place(B(bg), C(cut), x, y, h, l)).save(ROOT / f'img/cam/{out}.png'); print(f'img/cam/{out}.png')

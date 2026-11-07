@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { Core, game, run } = require('./helpers');
 
-function sahilAtMouth(G) { G.sahil.stage = 3; G.sahil.t = 7; G.sahil.hide = 0; }
+function sahilAtMouth(G) { G.sahil.stage = Core.PARAMS.SAHIL_MOUTH; G.sahil.t = 7; G.sahil.hide = 0; }
 
 test('Sahil at the mouth leaves if the sheet is held 5 s before he attacks', () => {
   const G = game(2); sahilAtMouth(G);
@@ -27,9 +27,9 @@ test('lifting the sheet early gives only 2 s before Sahil attacks', () => {
 
 test('Sahil advancing makes a drag sound and pending.sheet is set at the mouth', () => {
   const G = game(2, { sahil: 20 });
-  const evs = run(G, 17);
-  assert.ok(evs.filter(e => e.type === 'sound' && e.id === 'drag' && !e.fake).length >= 3);
-  assert.strictEqual(G.sahil.stage, 3); assert.strictEqual(G.pending.sheet, true);
+  const evs = run(G, Core.PARAMS.SAHIL_TICK * Core.PARAMS.SAHIL_MOUTH + 0.5);
+  assert.ok(evs.filter(e => e.type === 'sound' && e.id === 'drag' && !e.fake).length >= Core.PARAMS.SAHIL_MOUTH);
+  assert.strictEqual(G.sahil.stage, Core.PARAMS.SAHIL_MOUTH); assert.strictEqual(G.pending.sheet, true);
 });
 
 test('Sayıcı counts 4, 5, 6 four seconds apart', () => {

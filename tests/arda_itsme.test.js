@@ -34,7 +34,7 @@ test('closing the door during a fake knock is a mistake', () => {
 });
 
 test('hiding when Sahil is really at the mouth is not a mistake', () => {
-  const G = fakeGame('sahil'); G.sahil.stage = 3; G.sahil.t = 7;
+  const G = fakeGame('sahil'); G.sahil.stage = Core.PARAMS.SAHIL_MOUTH; G.sahil.t = 7;
   run(G, 1, { sheet: true });
   assert.strictEqual(G.arda.mistakes, 0);
 });
