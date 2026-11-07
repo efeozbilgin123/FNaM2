@@ -263,6 +263,27 @@ function useVar(region, name) {
   $('game').classList.toggle('v' + region, !!ok || (name === null && [...haveVar].some(v => v.startsWith(region + '_') && v !== 'door_shutter')));
 }
 
+// ---------- örtü: içeriden bakılan ince kadavra örtüsü (prosedürel, görsel dosyası yok) ----------
+(function drawSheet() {
+  const c = $('sheetCv').getContext('2d'), W = 640, H = 360, im = c.createImageData(W, H), d = im.data;
+  // kıvrımlar: birkaç eğik sinüsün toplamı, tavan lambasından gelen sıcak olmayan beyaz ışık
+  const folds = [[0.016, 0.009, 0, 1], [0.006, -0.014, 1.7, .9], [0.034, 0.011, 4.1, .4], [0.0045, 0.003, 2.2, .7]];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let f = 0; for (const [a, b, ph, w] of folds) { const t = Math.sin(x * a + y * b + ph); f += (t > 0 ? Math.pow(t, .6) : -Math.pow(-t, 2.2)) * w; }  // keskin kıvrım sırtı, yumuşak çukur
+    const light = Math.max(0, 1 - Math.hypot((x - 400) / 420, (y - 70) / 260));      // sağ üstten ışık
+    const weave = ((x & 1) ^ (y & 1)) * 6 + (Math.random() * 10 - 5);               // kumaş dokusu
+    let v = 48 + light * 130 + f * 38 * (0.45 + light) + weave;
+    const i = (y * W + x) * 4;
+    d[i] = v * .94; d[i + 1] = v * .98; d[i + 2] = v; d[i + 3] = 255;
+  }
+  c.putImageData(im, 0, 0);
+  // sararmış leke ve kenarlara doğru karanlık
+  const st = c.createRadialGradient(170, 250, 5, 170, 250, 70); st.addColorStop(0, 'rgba(120,100,50,.28)'); st.addColorStop(1, 'rgba(120,100,50,0)');
+  c.fillStyle = st; c.fillRect(0, 0, W, H);
+  const vg = c.createRadialGradient(W / 2, H / 2, 120, W / 2, H / 2, 420); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.8)');
+  c.fillStyle = vg; c.fillRect(0, 0, W, H);
+})();
+
 // ---------- duvardaki jeneratör ekranı (tuval) ----------
 const pctx = $('pscreen').getContext('2d');
 let powerKey = '';
@@ -726,7 +747,7 @@ new MutationObserver(() => { for (const n of [...document.body.children]) if (n.
 let ready = false;
 $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
 (function preload() {
-  const imgs = ['office', 'door', 'panel', 'sheet', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor',
+  const imgs = ['office', 'door', 'panel', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor',
     'corr/empty', 'corr/lit', 'corr/pasta1', 'corr/pasta2', 'corr/pasta3', 'corr/sultan', 'vent/empty', 'vent/sahil', 'doorway/empty', 'doorway/avukat',
     ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan'].map(c => 'cam/' + c),
     ...Core.CHARS.concat('itsme').map(c => 'scare/' + c)].map(s => `img/${s}.png`);

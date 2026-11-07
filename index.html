@@ -168,7 +168,8 @@
   #edgeL,#edgeR{position:absolute; top:0; bottom:0; width:60px; pointer-events:none; opacity:0; transition:opacity .3s}
   #edgeL{left:0; background:linear-gradient(90deg,rgba(255,255,255,.05),transparent)} #edgeR{right:0; background:linear-gradient(-90deg,rgba(255,255,255,.05),transparent)}
   #sheetLayer{position:absolute; inset:0; z-index:30; pointer-events:none; transform:translateY(105%); transition:transform .32s cubic-bezier(.3,.7,.3,1)}
-  #sheetLayer img{width:100%; height:100%; object-fit:cover; filter:brightness(.55)}
+  #sheetCv{position:absolute; inset:-3%; width:106%; height:106%; animation:sheetBreath 3.4s ease-in-out infinite}
+  @keyframes sheetBreath{0%,100%{transform:scale(1) translateY(0)} 45%{transform:scale(1.025) translateY(-6px)}}
   #game.sheet #sheetLayer{transform:none}
   #sheetLayer::after{content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.85)); animation:breathe 3.2s ease-in-out infinite}
   @keyframes breathe{50%{opacity:.75}}
@@ -552,7 +553,7 @@
       <div class="vignette"></div>
       <div id="edgeL"></div><div id="edgeR"></div>
       <div id="dark"></div>
-      <div id="sheetLayer"><img src="img/sheet.png" alt=""></div>
+      <div id="sheetLayer"><canvas id="sheetCv" width="640" height="360"></canvas></div>
       <div id="toast"></div>
       <div class="bar" id="barMon">▲ MONİTÖR</div>
       <div class="bar" id="barSheet">▲ ÖRTÜ</div>
@@ -654,11 +655,11 @@
   <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
 </div>
 
-<script src="audio.js?v=20261107r"></script>
-<script src="core.js?v=20261107r"></script>
-<script src="nights.js?v=20261107r"></script>
-<script src="save.js?v=20261107r"></script>
+<script src="audio.js?v=20261107s"></script>
+<script src="core.js?v=20261107s"></script>
+<script src="nights.js?v=20261107s"></script>
+<script src="save.js?v=20261107s"></script>
 <script src="lore.js?v=2"></script>
-<script src="game.js?v=20261107r"></script>
+<script src="game.js?v=20261107s"></script>
 </body>
 </html>

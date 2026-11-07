@@ -23,6 +23,9 @@ ZONES = {
 }
 THRESH = 34      # renk farkı eşiği (0-255)
 # Ofiste sonradan eklenen sabit parçalar: versiyonlar bunları asla örtmez (ofisin kendi hali görünür).
+# Koridordaki karakterler kemerin dışına taşmasın: maske kemer şekliyle kırpılır (Sultan'ın far ışığı hariç).
+ARCH = (852, 104, 1148, 578)   # x0, y0, x1, y1 (üstü yarım daire)
+ARCH_CLIP = ('corr_pasta', 'corr_itsme', 'corr_lit')
 KEEP = [
     (40, 205, 342, 506),     # duvardaki MIRIKVISION ekranı
     (582, 286, 672, 452),    # kapı paneli (girintide)
@@ -79,7 +82,7 @@ def fit(im, base=None):
     return out
 
 
-def mask_for(img, base, zone):
+def mask_for(img, base, zone, clip_arch=False):
     a = np.asarray(img.filter(ImageFilter.GaussianBlur(2)), dtype=np.int16)
     b = np.asarray(base.filter(ImageFilter.GaussianBlur(2)), dtype=np.int16)
     # ortalama ton kaymasını düzelt (Gemini tüm resmi biraz aydınlatıp/karartabiliyor)
@@ -95,6 +98,11 @@ def mask_for(img, base, zone):
     mi = mi.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.MinFilter(9))    # kenarı toparla
     d = ImageDraw.Draw(mi)
     for box in KEEP: d.rectangle(box, fill=0)
+    if clip_arch:
+        x0, y0, x1, y1 = ARCH; r = (x1 - x0) // 2
+        am = Image.new('L', (W, H), 0); ad = ImageDraw.Draw(am)
+        ad.ellipse((x0, y0, x1, y0 + 2 * r), fill=255); ad.rectangle((x0, y0 + r, x1, y1), fill=255)
+        mi = Image.fromarray(np.minimum(np.asarray(mi), np.asarray(am)))
     return mi.filter(ImageFilter.GaussianBlur(FEATHER)), float((np.asarray(mi) > 0).mean())
 
 
@@ -110,7 +118,7 @@ def main(names=None):
         zone = next((z for k, z in ZONES.items() if name.startswith(k)), None)
         if not zone: print('bölge bilinmiyor, atlandı:', src.name); continue
         img = fit(Image.open(src).convert('RGB'), base)
-        alpha, cover = mask_for(img, base, zone)
+        alpha, cover = mask_for(img, base, zone, name.startswith(ARCH_CLIP))
         out = img.convert('RGBA'); out.putalpha(alpha)
         out.save(OUT / f'{name}.png', optimize=True)
         print(f'img/office_v/{name}.png  değişen alan %{cover * 100:.1f}')
