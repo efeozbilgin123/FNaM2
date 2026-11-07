@@ -219,7 +219,7 @@
 
   // ---------- Sahil Mırık (havalandırma, ölü taklidi) ----------
   // yol: soğuk oda -> yıkama odası -> havalandırma A -> B -> ağız (SAHIL_MOUTH = son durak)
-  Object.assign(PARAMS, { SAHIL_TICK: 4.4, SAHIL_ATTACK: 7, SAHIL_HIDE: 5, SAHIL_EARLY: 2, SAHIL_MOUTH: 4, SAHIL_COOLDOWN: 15 });
+  Object.assign(PARAMS, { SAHIL_TICK: 4.4, SAHIL_ATTACK: 7, SAHIL_HIDE: 5, SAHIL_EARLY: 2, SAHIL_MOUTH: 4, SAHIL_COOLDOWN: 15, VENT_GAP: 10 });   // VENT_GAP: Sahil ile Arda arasında en az bu kadar sn
   const SAHIL_ROUTE = ['cold', 'wash', 'ventA', 'ventB', 'mouth'];
   INIT.sahil = () => ({ stage: 0, t: 0, hide: 0, tick: 0 });
   TICKS.push(function tickSahil(G, dt) {
@@ -228,7 +228,7 @@
       s.t -= dt;
       if (sheet) {
         s.hide += dt;
-        if (s.hide >= PARAMS.SAHIL_HIDE) { s.stage = 0; s.hide = 0; s.tick = -PARAMS.SAHIL_COOLDOWN;   // gidince bir süre havalandırma sakin
+        if (s.hide >= PARAMS.SAHIL_HIDE) { s.stage = 0; s.hide = 0; s.tick = -PARAMS.SAHIL_COOLDOWN; s.endT = G.t;   // gidince bir süre havalandırma sakin
  emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'dragAway', from: 'vent' }); }
         return;
       }
@@ -236,7 +236,7 @@
       if (s.t <= 0) die(G, 'sahil');
       return;
     }
-    if (G.arda.fake) return;   // Arda taklit yaparken Sahil ilerlemez
+    if (G.arda.fake || G.t - (G.arda.endT ?? -99) < PARAMS.VENT_GAP) return;   // Arda taklit yaparken ya da az önce bitirdiyse Sahil ilerlemez
     s.tick += dt;
     if (s.tick < PARAMS.SAHIL_TICK) return;
     s.tick = 0;
@@ -342,13 +342,13 @@
         if (a.mistakes >= PARAMS.ARDA_MAX) { die(G, 'arda'); return; }
       }
       f.t += dt;
-      if (f.t >= PARAMS.ARDA_WINDOW) { a.fake = null; a.tick = 0; }
+      if (f.t >= PARAMS.ARDA_WINDOW) { a.fake = null; a.tick = 0; a.endT = G.t; }
       return;
     }
     a.tick += dt;
     if (a.tick < PARAMS.ARDA_TICK) return;
     a.tick = 0;
-    if (G.sahil.stage >= 2) return;   // Sahil havalandırmadayken Arda taklide başlamaz (ikisi aynı anda gelmez)
+    if (G.sahil.stage >= 2 || G.t - (G.sahil.endT ?? -99) < PARAMS.VENT_GAP) return;   // Sahil havalandırmadayken ya da az önce gittiyse Arda başlamaz
     if (!roll(G, G.lv.arda)) return;
     const opts = ['sahil', 'sayici', 'avukat'].filter(c => G.lv[c] > 0);
     if (!opts.length) return;

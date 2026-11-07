@@ -15,7 +15,7 @@
     3: { levels: L(11, 10, 12, 8, 8, 0, 0, 6), doc: 'doc3', phone: 'voice/phone3.mp3', grace: 67 },
     4: { levels: L(8, 7, 9, 6, 8, 5, 3, 5), doc: 'doc4', phone: 'voice/phone4.mp3', grace: 70 },
     5: { levels: L(10, 10, 10, 8, 13, 6, 6, 7), doc: 'doc5', phone: 'voice/phone5.mp3', grace: 69 },
-    6: { levels: L(10, 10, 10, 9, 9, 7, 7, 6), doc: null, phone: 'voice/phone6_secret.mp3' },
+    6: { levels: L(11, 11, 11, 10, 10, 8, 8, 6), doc: null, phone: 'voice/phone6_secret.mp3' },
   };
 
   const DOCS = {
