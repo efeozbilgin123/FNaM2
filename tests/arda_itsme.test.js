@@ -39,10 +39,10 @@ test('hiding when Sahil is really at the mouth is not a mistake', () => {
   assert.strictEqual(G.arda.mistakes, 0);
 });
 
-test('the third mistake kills', () => {
-  const G = fakeGame('sahil'); G.arda.mistakes = 2;
+test('mistakes never kill (Arda only wastes your time)', () => {
+  const G = fakeGame('sahil'); G.arda.mistakes = 5;
   const evs = run(G, 1, { sheet: true });
-  assert.ok(evs.some(e => e.type === 'death' && e.who === 'arda'));
+  assert.ok(!evs.some(e => e.type === 'death'));
 });
 
 test('ITS ME appears in about 3% of nights', () => {

@@ -5,7 +5,7 @@ const { simNight, simCustom, passiveBot, wastefulBot, expertBot } = require('../
 const { NIGHTS } = require('../nights.js');
 
 // 1-2'ye oranlı eğri: 3 ~%80, 4 ~%65, 5 ~%45, 6 ~%25 (bot); 20/20 yine %1'in altında
-const TARGET = { 1: [0.85, 1], 2: [0.90, 0.99], 3: [0.82, 0.94], 4: [0.70, 0.84], 5: [0.52, 0.68], 6: [0.32, 0.48] };
+const TARGET = { 1: [0.85, 1], 2: [0.90, 0.99], 3: [0.82, 0.94], 4: [0.70, 0.84], 5: [0.52, 0.68], 6: [0.32, 0.58] };
 
 for (const n of [1, 2, 3, 4, 5, 6]) {
   test(`night ${n} good-bot win rate in ${TARGET[n]}`, () => {

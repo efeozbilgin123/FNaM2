@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109v';
+const ASSET_V = '20261109w';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -279,7 +279,6 @@ const WHY = {
   avukat: 'Kapıda biri vardı. Ayak sesi duyunca kapı ışığını yak; görürsen kapıyı kapat.',
   sahil: 'Havalandırmada metal sesleri duyunca ışıkla bak; ağza sessizce gelir. Oradaysa örtüyü çek; çarpmayı duyana kadar kıpırdama.',
   sayici: '"Beş"i duyduğunda örtünün altında olmalıydın. Altıya kadar saydı.',
-  arda: 'Duyduğun her ses gerçek değildi. Sonundaki bozuk miyavı dinle ve tepki verme.',
   sultan: 'Motor sesini duyunca her şeyi kapat: monitör, ışıklar, fener. Karanlıkta bekle.',
   denek5: '5 numaralı çekmece ısındı. Soğuk oda kamerasında SOĞUT\'a basılı tut.',
   powerout: 'Jeneratör bitti. Karanlıkta Denek 5 kapına geldi. Elektriği idareli kullan; sabaha kadar dayanırsan kurtulabilirsin.',

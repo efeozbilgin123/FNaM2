@@ -315,7 +315,8 @@
     if (roll(G, G.lv.muh)) hack(G, 'cold');
   });
   // ---------- Arda Baz (Denek 4, taklitçi) ----------
-  Object.assign(PARAMS, { ARDA_TICK: 10, ARDA_WINDOW: 6, ARDA_MIYAV: 5.5, ARDA_MAX: 3 });
+  // Arda öldürmez: taklide kanmak sadece zaman/elektrik kaybettirir (mistakes yalnızca sayılır). Sayıcı da Arda'dır, onu taklit etmez.
+  Object.assign(PARAMS, { ARDA_TICK: 10, ARDA_WINDOW: 6, ARDA_MIYAV: 5.5 });
   const FAKE_SOUNDS = {
     sahil: [[0, 'drag'], [2.6, 'drag']],
     sayici: [[0, 'say4'], [4, 'say5']],
@@ -340,7 +341,6 @@
       const wrong = f.mimic === 'avukat' ? (doorOn && !G.pending.door) : (sheetOn && !G.pending.sheet);
       if (wrong && !f.counted) {
         f.counted = true; a.mistakes++;
-        if (a.mistakes >= PARAMS.ARDA_MAX) { die(G, 'arda'); return; }
       }
       f.t += dt;
       if (f.t >= PARAMS.ARDA_WINDOW) { a.fake = null; a.tick = 0; a.endT = G.t; }
@@ -351,7 +351,7 @@
     a.tick = 0;
     if (G.sahil.stage >= 2 || G.t - (G.sahil.endT ?? -99) < PARAMS.VENT_GAP) return;   // Sahil havalandırmadayken ya da az önce gittiyse Arda başlamaz
     if (!roll(G, G.lv.arda)) return;
-    const opts = ['sahil', 'sayici', 'avukat'].filter(c => G.lv[c] > 0);
+    const opts = ['sahil', 'avukat'].filter(c => G.lv[c] > 0);
     if (!opts.length) return;
     startFake(G, opts[Math.floor(G.rng() * opts.length)]);
   });
