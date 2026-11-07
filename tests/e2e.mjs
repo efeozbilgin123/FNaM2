@@ -117,8 +117,8 @@ await check('the 20/20 preset sets every level to 20', async (page) => {
   await boot(page);
   await page.click('#bCustom'); await page.waitForSelector('#custom.on');
   await page.click('#cpresets [data-p="max"]');
-  const v = await page.$$eval('#ccards .lv span', s => s.map(x => x.textContent));
-  assert.deepStrictEqual(v, Array(8).fill('20'));
+  const v = await page.$$eval('#ccards .v', s => s.map(x => +x.textContent));
+  assert.deepStrictEqual(v, Array(8).fill(20));
 });
 await check('a forced death shows the jumpscare, then game over', async (page) => {
   await boot(page); await startNight(page, 1, { quiet: true });

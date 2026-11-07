@@ -21,7 +21,7 @@ const PAN = { door: -1, corr: 0, vent: 1, cold: -0.3 };
 const MUSIC = ['splash', 'title', 'archive', 'custom', 'over'];
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
-  $('mute').style.display = ['splash', 'title', 'archive', 'custom'].includes(id) ? '' : 'none';
+  $('mute').style.display = ['splash', 'title'].includes(id) ? '' : 'none';
   try {
     if (MUSIC.includes(id)) { A.stopAmbience && A.stopAmbience(0.3); A.playMenuMusic(); }
     else if (id === 'intro') { A.stopMusic(1.2); snd('boom'); }
@@ -517,6 +517,7 @@ document.querySelectorAll('[data-min]').forEach(el => el.addEventListener('click
 document.querySelectorAll('.dicon').forEach(d => {
   d.addEventListener('click', () => { document.querySelectorAll('.dicon').forEach(x => x.classList.toggle('selected', x === d)); closeStart(); });
   d.addEventListener('dblclick', () => openApp(d.dataset.app));
+  d.addEventListener('pointerup', e => { if (e.pointerType === 'touch') openApp(d.dataset.app); }); // telefonda tek dokunuş açar
 });
 $('desk').parentElement.addEventListener('pointerdown', e => { if (e.target === $('screen')) { document.querySelectorAll('.dicon').forEach(x => x.classList.remove('selected')); closeStart(); } });
 // ---------- dosya gezgini (Bilgisayarım), Geri Dönüşüm, Not Defteri, resim ----------
@@ -526,6 +527,7 @@ function fileEl(node, onOpen) {
   el.innerHTML = `<i data-ico="${node.ico}"></i><span>${node.name}</span>`; fillIcons(el);
   el.addEventListener('click', () => { el.parentElement.querySelectorAll('.file').forEach(x => x.classList.toggle('selected', x === el)); });
   el.addEventListener('dblclick', () => onOpen(node));
+  el.addEventListener('pointerup', e => { if (e.pointerType === 'touch') onOpen(node); });
   return el;
 }
 function openNode(node) {
@@ -684,18 +686,19 @@ $('bArchive').onclick = () => { renderArchive(); show('archive'); };
 $('bArcBack').onclick = $('bCusBack').onclick = () => show('title');
 
 function renderArchive() {
-  const items = ['doc1', 'doc2', 'doc3', 'doc4', 'doc5'].map(id => P.docs.includes(id)
-    ? `<div class="arc" data-doc="${id}"><b>${DOCS[id].title}</b>Okumak için tıkla</div>`
-    : `<div class="arc lock"><b>???</b>Henüz bulunmadı</div>`);
-  items.push(P.itsme.length ? `<div class="arc"><b>IT'S ME</b>Gördüğün: ${P.itsme.length} / 3</div>` : `<div class="arc lock"><b>???</b>Bazen gece bir şey görürsün.</div>`);
-  items.push(P.custom2020 ? `<div class="arc" data-doc="secret"><b>${DOCS.secret.title}</b>20/20 ödülü</div>` : `<div class="arc lock"><b>20/20</b>Custom Night'ta herkesi 20 yap ve hayatta kal.</div>`);
+  const tape = (id, t, sub, lock) => lock ? `<div class="tapebox lock"><div class="lab">???<small>${sub}</small></div></div>` : `<div class="tapebox" tabindex="0" ${id ? `data-doc="${id}"` : ''}><div class="lab">${t}<small>${sub}</small></div></div>`;
+  const items = ['doc1', 'doc2', 'doc3', 'doc4', 'doc5'].map((id, i) => P.docs.includes(id) ? tape(id, DOCS[id].title, `${i + 1}. gece`) : tape(0, 0, `${i + 1}. gece · bulunmadı`, true));
+  items.push(P.itsme.length ? tape(0, "IT'S ME", `görülen: ${P.itsme.length} / 3`) : tape(0, 0, 'bazen gece bir şey görürsün', true));
+  items.push(P.custom2020 ? tape('secret', DOCS.secret.title, '20/20 ödülü') : tape(0, 0, "20/20'de hayatta kal", true));
+  items.push(tape(0, 0, 'kayıt dışı', true));
   $('arcList').innerHTML = items.join('');
+  $('arcCount').textContent = `${P.docs.length + (P.custom2020 ? 1 : 0)} / 6 KASET`;
   document.querySelectorAll('#arcList [data-doc]').forEach(el => el.onclick = () => showDoc(el.dataset.doc, () => { renderArchive(); show('archive'); }));
 }
 const CNAME = { pasta: 'PASTA', avukat: 'AVUKAT', sahil: 'SAHİL', sayici: 'SAYICI', muh: 'MÜHENDİS', arda: 'ARDA BAZ', sultan: 'SULTAN', denek5: 'DENEK 5' };
 let cLv = { pasta: 5, avukat: 5, sahil: 5, sayici: 5, muh: 5, arda: 5, sultan: 5, denek5: 5 };
 function renderCustom() {
-  $('ccards').innerHTML = Core.CHARS.map(c => `<div class="cc"><div class="pic" style="background-image:url(img/scare/${c}.png)"></div><b>${CNAME[c]}</b><div class="lv"><button data-c="${c}" data-d="-1">‹</button><span>${cLv[c]}</span><button data-c="${c}" data-d="1">›</button></div></div>`).join('');
+  $('ccards').innerHTML = Core.CHARS.map(c => `<div class="cc"><div class="pic" style="background-image:url(img/scare/${c}.png)"></div><b>${CNAME[c]}</b><div class="lvbar">${Array.from({ length: 20 }, (_, i) => `<i class="${i < cLv[c] ? (i >= 15 ? 'hot' : 'on') : ''}"></i>`).join('')}</div><button data-c="${c}" data-d="-1" aria-label="${CNAME[c]} azalt">◀</button><span class="v">${String(cLv[c]).padStart(2, '0')}</span><button data-c="${c}" data-d="1" aria-label="${CNAME[c]} artır">▶</button></div>`).join('');
   document.querySelectorAll('#ccards button').forEach(b => b.onclick = () => { cLv[b.dataset.c] = Math.max(0, Math.min(20, cLv[b.dataset.c] + +b.dataset.d)); snd('tick'); renderCustom(); });
 }
 document.querySelectorAll('#cpresets button').forEach(b => b.onclick = () => {

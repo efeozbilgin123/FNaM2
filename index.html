@@ -596,6 +596,44 @@
   #vol::-moz-range-thumb{background:#f2f2f2; border:0; border-radius:0; width:10px; height:22px}
   /* ölüm yazısı: kayıt bozulması */
   #over .t{font-family:'Rubik Glitch',sans-serif; font-size:120px; letter-spacing:6px; color:#d8d8d8; text-shadow:4px 0 rgba(255,0,40,.6), -4px 0 rgba(0,220,255,.45)}
+
+  /* ---------- VHS ekranları (arşiv, custom night, gece başı, 6 AM, belge) ---------- */
+  .vhs{background:#000; font-family:'VT323',monospace; color:#f2f2f2}
+  .vhs .vbg{position:absolute; inset:-20px; background:url(img/cam/archive.png) center/cover; filter:grayscale(1) contrast(1.2) brightness(.32) blur(1px); animation:vjit 7s steps(1) infinite}
+  #custom .vbg{background-image:url(img/cam/cold.png)} #doc .vbg{background-image:url(img/cam/autopsy.png); filter:grayscale(1) brightness(.18) blur(3px)}
+  .vhs .vlines{position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px); pointer-events:none; z-index:1}
+  .vhs .vvig{position:absolute; inset:0; background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.85)); pointer-events:none}
+  .vhs .osd{position:absolute; font-size:34px; text-shadow:2px 2px 0 #000; z-index:2}
+  .vhs .tl{left:40px; top:28px} .vhs .tr{right:40px; top:28px} .vhs .bl{left:40px; bottom:26px}
+  .vhs .play{color:#7dff8a} #custom .play{color:#ff2b2b; animation:vbl 1s steps(2) infinite}
+  .vhs .back, #cStart{all:unset; position:absolute; bottom:24px; z-index:2; cursor:pointer; padding:0 14px; font:400 36px 'VT323',monospace; color:#f2f2f2; text-shadow:2px 2px 0 #000}
+  .vhs .back{left:40px} #cStart{right:40px}
+  .vhs .back:hover, .vhs .back:focus-visible, #cStart:hover, #cStart:focus-visible{background:#f2f2f2; color:#000; text-shadow:none}
+  #intro .t{font-size:150px; text-shadow:4px 4px 0 #000} #intro .n{font-size:56px; color:#cfcfcf}
+  #six .clock{font-family:'VT323',monospace; font-size:180px} #six .msg{font-family:'VT323',monospace; font-size:40px; color:#cfe8ea}
+  #six .big-btn, #over .big-btn{border-radius:0; border:2px solid #f2f2f2; font-size:34px}
+  #doc .hint{font-family:'VT323',monospace; font-size:28px; color:#cfcfcf; z-index:2}
+  /* arşiv: kaset rafı */
+  #arcList{position:absolute; left:80px; right:80px; top:120px; display:grid; grid-template-columns:repeat(4, 1fr); gap:22px 26px; z-index:2}
+  .tapebox{position:relative; height:200px; padding:16px 16px 14px; background:linear-gradient(#202326,#141618); border-radius:4px; box-shadow:0 10px 20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08); cursor:pointer; transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+  .tapebox::before{content:''; position:absolute; left:50%; bottom:16px; width:120px; height:46px; margin-left:-60px; border-radius:6px; background:radial-gradient(circle at 25% 50%, #0a0b0c 15px, #2a2d30 16px, #2a2d30 20px, transparent 21px), radial-gradient(circle at 75% 50%, #0a0b0c 15px, #2a2d30 16px, #2a2d30 20px, transparent 21px), #1b1d1f}
+  .tapebox .lab{background:#f0e6c8; color:#141414; padding:8px 10px 10px; font:400 20px/1.15 'Special Elite',monospace; transform:rotate(-1deg); min-height:92px}
+  .tapebox .lab small{display:block; font-size:14px; color:#6b6457; margin-top:6px}
+  .tapebox:hover, .tapebox:focus-visible{transform:translateY(-6px) rotate(-1deg); outline:none}
+  .tapebox.lock{cursor:default; opacity:.5} .tapebox.lock .lab{background:#3a3d40; color:#8b8f92}
+  .tapebox.lock:hover{transform:none}
+  /* custom night: kanal ayar menüsü */
+  #ccards{position:absolute; left:120px; right:120px; top:110px; display:flex; flex-direction:column; gap:6px; z-index:2}
+  .cc{display:grid; grid-template-columns:44px 210px 1fr 44px 60px 44px; align-items:center; gap:10px; padding:2px 10px; font-size:34px; text-shadow:2px 2px 0 #000; border:0; background:none; border-radius:0; text-align:left}
+  .cc:hover{background:rgba(242,242,242,.12)}
+  .cc .pic{width:40px; height:30px; border-radius:0; background:#000 center/cover; filter:grayscale(1) contrast(1.2)}
+  .cc b{font:400 34px 'VT323',monospace; color:#f2f2f2; margin:0}
+  .cc .lvbar{display:flex; gap:3px} .cc .lvbar i{flex:1; height:22px; background:rgba(242,242,242,.15)} .cc .lvbar i.on{background:#f2f2f2} .cc .lvbar i.hot{background:#ff3b3b}
+  .cc .v{text-align:right}
+  .cc button{all:unset; cursor:pointer; text-align:center; font-size:34px} .cc button:hover{background:#f2f2f2; color:#000}
+  #cpresets{position:absolute; left:130px; bottom:84px; display:flex; gap:14px; align-items:center; z-index:2; font-size:32px; text-shadow:2px 2px 0 #000}
+  #cpresets button{all:unset; cursor:pointer; padding:0 12px; border:2px solid #f2f2f2; font-size:30px}
+  #cpresets button:hover{background:#f2f2f2; color:#000}
   /* SCARE */
   #scare{background:#000}
   #scareImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:lunge .5s cubic-bezier(.15,.9,.3,1) forwards, shake .06s infinite}
@@ -631,8 +669,8 @@
     <div class="osd bl">SP ▸▸ &nbsp;v2.0</div>
   </section>
 
-  <section id="doc" class="screen"><div id="paperDoc"></div><div class="hint">[ devam etmek için tıkla ]</div></section>
-  <section id="intro" class="screen"><div class="center"><div class="t">12:00 AM</div><div class="n" id="introN">1. GECE</div></div></section>
+  <section id="doc" class="screen vhs"><div class="vbg"></div><div class="vlines"></div><div class="vvig"></div><div id="paperDoc"></div><div class="hint">[ devam etmek için tıkla ]</div></section>
+  <section id="intro" class="screen vhs"><div class="vlines"></div><div class="osd tl"><span class="play">▶</span> PLAY</div><div class="center"><div class="t">12:00 AM</div><div class="n" id="introN">1. GECE</div></div><div class="osd bl">SP ▸</div></section>
 
   <section id="game" class="screen">
     <div id="office">
@@ -756,19 +794,19 @@
   </section>
 
   <section id="scare" class="screen"><img id="scareImg" src="" alt=""><div class="flash"></div></section>
-  <section id="six" class="screen"><div class="vignette"></div><div class="center"><div class="clock" id="sixClock">5 AM</div><div class="msg" id="sixMsg"></div><button class="big-btn" id="bNext" style="visibility:hidden">DEVAM →</button></div></section>
+  <section id="six" class="screen vhs"><div class="vlines"></div><div class="vignette"></div><div class="center"><div class="clock" id="sixClock">5 AM</div><div class="msg" id="sixMsg"></div><button class="big-btn" id="bNext" style="visibility:hidden">DEVAM →</button></div></section>
   <section id="over" class="screen"><div class="vignette"></div><div class="center"><div class="t">ÖLDÜN</div><div class="why" id="overWhy"></div><div><button class="big-btn" id="bRetry">TEKRAR DENE</button> <button class="big-btn" id="bMenu1">MENÜ</button></div></div></section>
   <section id="ending" class="screen"><img id="endImg" src="img/ending.png" alt=""><div class="txt" id="endTxt"></div><button class="big-btn" id="bMenu2" style="position:absolute;right:40px;top:20px;margin:0;font-size:24px">MENÜ</button></section>
   <section id="crash" class="screen"><div class="center"><b>:(</b><b>Bu sayfa yanıt vermiyor</b><i>Hata kodu: DENEK_5_CEVRIMICI</i></div></section>
-  <section id="archive" class="screen"><h2 class="pageT">ARŞİV</h2><div id="arcList"></div><button class="back" id="bArcBack">← GERİ</button></section>
-  <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
+  <section id="archive" class="screen vhs"><div class="vbg"></div><div class="vlines"></div><div class="vvig"></div><div class="osd tl"><span class="play">▶</span> ARŞİV · KASET RAFI</div><div class="osd tr" id="arcCount"></div><div id="arcList"></div><button class="back" id="bArcBack">◀ MENÜ</button></section>
+  <section id="custom" class="screen vhs"><div class="vbg"></div><div class="vlines"></div><div class="vvig"></div><div class="osd tl"><span class="play">●</span> CUSTOM NIGHT · KANAL AYARI</div><div class="osd tr">7. GECE</div><div id="ccards"></div><div id="cpresets"><span>HAZIR:</span><button data-p="easy">KOLAY</button><button data-p="n6">6. GECE</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">◀ MENÜ</button><button id="cStart">▶ OYNAT</button></section>
 </div>
 
-<script src="audio.js?v=20261108b"></script>
-<script src="core.js?v=20261108b"></script>
-<script src="nights.js?v=20261108b"></script>
-<script src="save.js?v=20261108b"></script>
+<script src="audio.js?v=20261108d"></script>
+<script src="core.js?v=20261108d"></script>
+<script src="nights.js?v=20261108d"></script>
+<script src="save.js?v=20261108d"></script>
 <script src="lore.js?v=2"></script>
-<script src="game.js?v=20261108b"></script>
+<script src="game.js?v=20261108d"></script>
 </body>
 </html>
