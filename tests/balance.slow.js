@@ -4,7 +4,8 @@ const assert = require('node:assert');
 const { simNight, simCustom, passiveBot, wastefulBot, expertBot } = require('../tools/sim.js');
 const { NIGHTS } = require('../nights.js');
 
-const TARGET = { 1: [0.85, 1], 2: [0.90, 0.99], 3: [0.45, 0.60], 4: [0.30, 0.45], 5: [0.08, 0.15], 6: [0.02, 0.06] };
+// 1-2'ye oranlı eğri: 3 ~%80, 4 ~%65, 5 ~%45, 6 ~%25 (bot); 20/20 yine %1'in altında
+const TARGET = { 1: [0.85, 1], 2: [0.90, 0.99], 3: [0.72, 0.88], 4: [0.57, 0.73], 5: [0.37, 0.52], 6: [0.18, 0.32] };
 
 for (const n of [1, 2, 3, 4, 5, 6]) {
   test(`night ${n} good-bot win rate in ${TARGET[n]}`, () => {

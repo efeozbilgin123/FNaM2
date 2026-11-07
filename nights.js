@@ -12,10 +12,10 @@
     // grace: telefon konuşması bitene kadar (zil ~9 sn + kayıt) kimse hareket etmez
     1: { levels: L(5, 3, 0, 0, 0, 0, 0, 3), doc: 'doc1', phone: 'voice/phone1.mp3', grace: 81 },
     2: { levels: L(14, 15, 14, 0, 0, 0, 0, 8), doc: 'doc2', phone: 'voice/phone2.mp3', grace: 58 },
-    3: { levels: L(16, 14, 17, 12, 12, 0, 0, 9), doc: 'doc3', phone: 'voice/phone3.mp3' },
-    4: { levels: L(9, 8, 9, 7, 7, 4, 4, 4), doc: 'doc4', phone: 'voice/phone4.mp3' },
-    5: { levels: L(11, 10, 11, 9, 9, 7, 7, 6), doc: 'doc5', phone: 'voice/phone5.mp3' },
-    6: { levels: L(13, 12, 13, 11, 11, 9, 9, 7), doc: null, phone: 'voice/phone6_secret.mp3' },
+    3: { levels: L(12, 11, 13, 9, 9, 0, 0, 7), doc: 'doc3', phone: 'voice/phone3.mp3', grace: 67 },
+    4: { levels: L(8, 7, 8, 6, 6, 3, 3, 3), doc: 'doc4', phone: 'voice/phone4.mp3', grace: 70 },
+    5: { levels: L(8, 8, 8, 7, 7, 5, 5, 5), doc: 'doc5', phone: 'voice/phone5.mp3', grace: 69 },
+    6: { levels: L(9, 9, 9, 8, 8, 6, 6, 5), doc: null, phone: 'voice/phone6_secret.mp3' },
   };
 
   const DOCS = {
