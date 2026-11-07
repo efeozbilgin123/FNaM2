@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109d';
+const ASSET_V = '20261109f';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -279,10 +279,10 @@ function die(who) {
   cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false); snd('darkTuneLoop', false);
   const img = who === 'powerout' ? 'denek5' : who;
   $('scareImg').src = av(`img/scare/${img}.png`);
-  snd('doorBreath', false); snd('darkTuneLoop', false); $('darkFace').style.opacity = 0;
+  snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false); snd('darkTuneLoop', false); $('darkFace').style.opacity = 0;
   if (who === 'powerout') {   // FNaF 1 gibi: sarsıntı ve çığlık yok; karanlıktan yüz belirir, tek bir darbe
     $('scare').classList.add('pdeath'); show('scare'); A.stopMusic && A.stopMusic(0); snd('sting'); snd('boom');
-  } else { show('scare'); snd('scream'); if (who === 'sayici') snd('sayScare'); $('scare').classList.add('shakeAll'); }
+  } else { show('scare'); snd('scream', who); if (who === 'sayici') snd('sayScare'); $('scare').classList.add('shakeAll'); }
   // jumpscare -> parazitle bozulup yavaşça kararır -> "Öldün" ekranı karanlıktan belirir
   setTimeout(() => { $('scare').classList.remove('shakeAll'); $('scare').classList.add('dying'); snd('static'); }, 1500);
   setTimeout(() => {

@@ -186,7 +186,8 @@ const Audio5 = (() => {
       o.connect(f1).connect(g); out(g, { pan: 0.3, wet: 0.5 }); o.start(t); o.stop(t + dur + 0.05);
       noise({ t: t + dur * 0.75, dur: 0.05, type: 'bandpass', f: 3000, q: 2, vol: 0.2, wet: 0.2 }); // kesik
     },
-    rattle() { // morg çekmecesi takırdıyor
+    rattle() { // 5 numaralı çekmecenin içinden metal vuruş (ısı yüksek: soğut uyarısı)
+      if (play('rattle', { pan: -0.3, vol: 0.85, wet: 0.45, rate: 0.95 + Math.random() * 0.1 })) return;
       const t = now();
       for (let i = 0; i < 9; i++) {
         const tt = t + i * 0.07 + Math.random() * 0.03;
@@ -331,8 +332,10 @@ const Audio5 = (() => {
       noise({ t, dur: 1.2, type: 'bandpass', f: 3000, f2: 6000, q: 4, vol: 0.12, wet: 0.6 });
       osc({ t, f: 55, f2: 40, dur: 1.2, vol: 0.5, wet: 0.3 });
     },
-    scream() { // jumpscare: diğer her şeyi sustur, sonra bozuk animatronik çığlık
+    scream(who) { // jumpscare: diğer her şeyi sustur, sonra karaktere özel çığlık (yoksa rastgele, o da yoksa sentez)
       stopMusic(0.05); stopAmbience(0.05);
+      const own = { avukat: [1, 1], pasta: [3, 1], sahil: [2, 0.92], sayici: [4, 1.08], muh: [4, 0.9], arda: [3, 1.15], sultan: [1, 0.8], itsme: [2, 0.75] }[who];
+      if (own && play('scream_' + own[0], { vol: 1, wet: 0.15, rate: own[1] })) return;
       if (play('scream', { vol: 1, wet: 0.15 })) return;
       const t = now() + 0.02, dur = 2.2;
       const shaper = ctx.createWaveShaper(); shaper.curve = distCurve(400); shaper.oversample = '4x';
