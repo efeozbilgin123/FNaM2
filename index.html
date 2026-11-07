@@ -70,7 +70,7 @@
   /* DOCUMENT */
   #doc{background:#030405; cursor:pointer}
   #paperDoc{position:absolute; left:50%; top:50%; width:560px; height:690px; transform:translate(-50%,-50%) rotate(-1.2deg); padding:40px 46px; color:#1c1a16; font-family:'Special Elite','Courier New',monospace; font-size:15.5px; line-height:1.45;
-    background:linear-gradient(rgba(214,205,180,.55),rgba(214,205,180,.55)), url(img/doc/paper.png?v=20261108h) center/cover, #cfc7b0; box-shadow:0 30px 90px rgba(0,0,0,.95), inset 0 0 80px rgba(70,50,20,.5); filter:sepia(.25) brightness(.86) contrast(1.05); animation:paperIn .9s cubic-bezier(.2,.8,.3,1); overflow:hidden}
+    background:linear-gradient(rgba(214,205,180,.55),rgba(214,205,180,.55)), url(img/doc/paper.png?v=20261108i) center/cover, #cfc7b0; box-shadow:0 30px 90px rgba(0,0,0,.95), inset 0 0 80px rgba(70,50,20,.5); filter:sepia(.25) brightness(.86) contrast(1.05); animation:paperIn .9s cubic-bezier(.2,.8,.3,1); overflow:hidden}
   @keyframes paperIn{from{transform:translate(-50%,-30%) rotate(-8deg) scale(.7); opacity:0} to{transform:translate(-50%,-50%) rotate(-1.2deg); opacity:1}}
   #paperDoc .hd{font-size:12.5px; letter-spacing:1px; border-bottom:2px solid #1c1a16; padding-bottom:6px; text-transform:uppercase}
   #paperDoc h2{font-size:24px; margin:14px 0 10px; letter-spacing:2px}
@@ -519,7 +519,7 @@
 
   /* ---------- ana menü v2 ---------- */
   #title{background:#020405}
-  #title .tbg{position:absolute; inset:-40px; background:url(img/office.png?v=20261108h) 40% 50%/cover; filter:blur(5px) brightness(.32) saturate(.6) hue-rotate(10deg); animation:tpan 40s ease-in-out infinite alternate}
+  #title .tbg{position:absolute; inset:-40px; background:url(img/office.png?v=20261108i) 40% 50%/cover; filter:blur(5px) brightness(.32) saturate(.6) hue-rotate(10deg); animation:tpan 40s ease-in-out infinite alternate}
   @keyframes tpan{from{transform:scale(1.08) translateX(-30px)} to{transform:scale(1.15) translateX(30px)}}
   #title .tflk{position:absolute; inset:0; background:linear-gradient(90deg, rgba(2,4,5,.95) 30%, rgba(2,4,5,.4) 60%, rgba(2,4,5,.85)); animation:tflick 7s steps(1) infinite}
   @keyframes tflick{0%,93%,100%{opacity:1} 94%{opacity:.82} 95%{opacity:1} 97%{opacity:.7}}
@@ -577,8 +577,8 @@
 
   /* ---------- ana menü v3: 1998 güvenlik kamerası kaydı ---------- */
   #title{background:#000; font-family:'VT323',monospace; color:#f2f2f2}
-  #title .vfeed{position:absolute; inset:-20px; background:url(img/cam/corr.png?v=20261108h) center/cover; filter:grayscale(1) contrast(1.25) brightness(.8); animation:vjit 6s steps(1) infinite}
-  #title .vfeed.who{background-image:url(img/cam/corr_pasta.png?v=20261108h); opacity:0; animation:vappear 11s steps(1) infinite}
+  #title .vfeed{position:absolute; inset:-20px; background:url(img/cam/corr.png?v=20261108i) center/cover; filter:grayscale(1) contrast(1.25) brightness(.8); animation:vjit 6s steps(1) infinite}
+  #title .vfeed.who{background-image:url(img/cam/corr_pasta.png?v=20261108i); opacity:0; animation:vappear 11s steps(1) infinite}
   @keyframes vappear{0%,80%,100%{opacity:0} 82%,85%{opacity:1}}
   @keyframes vjit{0%,95%,100%{transform:none} 96%{transform:translate(0,4px) skewX(1deg)} 97%{transform:translate(0,-3px)}}
   #title .vlines{position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px); pointer-events:none}
@@ -614,8 +614,8 @@
 
   /* ---------- VHS ekranları (arşiv, custom night, gece başı, 6 AM, belge) ---------- */
   .vhs{background:#000; font-family:'VT323',monospace; color:#f2f2f2}
-  .vhs .vbg{position:absolute; inset:-20px; background:url(img/cam/archive.png?v=20261108h) center/cover; filter:grayscale(1) contrast(1.2) brightness(.32) blur(1px); animation:vjit 7s steps(1) infinite}
-  #custom .vbg{background-image:url(img/cam/cold.png?v=20261108h)} #doc .vbg{background-image:url(img/cam/autopsy.png?v=20261108h); filter:grayscale(1) brightness(.18) blur(3px)}
+  .vhs .vbg{position:absolute; inset:-20px; background:url(img/cam/archive.png?v=20261108i) center/cover; filter:grayscale(1) contrast(1.2) brightness(.32) blur(1px); animation:vjit 7s steps(1) infinite}
+  #custom .vbg{background-image:url(img/cam/cold.png?v=20261108i)} #doc .vbg{background-image:url(img/cam/autopsy.png?v=20261108i); filter:grayscale(1) brightness(.18) blur(3px)}
   .vhs .vlines{position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px); pointer-events:none; z-index:1}
   .vhs .vvig{position:absolute; inset:0; background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.85)); pointer-events:none}
   .vhs .osd{position:absolute; font-size:34px; text-shadow:2px 2px 0 #000; z-index:2}
@@ -655,8 +655,28 @@
   #feedBox .tint{background:radial-gradient(ellipse at center, rgba(120,255,140,.05), rgba(0,0,0,.45) 95%)}
   #feedBox::after{content:''; position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px); z-index:2}
   #stamp{font-size:26px; left:14px; bottom:10px; z-index:3}
-  #side{left:598px; top:258px; transform:scale(.5); opacity:.72; transition:opacity .2s, transform .2s}
+  #side{left:598px; top:252px; height:308px; transform:scale(.5); opacity:.72; transition:opacity .2s, transform .2s}
   #side:hover{opacity:1; transform:scale(.56)}
+  /* kat planı: Windows 2000 penceresi. Fare üstünde değilken "pasif" (gri başlık), üstüne gelince etkin */
+  #map{font-family:Tahoma,Verdana,'DejaVu Sans',sans-serif; box-shadow:inset -1px -1px #404040, inset 1px 1px #d4d0c8, inset -2px -2px #808080, inset 2px 2px #fff, 2px 2px 0 rgba(0,0,0,.35)}
+  #map .mt{left:3px; right:3px; top:3px; height:22px; padding:0 3px 0 6px; display:flex; justify-content:space-between; align-items:center; font-size:14px; line-height:22px;
+    background:linear-gradient(90deg,#808080,#c0c0c0); color:#d4d0c8; transition:color .2s}
+  #map .mt::after{content:''; position:absolute; inset:0; background:var(--w-title); opacity:0; transition:opacity .2s}
+  #map .mt > span{position:relative; z-index:1}
+  #side:hover #map .mt{color:#fff} #side:hover #map .mt::after{opacity:1}
+  #map .mwb{display:flex; gap:2px} #map .mwb i{width:16px; height:14px; line-height:12px; text-align:center; font-style:normal; font-size:11px; font-weight:bold; background:#d4d0c8; color:#000; box-shadow:inset -1px -1px #404040, inset 1px 1px #fff, inset -2px -2px #808080}
+  #map .mwb i.x{margin-left:2px} #map .mwb i.dis{color:#808080; text-shadow:1px 1px #fff}
+  #map::before{content:''; position:absolute; left:4px; right:4px; top:28px; bottom:26px; background:#fff; box-shadow:inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #404040, inset -2px -2px #d4d0c8}
+  #map .plan path{stroke:#808080; stroke-width:5; filter:drop-shadow(1px 1px 0 #fff)}
+  #map button, #map .you{font-family:inherit; font-size:12px; letter-spacing:.2px}
+  #map button:active{box-shadow:inset 1px 1px #404040, inset -1px -1px #fff, inset 2px 2px #808080; padding:1px 0 0 1px}
+  /* seçili kamera: içeri basılmış, seçim mavisi + noktalı odak çerçevesi (pencere pasifken gri) */
+  #map button.sel{color:#fff; font-weight:bold; background:#0a246a;
+    box-shadow:inset 1px 1px #404040, inset -1px -1px #fff, inset 2px 2px #000; outline:1px dotted #fff; outline-offset:-5px}
+  #side:not(:hover) #map button.sel{background:#808080}
+  #map .msb{position:absolute; left:3px; right:3px; bottom:3px; height:20px; display:flex; gap:2px; font-size:12px; color:#000}
+  #map .msb span{flex:1; padding:0 6px; line-height:20px; box-shadow:inset 1px 1px #808080, inset -1px -1px #fff; white-space:nowrap; overflow:hidden}
+  #map .msb span:last-child{flex:0 0 70px}
   /* SCARE */
   #scare{background:#000}
   #scareImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:lunge .5s cubic-bezier(.15,.9,.3,1) forwards, shake .06s infinite}
@@ -704,7 +724,7 @@
   <section id="game" class="screen">
     <div id="office">
       <div id="view">
-        <img class="bg" src="img/office.png?v=20261108h" alt="">
+        <img class="bg" src="img/office.png?v=20261108i" alt="">
         <div id="doorClip"></div>
         <div class="hole" id="corr"><div class="beam"></div><div id="headlight"></div></div>
         <div class="hole" id="dwL"><div class="shutter"></div></div>
@@ -748,13 +768,13 @@
           <div class="menu"><u>D</u>osya &nbsp; <u>G</u>örünüm &nbsp; <u>K</u>ameralar &nbsp; <u>Y</u>ardım</div>
           <div id="feedWin">
             <div class="wtitle"><span id="camName"></span><span>● REC</span></div>
-            <div id="feedBox"><img id="feedImg" src="img/cam/corr.png?v=20261108h" alt=""><canvas id="static" width="320" height="180"></canvas><div class="tint"></div><div id="stamp"></div><div id="d5">D5</div><div id="itsmeCam">IT'S ME</div>
+            <div id="feedBox"><img id="feedImg" src="img/cam/corr.png?v=20261108i" alt=""><canvas id="static" width="320" height="180"></canvas><div class="tint"></div><div id="stamp"></div><div id="d5">D5</div><div id="itsmeCam">IT'S ME</div>
               <div id="coldPanel"><span>SOĞUK ODA</span><div id="tempBar"><div id="tempFill"></div></div><span id="tempTxt">0°</span><button id="bCool">Soğut (C)</button></div>
             </div>
           </div>
           <div id="side"><div id="map">
             <svg class="plan" viewBox="0 0 348 286" width="348" height="286"></svg>
-            <div class="mt">Kat Planı - Morg B-1</div><div class="you">SEN</div>
+            <div class="mt"><span>Kat Planı - Morg B-1</span><span class="mwb"><i>_</i><i class="dis">□</i><i class="x">✕</i></span></div><div class="you">SEN</div><div class="msb"><span id="mapSel">-</span><span>7 nesne</span></div>
           </div></div>
           <div id="log"><div class="mt">Olay Kaydı</div><div id="camNote"></div></div>
           <div class="status"><span id="camTimeR"></span><span>Kayıt: Açık</span><span>Kısayol: 1-7, C, R</span></div>
@@ -825,17 +845,17 @@
   <section id="scare" class="screen"><img id="scareImg" src="" alt=""><div class="flash"></div></section>
   <section id="six" class="screen vhs"><div class="vlines"></div><div class="vignette"></div><div class="center"><div class="clock" id="sixClock">5 AM</div><div class="msg" id="sixMsg"></div><button class="big-btn" id="bNext" style="visibility:hidden">DEVAM →</button></div></section>
   <section id="over" class="screen"><div class="vignette"></div><div class="center"><div class="t">ÖLDÜN</div><div class="why" id="overWhy"></div><div><button class="big-btn" id="bRetry">TEKRAR DENE</button> <button class="big-btn" id="bMenu1">MENÜ</button></div></div></section>
-  <section id="ending" class="screen"><img id="endImg" src="img/ending.png?v=20261108h" alt=""><div class="txt" id="endTxt"></div><button class="big-btn" id="bMenu2" style="position:absolute;right:40px;top:20px;margin:0;font-size:24px">MENÜ</button></section>
+  <section id="ending" class="screen"><img id="endImg" src="img/ending.png?v=20261108i" alt=""><div class="txt" id="endTxt"></div><button class="big-btn" id="bMenu2" style="position:absolute;right:40px;top:20px;margin:0;font-size:24px">MENÜ</button></section>
   <section id="crash" class="screen"><div class="center"><b>:(</b><b>Bu sayfa yanıt vermiyor</b><i>Hata kodu: DENEK_5_CEVRIMICI</i></div></section>
   <section id="archive" class="screen vhs"><div class="vbg"></div><div class="vlines"></div><div class="vvig"></div><div class="osd tl"><span class="play">▶</span> ARŞİV · KASET RAFI</div><div class="osd tr" id="arcCount"></div><div id="arcList"></div><button class="back" id="bArcBack">◀ MENÜ</button></section>
   <section id="custom" class="screen vhs"><div class="vbg"></div><div class="vlines"></div><div class="vvig"></div><div class="osd tl"><span class="play">●</span> CUSTOM NIGHT · KANAL AYARI</div><div class="osd tr">7. GECE</div><div id="ccards"></div><div id="cpresets"><span>HAZIR:</span><button data-p="easy">KOLAY</button><button data-p="n6">6. GECE</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">◀ MENÜ</button><button id="cStart">▶ OYNAT</button></section>
 </div>
 
-<script src="audio.js?v=20261108h"></script>
-<script src="core.js?v=20261108h"></script>
-<script src="nights.js?v=20261108h"></script>
-<script src="save.js?v=20261108h"></script>
+<script src="audio.js?v=20261108i"></script>
+<script src="core.js?v=20261108i"></script>
+<script src="nights.js?v=20261108i"></script>
+<script src="save.js?v=20261108i"></script>
 <script src="lore.js?v=2"></script>
-<script src="game.js?v=20261108h"></script>
+<script src="game.js?v=20261108i"></script>
 </body>
 </html>

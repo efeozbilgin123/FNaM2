@@ -26,7 +26,11 @@ def place(bg, cut, cx, foot_y, height, light=1.0, blur=0.6):
     sh = sh.filter(ImageFilter.GaussianBlur(c.width * .08))
     out = Image.composite(Image.new('RGB', (W, H), (0, 0, 0)), bg, sh)
     a = a.filter(ImageFilter.GaussianBlur(.7))
-    out.paste(Image.merge('RGB', (g, g, g)), (x0, y0), a)
+    # sahnenin renk tonuna boya (yeşil gece görüşü vb.)
+    rr = np.asarray(bg.crop((max(0, x0), max(0, y0), min(W, x0 + c.width), min(H, y0 + c.height))), float).reshape(-1, 3).mean(0)
+    tint = rr / max(1.0, rr.mean())
+    ga = np.asarray(g, float)[..., None] * tint
+    out.paste(Image.fromarray(np.clip(ga, 0, 255).astype(np.uint8)), (x0, y0), a)
     return out
 
 def cctv(im):
@@ -46,16 +50,16 @@ if __name__ == '__main__':
     C = lambda n: Image.open(ROOT / f'img/ref/cut_{n}.png').convert('RGBA')
     B = lambda n: Image.open(ROOT / f'img/cam/{n}.png')
     jobs = [  # (çıktı, arka plan, kesit, merkez x, ayak/alt y, yükseklik, ışık)
-        ('corr_pasta', 'corr', 'pasta_full', 262, 230, 110, 1.25),
-        ('autopsy_pasta', 'autopsy', 'pasta_full', 212, 198, 150, 1.1),
-        ('archive_avukat', 'archive', 'avukat', 468, 262, 170, 1.15),
-        ('lift_avukat', 'lift', 'avukat', 410, 300, 200, 1.1),
-        ('ventA_sahil', 'ventA', 'sahil', 318, 262, 95, 1.0),
-        ('ventB_sahil', 'ventB', 'sahil', 330, 372, 250, .95),
+        ('corr_pasta', 'corr', 'pasta_full', 345, 238, 112, 1.2),
+        ('autopsy_pasta', 'autopsy', 'pasta_full', 436, 204, 148, 1.0),
+        ('archive_avukat', 'archive', 'avukat', 322, 286, 165, 1.1),
+        ('lift_avukat', 'lift', 'avukat', 402, 258, 150, 1.35),
+        ('ventA_sahil', 'ventA', 'sahil', 318, 232, 100, 1.0),
+        ('ventB_sahil', 'ventB', 'sahil', 322, 392, 225, .9),
     ]
     for out, bg, cut, x, y, h, l in jobs:
         cctv(place(B(bg), C(cut), x, y, h, l)).save(ROOT / f'img/cam/{out}.png'); print(f'img/cam/{out}.png')
-    sx, foot, h = 420, 310, 230
+    sx, foot, h = 402, 262, 175
     im = place(B('lift'), C('sultan'), sx, foot, h, 1.0)
-    im = glow(im, sx, foot - h * .5, 120, 1.2)
+    im = glow(im, sx, foot - h * .55, 70, .45)
     cctv(im).save(ROOT / 'img/cam/lift_sultan.png'); print('img/cam/lift_sultan.png')
