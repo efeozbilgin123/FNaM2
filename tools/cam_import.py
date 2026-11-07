@@ -6,8 +6,8 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-ROOM = lambda n: n.split('_')[0]   # corr_pasta -> corr
-NAMES = ['corr_pasta', 'autopsy_pasta', 'archive_avukat', 'lift_avukat', 'lift_sultan', 'ventA_sahil', 'ventB_sahil', 'cold_hot', 'cold_open', 'wash_sahil']
+ROOM = lambda n: 'corr' if n == 'menu_hasan' else n.split('_')[0]   # corr_pasta -> corr
+NAMES = ['corr_pasta', 'autopsy_pasta', 'archive_avukat', 'lift_avukat', 'lift_sultan', 'ventA_sahil', 'ventB_sahil', 'cold_hot', 'cold_open', 'wash_sahil', 'menu_hasan']
 
 for n in sys.argv[1:] or NAMES:
     src = next((p for p in (ROOT / 'img/cam_raw').glob(n + '.*') if p.suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp')), None)
