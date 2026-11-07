@@ -348,7 +348,17 @@ const QUADS = {
   pscreen: { w: 400, h: 300, p: [[91, 254], [307, 275], [306, 450], [94, 472]] },     // duvardaki MIRIKVISION ekranı
   mon: { w: 400, h: 300, p: [[674, 530], [848, 520], [850, 658], [678, 676]] },        // masadaki monitörün camı
 };
-for (const [id, q] of Object.entries(QUADS)) $(id).style.transform = quadMatrix(q.w, q.h, q.p);
+// Yazı içeren katmanlar (masadaki saat, duvar ekranı, kamera arayüzü) 3B perspektif yerine 2B eğmeyle oturur:
+// bazı ekran kartlarında Chrome 3B dönüştürülmüş katmandaki yazıları bozuk çiziyor. Camlar neredeyse paralelkenar, fark görünmez.
+function quadAffine(w, h, p) { // (0,0)(w,0)(w,h)(0,h) -> p, en küçük kareler afin
+  const [p0, p1, p2, p3] = p, mx = (p0[0] + p1[0] + p2[0] + p3[0]) / 4, my = (p0[1] + p1[1] + p2[1] + p3[1]) / 4;
+  const a = (p1[0] + p2[0] - p0[0] - p3[0]) / (2 * w), b = (p1[1] + p2[1] - p0[1] - p3[1]) / (2 * w);
+  const c = (p2[0] + p3[0] - p0[0] - p1[0]) / (2 * h), d = (p2[1] + p3[1] - p0[1] - p1[1]) / (2 * h);
+  const e = mx - a * w / 2 - c * h / 2, f = my - b * w / 2 - d * h / 2;
+  return { a, b, c, d, e, f, css: `matrix(${[a, b, c, d, e, f].map(v => +v.toFixed(6)).join(',')})` };
+}
+const TEXT_LAYERS = new Set(['pscreen', 'mon']);
+for (const [id, q] of Object.entries(QUADS)) $(id).style.transform = TEXT_LAYERS.has(id) ? quadAffine(q.w, q.h, q.p).css : quadMatrix(q.w, q.h, q.p);
 
 // ---------- bakış ----------
 function stageX(cx) { const r = stage.getBoundingClientRect(); return (cx - r.left) / r.width * 1280; }
@@ -379,7 +389,8 @@ const MON_GLASS = QUADS.mon.p;                     // masadaki monitörün camı
 const MON = { x: 762, y: 604 }, ZOOM = 4.0;        // camın merkezi ve yakınlaşma
 function zoomTransform() { return `translate(${640 - MON.x * ZOOM}px, ${360 - MON.y * ZOOM}px) scale(${ZOOM})`; }
 // cam köşelerini yakınlaşmış sahnede ekrana çevir, kamera arayüzünü (808×632) oraya oturt
-$('screenWrap').style.transform = quadMatrix(808, 632, MON_GLASS.map(([x, y]) => [640 + (x - MON.x) * ZOOM, 360 + (y - MON.y) * ZOOM]));
+const SCREEN_AFF = quadAffine(808, 632, MON_GLASS.map(([x, y]) => [640 + (x - MON.x) * ZOOM, 360 + (y - MON.y) * ZOOM]));
+$('screenWrap').style.transform = SCREEN_AFF.css;
 function openCam() {
   if (!G || G.over || G.dark || camBusy || ui.monitor || ui.sheet) return;
   camBusy = true; ui.monitor = true; ui.lightL = ui.flash = ui.ventLight = false; snd('camOpen');
@@ -489,13 +500,9 @@ document.querySelectorAll('#startMenu .smi[data-app]').forEach(m => m.addEventLi
 document.querySelectorAll('#startMenu .smi[data-deny]').forEach(m => m.addEventListener('click', () => { closeStart(); showMsg('Bu işlem için yönetici izni gerekiyor.'); }));
 $('smShut').addEventListener('click', () => { closeStart(); closeCam(); });
 // sürükleme: ekran perspektifli olduğu için fare konumu ters homografiyle ekranın kendi koordinatına çevrilir
-function invQuad(m) { // matrix3d (sütun öncelikli) -> sahne(X,Y) => yerel(x,y)
-  const a = m[0], b = m[4], c = m[12], d = m[1], e = m[5], f = m[13], g = m[3], h = m[7], i = m[15];
-  const A = e * i - f * h, B = -(b * i - c * h), C = b * f - c * e, D = -(d * i - f * g), E = a * i - c * g, F = -(a * f - c * d), Gx = d * h - e * g, H = -(a * h - b * g), I = a * e - b * d;
-  return (X, Y) => { const w = Gx * X + H * Y + I; return [(A * X + B * Y + C) / w, (D * X + E * Y + F) / w]; };
-}
-const screenMat = $('screenWrap').style.transform.slice(9, -1).split(',').map(Number);
-const toLocal = invQuad(screenMat);
+// sürükleme: fare konumunu ekranın kendi koordinatına çevir (afin dönüşümün tersi)
+const toLocal = (() => { const { a, b, c, d, e, f } = SCREEN_AFF, det = a * d - b * c;
+  return (X, Y) => [(d * (X - e) - c * (Y - f)) / det, (-b * (X - e) + a * (Y - f)) / det]; })();
 function stageXY(e) { const r = stage.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 1280, (e.clientY - r.top) / r.height * 720]; }
 let drag = null;
 document.querySelectorAll('.win .tb').forEach(tb => tb.addEventListener('pointerdown', e => {
