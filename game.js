@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108w';
+const ASSET_V = '20261108x';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -220,8 +220,10 @@ function sound(e) {
   switch (e.id) {
     case 'step': case 'retreat': return snd('step', p);
     case 'knock': return snd('knock', p);
-    case 'drag': return snd('drag', p);
-    case 'dragAway': return snd('dragAway', p);
+    // havalandırma: sürünme sesi yok; sadece Sahil ağızda belirirken (move olayında) ve giderken metal çarpma.
+    // Arda'nın sahte 'drag' taklidi de çarpma gibi duyulur.
+    case 'drag': if (e.fake) snd('bang'); return;
+    case 'dragAway': return snd('bang');
     case 'say4': case 'say5': case 'say6': return snd('say', +e.id[3], !!e.fake);
     default: return snd(e.id); // miyav, rattle, drawer, motor
   }
@@ -246,7 +248,7 @@ function powerOut() {
 const WHY = {
   pasta: 'Koridordaki şeyi ışıkla tut. Işıktan hoşlanmaz. Ayak seslerini duyunca feneri yak.',
   avukat: 'Kapıda biri vardı. Ayak sesi duyunca kapı ışığını yak; görürsen kapıyı kapat.',
-  sahil: 'Havalandırmadan ıslak bir ses geldiyse ışıkla bak. Oradaysa örtüyü çek ve gidene kadar kıpırdama.',
+  sahil: 'Havalandırmadan metal bir çarpma sesi geldiyse ışıkla bak. Oradaysa örtüyü çek; ikinci çarpmayı duyana kadar kıpırdama.',
   sayici: '"Beş"i duyduğunda örtünün altında olmalıydın. Altıya kadar saydı.',
   muh: 'Donmuş bir kamera fark etmedin. Saat ilerlemiyorsa o kamerayı yeniden başlat.',
   arda: 'Duyduğun her ses gerçek değildi. Sonundaki bozuk miyavı dinle ve tepki verme.',
@@ -370,7 +372,6 @@ function render() {
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
   snd('breathing', !!d.sheet && !g.over);
   snd('lampHum', 'lightL', !!d.lightL && !g.over, -1); snd('lampHum', 'ventLight', !!d.ventLight && !g.over, 1);
-  snd('sahilNear', g.sahil.stage === Core.PARAMS.SAHIL_MOUTH && !g.over);
   snd('doorBreath', g.avukat.at && g.avukat.knock <= 0 && !g.over);
   // atmosfer: saat ilerledikçe azalır, biri çok yakınken neredeyse tamamen susar
   const near = (g.avukat.at && g.avukat.knock <= 0) || g.sahil.stage === Core.PARAMS.SAHIL_MOUTH || g.pasta.stage === 3 || g.sultan.phase !== 'none';
