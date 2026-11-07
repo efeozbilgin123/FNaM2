@@ -718,8 +718,10 @@ document.querySelectorAll('#menu button, .back, .big-btn, #cStart').forEach(b =>
   const orig = b.onclick; if (!orig) return;
   b.onclick = e => { if (b.dataset.busy) return; b.dataset.busy = 1; glitchBurst(() => { delete b.dataset.busy; orig.call(b, e); }); };
 });
-function muteLabel() { $('mute').textContent = A.muted ? '🔇 SES KAPALI' : '🔊 SES'; }
-$('mute').onclick = e => { e.stopPropagation(); A.init(); A.setMuted(!A.muted); muteLabel(); };
+function muteLabel() { $('mute').classList.toggle('off', A.muted); const v = Math.round(A.volume * 100); $('vol').value = v; $('vol').style.setProperty('--v', v + '%'); }
+$('muteBtn').onclick = e => { e.stopPropagation(); A.init(); A.setMuted(!A.muted); muteLabel(); };
+$('vol').addEventListener('input', e => { A.init(); if (A.muted) A.setMuted(false); A.setVolume(e.target.value / 100); muteLabel(); });
+$('vol').addEventListener('change', () => snd('hover'));
 muteLabel();
 new MutationObserver(() => { for (const n of [...document.body.children]) if (n.id !== 'stage' && n.tagName !== 'SCRIPT') n.remove(); }).observe(document.body, { childList: true });
 

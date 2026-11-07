@@ -1,7 +1,7 @@
 // MIRIK'LA 5 GECE — ses motoru (dosya yok, hepsi Web Audio ile sentezleniyor)
 const Audio5 = (() => {
   let ctx = null, master, comp, verb, verbIn, sfxBus, musicBus, ambBus;
-  let muted = false; try { muted = localStorage.getItem('m5g_morg_mute') === '1'; } catch (e) { }
+  let muted = false, volume = 0.9; try { muted = localStorage.getItem('m5g_morg_mute') === '1'; const v = parseFloat(localStorage.getItem('m5g_morg_vol')); if (v >= 0 && v <= 1) volume = v; } catch (e) { }
   let musicTimer = null, musicNodes = [], ambNodes = [], ambTimer = null, buzz = null;
   const buffers = {};
 
@@ -16,7 +16,7 @@ const Audio5 = (() => {
     if (graphReady) return; graphReady = true;
     comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
-    master = ctx.createGain(); master.gain.value = muted ? 0 : 0.9;
+    master = ctx.createGain(); master.gain.value = muted ? 0 : volume;
     master.connect(comp).connect(ctx.destination);
     // reverb (sentetik oda yankısı)
     verb = ctx.createConvolver(); verb.buffer = impulse(3.2, 2.6);
@@ -439,7 +439,7 @@ const Audio5 = (() => {
     o.connect(lp).connect(g); out(g, { bus: ambBus, wet: 0.2 }); o.start(t); lfo.start(t);
     comp2 = [o, lfo]; ambNodes.push(o, lfo);
   }
-  function playVoice(url, vol = 0.9) { const a = new Audio(url); a.volume = muted ? 0 : vol; a.play().catch(() => {}); return a; }
+  function playVoice(url, vol = 0.9) { const a = new Audio(url); a.volume = muted ? 0 : vol * volume; a.play().catch(() => {}); return a; }
   function stopAmbience(fade = 0.5) {
     comp2 = null;
     if (ambTimer) { clearTimeout(ambTimer); ambTimer = null; }
@@ -448,7 +448,8 @@ const Audio5 = (() => {
     const g = ambNodes.gain, t = now(); g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.exponentialRampToValueAtTime(0.0001, t + fade);
     const ns = ambNodes; setTimeout(() => ns.forEach(n => { try { n.stop(); } catch (e) {} }), fade * 1000 + 100); ambNodes = [];
   }
-  function setMuted(m) { muted = m; try { localStorage.setItem('m5g_morg_mute', m ? '1' : '0'); } catch (e) { } if (master) master.gain.setTargetAtTime(m ? 0 : 0.9, now(), 0.05); }
+  function setMuted(m) { muted = m; try { localStorage.setItem('m5g_morg_mute', m ? '1' : '0'); } catch (e) { } if (master) master.gain.setTargetAtTime(m ? 0 : volume, now(), 0.05); }
+  function setVolume(v) { volume = Math.max(0, Math.min(1, +v || 0)); try { localStorage.setItem('m5g_morg_vol', String(volume)); } catch (e) { } if (master && !muted) master.gain.setTargetAtTime(volume, now(), 0.05); }
 
-  return { init, sfx, loadSamples, play, playMenuMusic, stopMusic, startAmbience, morgAmbience, playVoice, stopAmbience, setMuted, get muted() { return muted; }, get debug() { return { music: !!mg, sched: !!mSched, amb: !!ambTimer, ctx: ctx && ctx.state }; } };
+  return { init, sfx, loadSamples, play, playMenuMusic, stopMusic, startAmbience, morgAmbience, playVoice, stopAmbience, setMuted, setVolume, get volume() { return volume; }, get muted() { return muted; }, get debug() { return { music: !!mg, sched: !!mSched, amb: !!ambTimer, ctx: ctx && ctx.state }; } };
 })();

@@ -56,3 +56,11 @@ test('morgAmbience and playVoice exist', () => {
   assert.doesNotThrow(() => A.morgAmbience());
   assert.strictEqual(typeof A.playVoice, 'function');
 });
+
+test('volume can be set, is clamped to 0-1 and remembered', () => {
+  const A = loadAudio();
+  assert.strictEqual(typeof A.setVolume, 'function');
+  A.setVolume(0.4); assert.strictEqual(A.volume, 0.4);
+  A.setVolume(3); assert.strictEqual(A.volume, 1);
+  A.setVolume(-1); assert.strictEqual(A.volume, 0);
+});
