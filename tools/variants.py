@@ -25,7 +25,7 @@ THRESH = 34      # renk farkı eşiği (0-255)
 # Ofiste sonradan eklenen sabit parçalar: versiyonlar bunları asla örtmez (ofisin kendi hali görünür).
 # Koridordaki karakterler kemerin dışına taşmasın: maske kemer şekliyle kırpılır (Sultan'ın far ışığı hariç).
 ARCH = (852, 104, 1148, 578)   # x0, y0, x1, y1 (üstü yarım daire)
-ARCH_CLIP = ('corr_pasta1', 'corr_pasta2', 'corr_itsme', 'corr_lit')   # Pasta 3 odaya çıkıyor, kırpılmaz
+ARCH_CLIP = ('corr_pasta', 'corr_itsme', 'corr_lit')
 KEEP = [
     (40, 205, 342, 506),     # duvardaki MIRIKVISION ekranı
     (582, 286, 672, 452),    # kapı paneli (girintide)

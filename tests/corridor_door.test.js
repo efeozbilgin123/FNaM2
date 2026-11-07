@@ -74,3 +74,21 @@ test('Pasta at level 20 advances and reports moves', () => {
   assert.ok(G.pasta.stage >= 2);
   assert.ok(evs.some(e => e.type === 'move' && e.who === 'pasta'));
 });
+
+test('movement under the flashlight knocks it out for a while (FNaF style)', () => {
+  const G = game(1, { pasta: 20 });
+  run(G, Core.PARAMS.PASTA_TICK + 0.2, { flash: true });           // Pasta ışık altında ilerler
+  assert.ok(G.lightOut.flash > 0, 'flash should be out');
+  run(G, 0.2, { flash: true });
+  assert.strictEqual(G.dev.flash, false);
+  run(G, Core.PARAMS.LIGHT_OUT + 0.1, {});
+  run(G, 0.1, { flash: true });
+  assert.strictEqual(G.dev.flash, true);
+});
+
+test('Avukat arriving under the door light knocks the door light out', () => {
+  const G = game(1, { avukat: 20 }); G.avukat.pos = 'lift';
+  run(G, Core.PARAMS.AVUKAT_TICK + 0.2, { lightL: true });
+  assert.ok(G.lightOut.lightL > 0);
+  assert.strictEqual(G.dev.lightL, false);
+});

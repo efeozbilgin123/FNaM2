@@ -44,7 +44,7 @@ let P = Save.load();
 function persist(r) { P = Save.unlock(P, r); Save.save(P); refreshMenu(); }
 function refreshMenu() {
   const n = P.night || 1;
-  $('bCont').textContent = `DEVAM ET — ${n}. GECE`;
+  $('bCont').innerHTML = `<i>0${n}</i>DEVAM · ${n}. GECE`;
   $('bCont').hidden = n < 2;
   $('bSix').hidden = P.maxNight < 6;
   $('bCustom').hidden = P.maxNight < 7;
@@ -164,6 +164,7 @@ function handle(e) {
       $('game').classList.toggle('sultanA', e.phase === 'approach');
       $('game').classList.toggle('sultanH', e.phase === 'here');
       return;
+    case 'lightout': snd('flicker'); snd('light', false); $('game').classList.add('lout'); setTimeout(() => $('game').classList.remove('lout'), 350); return;
     case 'powerout': return powerOut();
     case 'itsme': return itsMe(e.variant);
     case 'death': return die(e.who);

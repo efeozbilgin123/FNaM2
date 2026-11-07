@@ -12,6 +12,7 @@
     POWER_DEV: { doorL: .24, lightL: .15, flash: .18, ventLight: .15, monitor: .09, cooling: .21 },
     POWER_NIGHT_MUL: 0.02,
     POWEROUT_DEATH: [10, 20],
+    LIGHT_OUT: 2.2,        // ışık tutulan yerde hareket olunca o ışık bu kadar saniye yanmaz
   };
 
   const CAMS = ['corr', 'autopsy', 'cold', 'ventA', 'ventB', 'archive', 'lift'];
@@ -36,6 +37,7 @@
       dev: { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, cooling: false, sheet: false, cam: null, reboot: null, camBlind: false },
       dark: false, darkT: 0,
       pending: { sheet: false, door: false },
+      lightOut: { flash: 0, lightL: 0, ventLight: 0 },
       _ev: null,
     };
     for (const k of Object.keys(INIT)) G[k] = INIT[k](G, opts);
@@ -69,14 +71,21 @@
     const free = !d.sheet;
     d.monitor = free && !!inp.monitor;
     const hands = free && !d.monitor; // monitöre bakarken ışık/fener kullanılamaz
-    d.lightL = hands && !!inp.lightL;
-    d.flash = hands && !!inp.flash;
-    d.ventLight = hands && !!inp.ventLight;
+    const lo = G.lightOut;
+    d.lightL = hands && !!inp.lightL && lo.lightL <= 0;
+    d.flash = hands && !!inp.flash && lo.flash <= 0;
+    d.ventLight = hands && !!inp.ventLight && lo.ventLight <= 0;
     d.cooling = d.monitor && !!inp.cooling;
     d.cam = d.monitor && CAMS.includes(inp.cam) ? inp.cam : null;
     d.reboot = d.monitor && CAMS.includes(inp.reboot) ? inp.reboot : null;
   }
 
+  // FNaF tarzı: ışık tutulan yerde biri hareket ederse o ışık bir süre bozulur
+  function knockOut(G, light) {
+    if (!G.dev[light]) return;
+    G.lightOut[light] = PARAMS.LIGHT_OUT; G.dev[light] = false;
+    emit(G, { type: 'lightout', light });
+  }
   function die(G, who) {
     if (G.over) return;
     G.over = true; G.result = 'death'; G.killer = who;
@@ -89,6 +98,7 @@
   }
 
   function sub(G, dt, inp) {
+    for (const k in G.lightOut) if (G.lightOut[k] > 0) G.lightOut[k] -= dt;
     applyInput(G, inp);
     G.extraDrain = 0;
     for (const f of TICKS) { if (G.over) return; f(G, dt, inp); }
@@ -143,6 +153,7 @@
     if (!roll(G, G.lv.pasta)) return;
     s.stage++;
     if (s.stage === 3) { s.window = PARAMS.PASTA_WINDOW; s.flashT = 0; }
+    knockOut(G, 'flash');
     emit(G, { type: 'move', who: 'pasta', to: PASTA_ROUTE[s.stage], stage: s.stage });
     emit(G, { type: 'sound', id: 'step', from: 'corr' });
   });
@@ -173,7 +184,7 @@
     s.tick = 0;
     if (!roll(G, G.lv.avukat)) return;
     if (s.pos === 'archive') { s.pos = 'lift'; emit(G, { type: 'move', who: 'avukat', to: 'lift' }); }
-    else { s.pos = 'door'; s.at = true; s.t = 0; emit(G, { type: 'move', who: 'avukat', to: 'door' }); emit(G, { type: 'sound', id: 'step', from: 'door' }); }
+    else { s.pos = 'door'; s.at = true; s.t = 0; knockOut(G, 'lightL'); emit(G, { type: 'move', who: 'avukat', to: 'door' }); emit(G, { type: 'sound', id: 'step', from: 'door' }); }
   });
 
   // ---------- Sultan Mırık Han (koridor, motor: her şeyi kapat) ----------
@@ -225,6 +236,7 @@
     if (!roll(G, G.lv.sahil)) return;
     s.stage++;
     if (s.stage === 3) { s.t = PARAMS.SAHIL_ATTACK; s.hide = 0; }
+    knockOut(G, 'ventLight');
     emit(G, { type: 'move', who: 'sahil', to: SAHIL_ROUTE[s.stage], stage: s.stage });
     emit(G, { type: 'sound', id: 'drag', from: 'vent' });
   });
@@ -352,5 +364,5 @@
 
   function shownTemp(G) { return G.muh.cam === 'cold' ? G.muh.frozenTemp : G.denek5.temp; }
 
-  return { PARAMS, CAMS, CHARS, createGame, step, usage, shownTemp, _internal: { INIT, TICKS, roll, emit, die, mul, hack, startFake } };
+  return { PARAMS, CAMS, CHARS, createGame, step, usage, shownTemp, _internal: { INIT, TICKS, roll, emit, die, mul, hack, startFake, knockOut } };
 });
