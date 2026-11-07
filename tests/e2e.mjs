@@ -188,6 +188,14 @@ await check('the PC starts on an empty desktop and lore files open in Notepad', 
   assert.ok((await page.textContent('#noteText')).includes('DENEK 6'));
 });
 
+await check('closing the door shows the steel shutter', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.press('q'); await page.waitForTimeout(500);
+  const [op, tr] = await page.evaluate(() => { const e = document.getElementById('vDoorS'); const c = getComputedStyle(e); return [c.opacity, c.transform]; });
+  assert.strictEqual(op, '1', 'shutter opacity ' + op);
+  assert.ok(tr === 'none' || tr === 'matrix(1, 0, 0, 1, 0, 0)', 'shutter transform ' + tr);
+});
+
 await browser.close(); server.kill();
 console.log(results.join('\n'));
 console.log(`# pass ${results.length - failed}\n# fail ${failed}`);

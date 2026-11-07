@@ -248,7 +248,7 @@ const haveVar = new Set(), varImg = {};
 const variantsReady = fetch('img/office_v/variants.json').then(r => r.ok ? r.json() : {}).catch(() => ({})).then(man => Promise.all(Object.entries(man).map(([name, [x, y, w, h]]) => {
   const img = new Image(); img.alt = ''; img.className = 'vimg'; img.id = 'v_' + name;
   Object.assign(img.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px' });
-  if (name === 'door_shutter') { img.id = 'vDoorS'; $('doorClip').appendChild(img); }
+  if (name === 'door_shutter') { img.id = 'vDoorS'; img.className = ''; $('doorClip').appendChild(img); } // kepenk hep görünür, CSS kaydırır
   else $('view').querySelector('.bg').after(img);
   img.src = `img/office_v/${name}.webp`;
   return (img.decode ? img.decode() : Promise.resolve()).then(() => { haveVar.add(name); varImg[name] = img; }).catch(() => { });
