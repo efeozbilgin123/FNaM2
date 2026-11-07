@@ -44,23 +44,20 @@ let P = Save.load();
 function persist(r) { P = Save.unlock(P, r); Save.save(P); refreshMenu(); }
 function refreshMenu() {
   const n = P.night || 1;
-  $('bCont').innerHTML = `<i>0${n}</i>DEVAM · ${n}. GECE`;
+  $('bCont').textContent = `DEVAM ET · ${n}. GECE`;
   $('bCont').hidden = n < 2;
   $('bSix').hidden = P.maxNight < 6;
   $('bCustom').hidden = P.maxNight < 7;
 }
 
-// ---------- menü korku yüzü ----------
-function scheduleScare() {
-  setTimeout(() => {
-    if ($('title').classList.contains('on')) {
-      $('faceWrap').classList.add('snap'); $('title').classList.add('flash'); snd('neck');
-      setTimeout(() => { $('faceWrap').classList.remove('snap'); $('title').classList.remove('flash'); }, 140 + Math.random() * 160);
-    }
-    scheduleScare();
-  }, 6000 + Math.random() * 9000);
-}
-scheduleScare();
+// menü: kayıt saati akar
+setInterval(() => { if (!$('title').classList.contains('on')) return; const d = new Date(), sec = String(d.getSeconds()).padStart(2, '0'); $('vts').innerHTML = `14.06.1998 &nbsp;03:12:${sec}`; }, 1000);
+// menü: ▲▼ ile gezin
+addEventListener('keydown', e => {
+  if (!$('title').classList.contains('on') || !['ArrowUp', 'ArrowDown'].includes(e.key)) return;
+  const bs = [...document.querySelectorAll('#menu button')].filter(b => !b.hidden), i = bs.indexOf(document.activeElement);
+  bs[(i + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length].focus(); snd('hover'); e.preventDefault();
+});
 
 // ---------- belge ----------
 let docNext = null;

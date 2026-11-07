@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Mırık'la 5 Gece: MORG</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;900&family=Saira+Stencil+One&family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;900&family=Caveat+Brush&family=Rubik+Glitch&family=Saira+Stencil+One&family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
 <style>
   :root{ --red:#b0101c; --bone:#cfd6d2; --dim:#7d8a88; --green:#7dff8a; --cold:#9fd8e6 }
   body > *:not(#stage):not(script){display:none !important}
@@ -558,6 +558,43 @@
   #over.rise .big-btn{animation:overF 1s ease-out 2.4s both}
   @keyframes overT{0%{opacity:0; letter-spacing:40px; filter:blur(8px)} 60%{opacity:.9} 100%{opacity:1; letter-spacing:normal; filter:none}}
   @keyframes overF{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+
+  /* ---------- ana menü v3: 1998 güvenlik kamerası kaydı ---------- */
+  #title{background:#000; font-family:'VT323',monospace; color:#f2f2f2}
+  #title .vfeed{position:absolute; inset:-20px; background:url(img/cam/corr.png) center/cover; filter:grayscale(1) contrast(1.25) brightness(.8); animation:vjit 6s steps(1) infinite}
+  #title .vfeed.who{background-image:url(img/cam/corr_pasta.png); opacity:0; animation:vappear 11s steps(1) infinite}
+  @keyframes vappear{0%,80%,100%{opacity:0} 82%,85%{opacity:1}}
+  @keyframes vjit{0%,95%,100%{transform:none} 96%{transform:translate(0,4px) skewX(1deg)} 97%{transform:translate(0,-3px)}}
+  #title .vlines{position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px); pointer-events:none}
+  #title .vtrack{position:absolute; left:0; right:0; height:60px; background:linear-gradient(transparent, rgba(255,255,255,.08), transparent); animation:vroll 4.5s linear infinite; pointer-events:none}
+  @keyframes vroll{from{top:-60px} to{top:720px}}
+  #title .vvig{position:absolute; inset:0; background:radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.8)); pointer-events:none}
+  #title .osd{position:absolute; font-size:34px; text-shadow:2px 2px 0 #000, 0 0 6px rgba(255,255,255,.3)}
+  #title .tl{left:40px; top:28px} #title .tr{right:40px; top:28px} #title .bl{left:40px; bottom:26px}
+  #title .rec{color:#ff2b2b} #title .rec::before{content:'●'; margin-right:8px; animation:vbl 1s steps(2) infinite}
+  @keyframes vbl{50%{opacity:0}}
+  #title .tape{position:absolute; left:70px; top:104px; padding:12px 30px 10px; background:#f0e6c8; color:#141414; transform:rotate(-3deg); box-shadow:0 8px 16px rgba(0,0,0,.6)}
+  #title .tape::before, #title .tape::after{content:''; position:absolute; top:-10px; width:70px; height:24px; background:rgba(230,230,210,.55)}
+  #title .tape::before{left:10px; transform:rotate(-6deg)} #title .tape::after{right:10px; transform:rotate(5deg)}
+  #title .tape h1{position:static; margin:0; font:400 92px/0.9 'Caveat Brush',cursive; letter-spacing:4px; color:#141414; animation:none; text-shadow:none}
+  #title .tape small{display:block; font:400 26px 'Caveat Brush',cursive; margin-top:2px}
+  #title #menu{position:absolute; left:70px; top:300px; display:flex; flex-direction:column; gap:2px}
+  #title #menu button{all:unset; box-sizing:border-box; cursor:pointer; padding:0 16px; width:380px; font:400 40px 'VT323',monospace; color:#f2f2f2; text-shadow:2px 2px 0 #000; white-space:nowrap}
+  #title #menu button[hidden]{display:none}
+  #title #menu button::before, #title #menu button::after{content:none; all:unset}
+  #over .why{font-family:'VT323',monospace; font-size:28px; color:#a9b1b0}
+  #over .big-btn{font-family:'VT323',monospace}
+  #title #menu button:hover, #title #menu button:focus-visible{background:#f2f2f2; color:#000; text-shadow:none}
+  #title #menu button:hover::before, #title #menu button:focus-visible::before{content:'▶ '; all:revert; content:'▶ '}
+  /* ses: OSD görünümü */
+  #mute{right:40px; top:auto; bottom:22px; background:none; clip-path:none; filter:none; border-radius:0; padding:0; color:#f2f2f2; gap:12px; font:400 30px 'VT323',monospace; text-shadow:2px 2px 0 #000}
+  #mute::before{content:'SES'}
+  #muteBtn{color:#f2f2f2; filter:drop-shadow(2px 2px 0 #000)}
+  #vol{background:linear-gradient(90deg,#f2f2f2 var(--v,90%),rgba(255,255,255,.25) var(--v,90%)); height:6px; border-radius:0; width:150px}
+  #vol::-webkit-slider-thumb{background:#f2f2f2; border:0; border-radius:0; width:10px; height:22px}
+  #vol::-moz-range-thumb{background:#f2f2f2; border:0; border-radius:0; width:10px; height:22px}
+  /* ölüm yazısı: kayıt bozulması */
+  #over .t{font-family:'Rubik Glitch',sans-serif; font-size:120px; letter-spacing:6px; color:#d8d8d8; text-shadow:4px 0 rgba(255,0,40,.6), -4px 0 rgba(0,220,255,.45)}
   /* SCARE */
   #scare{background:#000}
   #scareImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:lunge .5s cubic-bezier(.15,.9,.3,1) forwards, shake .06s infinite}
@@ -578,19 +615,19 @@
   <section id="splash" class="screen on"><div class="center"><div class="s1">MIRIK'LA 5 GECE: MORG</div><div class="s2" id="splashTxt">YÜKLENİYOR... %0</div><div class="s3">🎧 kulaklıkla, ışıklar kapalı oyna</div></div></section>
 
   <section id="title" class="screen">
-    <div class="tbg"></div><div class="tflk"></div>
-    <div id="faceWrap"><div class="clip"></div><img class="face" src="img/menu_face.png" alt=""><img class="scary" src="img/menu_face_scary.png" alt=""><div class="cap">DENEK 5 · 98/0456</div></div>
-    <div class="vignette"></div><div class="scan"></div>
-    <div class="kicker">PROJE 4-5-6 &nbsp;·&nbsp; ANATOMİ B-1 KATI &nbsp;·&nbsp; GECE NÖBETİ</div>
-    <h1><span class="a">Mırık'la 5 Gece</span><span class="b">MORG</span></h1>
+    <div class="vfeed" id="vfeed"></div><div class="vfeed who"></div>
+    <div class="vlines"></div><div class="vtrack"></div><div class="vvig"></div>
+    <div class="osd tl"><span class="rec">REC</span> &nbsp;CH-01 KORİDOR</div>
+    <div class="osd tr" id="vts">14.06.1998 &nbsp;03:12:07</div>
+    <div class="tape"><h1>MORG</h1><small>Mırık'la 5 Gece · gece nöbeti kaydı</small></div>
     <div id="menu">
-      <button id="bNew"><i>01</i>YENİ OYUN</button>
-      <button id="bCont"><i>02</i>DEVAM ET</button>
-      <button id="bSix" hidden><i>06</i>6. GECE</button>
-      <button id="bCustom" hidden><i>07</i>CUSTOM NIGHT</button>
-      <button id="bArchive"><i>A</i>ARŞİV</button>
+      <button id="bNew">YENİ OYUN</button>
+      <button id="bCont">DEVAM ET</button>
+      <button id="bSix" hidden>6. GECE</button>
+      <button id="bCustom" hidden>CUSTOM NIGHT</button>
+      <button id="bArchive">ARŞİV</button>
     </div>
-    <div class="foot">v2.0 &nbsp;·&nbsp; nöbetçi: <span class="redact">███████</span></div>
+    <div class="osd bl">SP ▸▸ &nbsp;v2.0</div>
   </section>
 
   <section id="doc" class="screen"><div id="paperDoc"></div><div class="hint">[ devam etmek için tıkla ]</div></section>
@@ -726,11 +763,11 @@
   <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
 </div>
 
-<script src="audio.js?v=20261107y"></script>
-<script src="core.js?v=20261107y"></script>
-<script src="nights.js?v=20261107y"></script>
-<script src="save.js?v=20261107y"></script>
+<script src="audio.js?v=20261107z"></script>
+<script src="core.js?v=20261107z"></script>
+<script src="nights.js?v=20261107z"></script>
+<script src="save.js?v=20261107z"></script>
 <script src="lore.js?v=2"></script>
-<script src="game.js?v=20261107y"></script>
+<script src="game.js?v=20261107z"></script>
 </body>
 </html>
