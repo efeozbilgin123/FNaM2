@@ -242,15 +242,22 @@ let endVoice = null;
 $('bMenu1').onclick = $('bMenu2').onclick = () => { if (endVoice) { endVoice.pause(); endVoice = null; } refreshMenu(); show('title'); };
 
 // ---------- ofis versiyonları: varsa düz katmanların yerine kullanılır ----------
-const VARIANTS = ['door_lit', 'door_avukat', 'door_shutter', 'vent_lit', 'vent_sahil', 'corr_lit', 'corr_pasta1', 'corr_pasta2', 'corr_pasta3', 'corr_sultan', 'corr_itsme'];
-const haveVar = new Set();
-VARIANTS.forEach(v => { const i = new Image(); i.onload = () => haveVar.add(v); i.src = `img/office_v/${v}.png`; });
-// istenen versiyon yoksa null döner ve eski katman kullanılır
-function useVar(el, cls, name) {
+// Versiyonlar (tools/variants.py): sadece değişen bölgeye kırpılmış WebP + variants.json konumları.
+// Hepsi açılışta yüklenip çözülür; oyunda sadece görünürlükleri değişir (ilk basışta takılma olmaz).
+const haveVar = new Set(), varImg = {};
+const variantsReady = fetch('img/office_v/variants.json').then(r => r.ok ? r.json() : {}).catch(() => ({})).then(man => Promise.all(Object.entries(man).map(([name, [x, y, w, h]]) => {
+  const img = new Image(); img.alt = ''; img.className = 'vimg'; img.id = 'v_' + name;
+  Object.assign(img.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px' });
+  if (name === 'door_shutter') { img.id = 'vDoorS'; $('doorClip').appendChild(img); }
+  else $('view').querySelector('.bg').after(img);
+  img.src = `img/office_v/${name}.webp`;
+  return (img.decode ? img.decode() : Promise.resolve()).then(() => { haveVar.add(name); varImg[name] = img; }).catch(() => { });
+})));
+// bölgenin (door/corr/vent) istenen versiyonunu göster; yoksa eski düz katman kullanılır
+function useVar(region, name) {
+  for (const [n, img] of Object.entries(varImg)) if (n.startsWith(region + '_') && n !== 'door_shutter') img.classList.toggle('on', n === name);
   const ok = name && haveVar.has(name);
-  if (ok) setSrc(el, `img/office_v/${name}.png`);
-  el.classList.toggle('on', !!ok);
-  $('game').classList.toggle(cls, !!ok || (name === null && [...haveVar].some(v => v.startsWith(cls.slice(1)))));
+  $('game').classList.toggle('v' + region, !!ok || (name === null && [...haveVar].some(v => v.startsWith(region + '_') && v !== 'door_shutter')));
 }
 
 // ---------- çizim ----------
@@ -283,11 +290,11 @@ function render() {
   setSrc($('dwImg'), g.avukat.at ? 'img/doorway/avukat.png' : 'img/doorway/empty.png');
   setSrc($('ventImg'), g.sahil.stage === 3 ? 'img/vent/sahil.png' : 'img/vent/empty.png');
   const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t ? 'corr_itsme' : g.pasta.stage ? 'corr_pasta' + g.pasta.stage : 'corr_lit';
-  useVar($('vCorr'), 'vcorr', corrVar);
+  useVar('corr', corrVar);
   // kapalı kapı ayrı katman (#vDoorS): çelik kepenk, CSS ile tavandan kayar
   $('game').classList.toggle('vdoorc', haveVar.has('door_shutter'));
-  useVar($('vDoor'), 'vdoor', d.doorL ? null : d.lightL ? (g.avukat.at ? 'door_avukat' : 'door_lit') : null);
-  useVar($('vVent'), 'vvent', d.ventLight ? (g.sahil.stage === 3 ? 'vent_sahil' : 'vent_lit') : null);
+  useVar('door', d.doorL ? null : d.lightL ? (g.avukat.at ? 'door_avukat' : 'door_lit') : null);
+  useVar('vent', d.ventLight ? (g.sahil.stage === 3 ? 'vent_sahil' : 'vent_lit') : null);
   // masa
   const h = clock();
   const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;
@@ -646,15 +653,16 @@ new MutationObserver(() => { for (const n of [...document.body.children]) if (n.
 let ready = false;
 $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
 (function preload() {
-  const imgs = ['office', 'door', 'panel', 'sheet', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor', 'office_v/door_shutter',
+  const imgs = ['office', 'door', 'panel', 'sheet', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor',
     'corr/empty', 'corr/lit', 'corr/pasta1', 'corr/pasta2', 'corr/pasta3', 'corr/sultan', 'vent/empty', 'vent/sahil', 'doorway/empty', 'doorway/avukat',
     ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan'].map(c => 'cam/' + c),
     ...Core.CHARS.concat('itsme').map(c => 'scare/' + c)].map(s => `img/${s}.png`);
-  const keep = window.__preloaded = []; let done = 0; const total = imgs.length + 1;
+  const keep = window.__preloaded = []; let done = 0; const total = imgs.length + 2;
   const tick = () => { done++; $('splashTxt').textContent = `YÜKLENİYOR... %${Math.round(done / total * 100)}`; if (done >= total) finish(); };
   const finish = () => { if (ready) return; ready = true; window.__m5g.ready = true; $('splashTxt').textContent = '[ BAŞLAMAK İÇİN TIKLA ]'; };
   imgs.forEach(src => { const i = new Image(); keep.push(i); i.onload = i.onerror = tick; i.src = src; });
   Promise.resolve(A.loadSamples ? A.loadSamples() : null).catch(() => { }).then(tick);
+  variantsReady.then(tick);
   setTimeout(finish, 15000);
 })();
 const unlock = () => { try { A.init(); } catch (e) { } removeEventListener('pointerdown', unlock, true); removeEventListener('keydown', unlock, true); };

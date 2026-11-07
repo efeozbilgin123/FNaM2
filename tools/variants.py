@@ -1,6 +1,6 @@
 """Gemini'nin düzenlediği ofis versiyonlarını oyuna hazırlar.  Kullanım: python3 tools/variants.py
 
-img/office_v_raw/<ad>.(png|jpg|webp)  ->  img/office_v/<ad>.png   (2000×848, saydam: sadece değişen yerler)
+img/office_v_raw/<ad>.(png|jpg|webp)  ->  img/office_v/<ad>.webp + variants.json (sadece değişen bölge, kırpılmış)
 
 Gemini bütün fotoğrafı hafifçe yeniden çizdiği için tüm görüntü birkaç ton farklıdır. Bu betik
 orijinal office.png ile farkı ölçer, gerçekten değişen bölgeyi (karakter, ışık, kapı, zemine taşan
@@ -70,5 +70,23 @@ def main(names=None):
         print(f'img/office_v/{name}.png  değişen alan %{cover * 100:.1f}')
 
 
+def pack():
+    """img/office_v/*.png -> sadece görünen bölgeye kırpılmış WebP + variants.json (x, y, w, h).
+    Tam boy saydam PNG'ler büyük ve ilk gösterimde takılıyordu; kırpılmış WebP onda biri boyutunda."""
+    import json
+    man = {}
+    for f in sorted(OUT.glob('*.png')):
+        im = Image.open(f).convert('RGBA'); box = im.split()[3].point(lambda v: 255 if v > 3 else 0).getbbox()
+        if not box: continue
+        im.crop(box).save(OUT / (f.stem + '.webp'), quality=86, method=6)
+        man[f.stem] = [box[0], box[1], box[2] - box[0], box[3] - box[1]]
+        f.unlink()
+        print(f'img/office_v/{f.stem}.webp  {box}')
+    old = json.loads((OUT / 'variants.json').read_text()) if (OUT / 'variants.json').exists() else {}
+    old.update(man)
+    (OUT / 'variants.json').write_text(json.dumps(old, indent=1) + '\n')
+
+
 if __name__ == '__main__':
     main(sys.argv[1:] or None)
+    pack()

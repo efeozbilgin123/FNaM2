@@ -152,10 +152,9 @@ await check('flicking the monitor fast never leaves it powered but hidden', asyn
 });
 
 await check('an office variant replaces the flat door overlay when it exists', async (page) => {
-  await page.route('**/img/office_v/door_lit.png', r => r.fulfill({ path: new URL('../img/office.png', import.meta.url).pathname }));
   await boot(page); await startNight(page, 1, { quiet: true });
   await page.keyboard.down('a'); await page.waitForTimeout(250);
-  const [on, hidden] = await page.evaluate(() => [document.getElementById('vDoor').classList.contains('on'), document.getElementById('game').classList.contains('vdoor')]);
+  const [on, hidden] = await page.evaluate(() => [!!document.querySelector('#v_door_lit.on'), document.getElementById('game').classList.contains('vdoor')]);
   await page.keyboard.up('a');
   assert.ok(on && hidden, `variant on=${on} flat hidden=${hidden}`);
 });
@@ -163,10 +162,10 @@ await check('without variants the flat door overlay is used', async (page) => {
   await page.route('**/img/office_v/**', r => r.fulfill({ status: 404, body: '' }));
   await boot(page); await startNight(page, 1, { quiet: true });
   await page.keyboard.down('a'); await page.waitForTimeout(250);
-  assert.strictEqual(await page.evaluate(() => document.getElementById('vDoor').classList.contains('on')), false);
+  assert.strictEqual(await page.evaluate(() => document.querySelectorAll('.vimg.on').length), 0);
+  assert.strictEqual(await page.evaluate(() => document.getElementById('game').classList.contains('vdoor')), false);
   await page.keyboard.up('a');
 });
-
 await check('the repair app fixes a hacked camera with the mouse; a healthy one reports no problem', async (page) => {
   await boot(page); await startNight(page, 1, { quiet: true });
   await page.keyboard.press('Space'); await page.waitForTimeout(800);
