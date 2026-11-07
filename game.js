@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109k';
+const ASSET_V = '20261109l';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -137,7 +137,8 @@ function stopPhone() {
   phoneTimers.forEach(clearTimeout); phoneTimers = []; answerPhone = null;
   if (phone) { try { phone.pause(); } catch (e) { } phone = null; } $('game').classList.remove('ringing', 'oncall');
 }
-$('phone').onclick = () => { if (answerPhone && G && !G.over) answerPhone(); };   // konuşma sırasında tıklamak bir şey yapmaz
+$('phone').onclick = () => { if (answerPhone && G && !G.over) answerPhone(); };   // telefona tıklamak açar
+$('phoneHang').onclick = e => { e.stopPropagation(); if (phone || answerPhone) { snd('click'); stopPhone(); } };   // kırmızı tuş kapatır
 
 function input() {
   return { doorL: ui.doorL, lightL: ui.lightL, flash: ui.flash, ventLight: ui.ventLight, monitor: ui.monitor, sheet: ui.sheet,
@@ -201,7 +202,8 @@ function whisper(dt) {
 function handle(e) {
   switch (e.type) {
     case 'sound': return sound(e);
-    case 'move': if (e.who === 'sahil' && e.to === 'mouth') snd('bang'); if (e.who !== 'pasta' || e.stage < 3) note(moveNote(e)); return;
+    // Sahil ağza gelince metal çarpma: 2. gecede her zaman, 3. geceden itibaren yarı yarıya sessiz gelir (ışıkla bakmak gerekir)
+    case 'move': if (e.who === 'sahil' && e.to === 'mouth' && (night <= 2 || Math.random() < 0.5)) snd('bang'); if (e.who !== 'pasta' || e.stage < 3) note(moveNote(e)); return;
     case 'hack': frozen = { cam: e.cam, src: camSrc(e.cam), time: clock() }; note('UYARI: ' + CAM_SHORT[e.cam] + ' sinyali kararsız'); return;
     case 'unhack': frozen = null; note(CAM_SHORT[e.cam] + ' yeniden başlatıldı.'); snd('blip'); return;
     case 'phase':
@@ -270,7 +272,7 @@ function powerOut() {
 const WHY = {
   pasta: 'Koridordaki şeyi ışıkla tut. Işıktan hoşlanmaz. Ayak seslerini duyunca feneri yak.',
   avukat: 'Kapıda biri vardı. Ayak sesi duyunca kapı ışığını yak; görürsen kapıyı kapat.',
-  sahil: 'Havalandırmadan metal bir çarpma sesi geldiyse ışıkla bak. Oradaysa örtüyü çek; ikinci çarpmayı duyana kadar kıpırdama.',
+  sahil: 'Havalandırmaya ara ara ışıkla bak; Sahil her zaman ses çıkararak gelmez. Oradaysa örtüyü çek; çarpmayı duyana kadar kıpırdama.',
   sayici: '"Beş"i duyduğunda örtünün altında olmalıydın. Altıya kadar saydı.',
   muh: 'Donmuş bir kamera fark etmedin. Saat ilerlemiyorsa o kamerayı yeniden başlat.',
   arda: 'Duyduğun her ses gerçek değildi. Sonundaki bozuk miyavı dinle ve tepki verme.',
