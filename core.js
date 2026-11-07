@@ -84,7 +84,7 @@
   function knockOut(G, light) {
     if (!G.dev[light]) return;
     G.lightOut[light] = PARAMS.LIGHT_OUT; G.dev[light] = false;
-    emit(G, { type: 'lightout', light });
+    emit(G, { type: 'lightout', light, pasta: G.pasta ? G.pasta.stage : 0 });  // anlık durum: sönerken son kare
   }
   function die(G, who) {
     if (G.over) return;
@@ -141,7 +141,7 @@
     const s = G.pasta;
     if (s.stage === 3) {
       if (G.dev.flash) s.flashT += dt;
-      if (s.flashT >= PARAMS.PASTA_FLASH) { s.stage = 0; s.flashT = 0; s.tick = 0; emit(G, { type: 'move', who: 'pasta', to: PASTA_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'retreat', from: 'corr' }); return; }
+      if (s.flashT >= PARAMS.PASTA_FLASH) { knockOut(G, 'flash'); s.stage = 0; s.flashT = 0; s.tick = 0; emit(G, { type: 'move', who: 'pasta', to: PASTA_ROUTE[0], stage: 0 }); emit(G, { type: 'sound', id: 'retreat', from: 'corr' }); return; }
       if (!G.dev.sheet) s.window -= dt; // örtü altındayken seni ölü sanıp bekler
       if (s.window <= 0) die(G, 'pasta');
       return;
@@ -168,7 +168,7 @@
       s.knock -= dt; G.extraDrain += PARAMS.AVUKAT_DRAIN;
       s.knockSound -= dt;
       if (s.knockSound <= 0) { s.knockSound = 1.6; emit(G, { type: 'sound', id: 'knock', from: 'door' }); }
-      if (s.knock <= 0) { s.at = false; s.pos = 'archive'; s.tick = -PARAMS.AVUKAT_COOLDOWN; emit(G, { type: 'move', who: 'avukat', to: 'archive' }); }
+      if (s.knock <= 0) { s.at = false; s.pos = 'archive'; s.tick = -PARAMS.AVUKAT_COOLDOWN; knockOut(G, 'lightL'); emit(G, { type: 'move', who: 'avukat', to: 'archive' }); }
       return;
     }
     if (s.at) {
@@ -199,7 +199,7 @@
       s.tick = 0;
       if (!roll(G, G.lv.sultan)) return;
       s.phase = 'approach'; s.t = PARAMS.SULTAN_APPROACH;
-      if (G.pasta.stage >= 2) { G.pasta.stage = 1; G.pasta.flashT = 0; emit(G, { type: 'move', who: 'pasta', to: 'corr', stage: 1 }); }
+      if (G.pasta.stage >= 2) { G.pasta.stage = 1; G.pasta.flashT = 0; knockOut(G, 'flash'); emit(G, { type: 'move', who: 'pasta', to: 'corr', stage: 1 }); }
       emit(G, { type: 'phase', who: 'sultan', phase: 'approach' });
       emit(G, { type: 'sound', id: 'motor', from: 'corr' });
       return;

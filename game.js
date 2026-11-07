@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108i';
+const ASSET_V = '20261108j';
 const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
@@ -164,7 +164,7 @@ function handle(e) {
       $('game').classList.toggle('sultanA', e.phase === 'approach');
       $('game').classList.toggle('sultanH', e.phase === 'here');
       return;
-    case 'lightout': snd('flicker'); snd('light', false); $('game').classList.add('lout'); setTimeout(() => $('game').classList.remove('lout'), 350); return;
+    case 'lightout': snd('flicker'); flick[e.light] = { t0: performance.now(), pasta: e.pasta }; setTimeout(() => snd('light', false), FLICK_MS); return;
     case 'powerout': return powerOut();
     case 'itsme': return itsMe(e.variant);
     case 'death': return die(e.who);
@@ -308,13 +308,25 @@ function camSrc(cam) {
   }[cam];
   return `img/cam/${v}.png`;
 }
+// ışık bozulunca önce birkaç kez yanıp söner, sonra kapanır (aç/kapa süreleri, ms)
+const FLICK = [70, 60, 110, 80, 50, 140, 60], FLICK_MS = FLICK.reduce((a, b) => a + b, 0);
+const flick = {};
+function flickOn(k) {
+  const f = flick[k]; if (!f) return false;
+  let t = performance.now() - f.t0; if (t >= FLICK_MS) { delete flick[k]; return false; }
+  for (let i = 0; i < FLICK.length; i++) { if (t < FLICK[i]) return i % 2 === 0; t -= FLICK[i]; }
+  return false;
+}
 function render() {
-  const g = G, d = g.dev, c = $('game').classList;
+  const g = G, c = $('game').classList;
+  const fl = { flash: flickOn('flash'), lightL: flickOn('lightL'), ventLight: flickOn('ventLight') };
+  const d = Object.assign({}, g.dev); if (!G.dark && !g.dev.sheet && !ui.monitor) for (const k in fl) if (fl[k]) d[k] = true;
   c.toggle('doorL', d.doorL); c.toggle('lightL', d.lightL); c.toggle('flash', d.flash); c.toggle('ventLight', d.ventLight);
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
   if (d.sheet && ui.monitor) { ui.monitor = false; closeCam(); }
   // koridor
-  const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t && !g.pasta.stage ? 'corr_itsme' : g.pasta.stage ? 'corr_pasta' + g.pasta.stage : 'corr_lit';
+  const pst = flick.flash && !g.dev.flash ? flick.flash.pasta : g.pasta.stage;   // sönerken son görülen yer
+  const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t && !g.pasta.stage ? 'corr_itsme' : pst ? 'corr_pasta' + pst : 'corr_lit';
   useVar('corr', corrVar);
   // kapalı kapı ayrı katman (#vDoorS): çelik kepenk, CSS ile tavandan kayar
   $('game').classList.toggle('vdoorc', haveVar.has('door_shutter'));
@@ -337,7 +349,11 @@ function renderCam() {
   const g = G, cam = ui.cam, fb = $('feedBox');
   $('camName').textContent = CAM_NAMES[cam];
   const hacked = frozen && frozen.cam === cam;
-  setSrc($('feedImg'), hacked ? frozen.src : camSrc(cam));
+  const src = hacked ? frozen.src : camSrc(cam);
+  // izlediğin kamerada biri gelir/giderse görüntü bir an parazitlenir (FNaF gibi)
+  if (lastFeed.cam === cam && lastFeed.src !== src && !hacked) staticBurst();
+  lastFeed = { cam, src };
+  setSrc($('feedImg'), src);
   fb.classList.toggle('frozen', !!hacked);
   fb.classList.toggle('blind', !!g.dev.camBlind);
   fb.classList.toggle('cold', cam === 'cold');
@@ -454,6 +470,11 @@ function toggleSheet() {
   if (!G || G.over) return;
   if (!ui.sheet && ui.monitor) closeCam(true);
   ui.sheet = !ui.sheet; snd('sheet');
+}
+let lastFeed = {}, burstT = null;
+function staticBurst() {
+  const st = $('static'); st.classList.remove('burst'); void st.offsetWidth; st.classList.add('burst');
+  snd('static'); clearTimeout(burstT); burstT = setTimeout(() => st.classList.remove('burst'), 900);
 }
 function selCam(cam) { if (!cctvOn() || ui.cam === cam) return; ui.cam = cam; snd('blip'); $('static').style.opacity = 1; setTimeout(() => $('static').style.opacity = '', 160); }
 

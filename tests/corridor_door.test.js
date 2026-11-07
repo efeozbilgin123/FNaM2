@@ -92,3 +92,17 @@ test('Avukat arriving under the door light knocks the door light out', () => {
   assert.ok(G.lightOut.lightL > 0);
   assert.strictEqual(G.dev.lightL, false);
 });
+
+test('the flashlight cuts out the moment Pasta is driven back (the last frame still shows her)', () => {
+  const G = game(1); pastaAtEnd(G);
+  const evs = run(G, P.PASTA_FLASH + 0.05, { flash: true });
+  const lo = evs.find(e => e.type === 'lightout' && e.light === 'flash');
+  assert.ok(lo, 'no lightout'); assert.strictEqual(lo.pasta, 3);
+  assert.strictEqual(G.dev.flash, false); assert.ok(G.lightOut.flash > 0);
+});
+
+test('the door light cuts out when Avukat gives up and leaves', () => {
+  const G = game(1); G.avukat.at = true; G.avukat.pos = 'door'; G.avukat.knock = 0.1;
+  const evs = run(G, 0.2, { doorL: true, lightL: true });
+  assert.ok(evs.some(e => e.type === 'lightout' && e.light === 'lightL'));
+});
