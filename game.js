@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108x';
+const ASSET_V = '20261108z';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -98,13 +98,13 @@ function startNight(n, opts = {}) {
 }
 function begin() {
   const levels = night === 7 ? customLevels : NIGHTS[night].levels;
-  G = Core.createGame({ night, levels, noItsMe: quiet });
+  G = Core.createGame({ night, levels, noItsMe: quiet, grace: night <= 6 && !quiet ? NIGHTS[night].grace || 0 : 0 });
   window.__game = G;
   Object.assign(ui, { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false,
     app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
   wm.open = []; wm.min.clear(); wm.z = []; wm.active = null; closeStart(); pcStack.length = 0; renderPc();
   document.querySelectorAll('.win').forEach(w => { w.style.left = ''; w.style.top = ''; });
-  frozen = null; itsmeCorrUntil = 0; lastNote = ''; ghostT = 90 + Math.random() * 120; ghostUntil = 0; for (const k in stung) delete stung[k]; whisperT = 25; itsmePop = { t: nextPop(true), due: 0 };
+  frozen = null; itsmeCorrUntil = 0; lastNote = ''; ghostT = 90 + Math.random() * 120; ghostUntil = 0; for (const k in stung) delete stung[k]; itsmePop = { t: nextPop(true), due: 0 };
   closeCam(true);
   $('game').className = 'screen on';
   show('game');
@@ -145,7 +145,6 @@ function loop(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (!G) return;
   updateLook(dt);
-  whisper(dt);
   itsmePopTick(dt);
   ghostTick(dt);
   fixTick(dt);
@@ -181,16 +180,6 @@ function ghostTick(dt) {
   ghostT -= dt; if (ghostT > 0) return;
   ghostT = 100 + Math.random() * 160;
   ghostUntil = performance.now() + 170; staticBurst();
-}
-
-// Sayıcı aktif gecelerde havalandırmadan arada bir mırıltı / "kitapta mı" fısıltısı (zararsız, sadece atmosfer)
-let whisperT = 25;
-function whisper(dt) {
-  if (!G || G.lv.sayici <= 0 || G.dark) return;
-  whisperT -= dt;
-  if (whisperT > 0) return;
-  whisperT = 35 + Math.random() * 40;
-  snd(Math.random() < 0.6 ? 'murmur' : 'kitapta', 0.8);
 }
 
 // ---------- olaylar ----------

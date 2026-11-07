@@ -36,6 +36,7 @@
       night, seed, t: 0, power: 100, over: false, result: null, rng: mulberry32(seed), lv,
       dev: { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, cooling: false, sheet: false, cam: null, reboot: null, camBlind: false },
       dark: false, darkT: 0,
+      grace: Math.max(0, +opts.grace || 0),   // gecenin başında karakterlerin hareketsiz kaldığı süre (telefon konuşması)
       pending: { sheet: false, door: false },
       lightOut: { flash: 0, lightL: 0, ventLight: 0 },
       _ev: null,
@@ -102,7 +103,8 @@
     for (const k in G.lightOut) if (G.lightOut[k] > 0) G.lightOut[k] -= dt;
     applyInput(G, inp);
     G.extraDrain = 0;
-    for (const f of TICKS) { if (G.over) return; f(G, dt, inp); }
+    const calm = G.t < G.grace;
+    for (const f of TICKS) { if (G.over) return; if (calm && /^tick/.test(f.name)) continue; f(G, dt, inp); }
     if (G.over) return;
     if (!G.dark) {
       G.power -= usage(G) * dt;

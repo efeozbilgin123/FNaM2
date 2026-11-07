@@ -9,8 +9,9 @@
   // Seviyeler tools/sim.js ile ayarlandı (npm run sim). Yeni karakter gelen gecelerde
   // eski karakterlerin seviyesi bilerek düşebilir: zorluk karakter sayısından geliyor.
   const NIGHTS = {
-    1: { levels: L(5, 3, 0, 0, 0, 0, 0, 3), doc: 'doc1', phone: 'voice/phone1.mp3' },
-    2: { levels: L(14, 15, 14, 0, 0, 0, 0, 8), doc: 'doc2', phone: 'voice/phone2.mp3' },
+    // grace: telefon konuşması bitene kadar (zil ~9 sn + kayıt) kimse hareket etmez
+    1: { levels: L(5, 3, 0, 0, 0, 0, 0, 3), doc: 'doc1', phone: 'voice/phone1.mp3', grace: 81 },
+    2: { levels: L(14, 15, 14, 0, 0, 0, 0, 8), doc: 'doc2', phone: 'voice/phone2.mp3', grace: 58 },
     3: { levels: L(16, 14, 17, 12, 12, 0, 0, 9), doc: 'doc3', phone: 'voice/phone3.mp3' },
     4: { levels: L(9, 8, 9, 7, 7, 4, 4, 4), doc: 'doc4', phone: 'voice/phone4.mp3' },
     5: { levels: L(11, 10, 11, 9, 9, 7, 7, 6), doc: 'doc5', phone: 'voice/phone5.mp3' },

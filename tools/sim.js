@@ -88,8 +88,8 @@ function wastefulBot() {
   return () => ({ doorL: true, lightL: true, flash: true, ventLight: true, monitor: true, cooling: true, cam: 'cold' });
 }
 
-function runOne(levels, night, seed, bot) {
-  const G = Core.createGame({ night, levels, seed, noItsMe: true });
+function runOne(levels, night, seed, bot, grace = 0) {
+  const G = Core.createGame({ night, levels, seed, noItsMe: true, grace });
   const rng = mulberry32(seed ^ 0x9e3779b9);
   const b = bot();
   let evs = [];
@@ -97,10 +97,10 @@ function runOne(levels, night, seed, bot) {
   return G;
 }
 
-function simulate(levels, night, { runs = 1000, seed = 1, bot = goodBot } = {}) {
+function simulate(levels, night, { runs = 1000, seed = 1, bot = goodBot, grace = 0 } = {}) {
   let wins = 0, power = 0; const deaths = {}, ts = [];
   for (let i = 0; i < runs; i++) {
-    const G = runOne(levels, night, seed + i, bot);
+    const G = runOne(levels, night, seed + i, bot, grace);
     ts.push(G.t);
     if (G.result === 'win') { wins++; power += G.power; }
     else deaths[G.killer] = (deaths[G.killer] || 0) + 1;
@@ -109,7 +109,7 @@ function simulate(levels, night, { runs = 1000, seed = 1, bot = goodBot } = {}) 
   return { runs, wins, winRate: wins / runs, deaths, avgPowerLeft: wins ? power / wins : 0, medianT: ts[Math.floor(ts.length / 2)] };
 }
 
-function simNight(night, opts = {}) { return simulate(opts.levels || NIGHTS[night].levels, night, opts); }
+function simNight(night, opts = {}) { return simulate(opts.levels || NIGHTS[night].levels, night, { grace: NIGHTS[night].grace || 0, ...opts }); }
 function simCustom(levels, opts = {}) { return simulate(levels, 7, opts); }
 
 if (require.main === module) {

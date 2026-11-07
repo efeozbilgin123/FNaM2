@@ -502,7 +502,7 @@ const Audio5 = (() => {
       else noise({ dur: 2.5, type: 'bandpass', f: 1200, f2: 300, q: 8, vol: 0.06, pan: p, wet: 0.9, bus: ambBus }); // fısıltı gibi
       ambTimer = setTimeout(creak, 7000 + Math.random() * 14000);
     };
-    ambTimer = setTimeout(creak, 5000);
+    ambTimer = -1;   // rastgele gıcırtı/damla/gümleme kaldırıldı: ipucu sesleriyle karışıyordu (creak kullanılmıyor)
   }
 
   // Morg: soğuk oda kompresörü (yavaş açılıp kapanan uğultu) + normal atmosfer
