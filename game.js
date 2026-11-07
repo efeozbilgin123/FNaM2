@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108z';
+const ASSET_V = '20261109a';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -125,13 +125,14 @@ function playPhone() {
   snd('phoneRing'); at(3800, () => snd('phoneRing'));
   at(7300, () => {
     snd('click');
+    $('game').classList.remove('ringing'); $('game').classList.add('oncall');
     phone = A.playVoice(src, 1);
-    phone.onended = phone.onerror = () => { $('game').classList.remove('ringing'); phone = null; };
+    phone.onended = phone.onerror = () => { $('game').classList.remove('oncall'); phone = null; };
   });
 }
 function stopPhone() {
   phoneTimers.forEach(clearTimeout); phoneTimers = [];
-  if (phone) { try { phone.pause(); } catch (e) { } phone = null; } $('game').classList.remove('ringing');
+  if (phone) { try { phone.pause(); } catch (e) { } phone = null; } $('game').classList.remove('ringing', 'oncall');
 }
 $('phone').onclick = () => { snd('click'); stopPhone(); };
 
