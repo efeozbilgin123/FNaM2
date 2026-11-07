@@ -27,5 +27,8 @@
  "knock": [
   "sfx/knock_1.mp3",
   "sfx/knock_2.mp3"
+ ],
+ "phoneRing": [
+  "sfx/phone_ring.mp3"
  ]
 }

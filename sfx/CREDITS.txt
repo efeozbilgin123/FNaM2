@@ -1,2 +1,3 @@
 Ses efektleri: "Oculus Audio Pack 01" by Oculus VR, LLC (https://developers.meta.com/vr/downloads/package/oculus-audio-pack-1/), CC BY 4.0. Kısaltıldı ve karıştırıldı.
 knock_1.mp3, knock_2.mp3: aynı paketteki "DOORKnck_OfficeDoorKnock_OS_01" (Oculus Audio Pack 01, CC BY 4.0); perdesi düşürüldü, çelik kapı yankısı eklendi.
+phone_ring.mp3: tools/phone_ring.py ile sentezlendi (elektromekanik telefon zili taklidi), proje içi.

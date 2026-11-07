@@ -161,7 +161,8 @@ const Audio5 = (() => {
       g.gain.setValueAtTime(0.9, t + dur + 7.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 8.4);
     },
     reboot() { noise({ dur: 0.6, type: 'bandpass', f: 600, f2: 3200, q: 1, vol: 0.3, wet: 0.1 }); osc({ f: 900, f2: 1800, dur: 0.5, vol: 0.05, type: 'square', wet: 0 }); },
-    phoneRing() {
+    phoneRing() { // eski masa telefonu zili (sfx/phone_ring.mp3: tools/phone_ring.py ile üretildi)
+      if (play('phoneRing', { pan: 0.3, vol: 0.75, wet: 0.3 })) return;
       const t = now();
       for (let r = 0; r < 2; r++) for (let i = 0; i < 16; i++) { const tt = t + r * 1.2 + i * 0.05; osc({ t: tt, f: 1300, dur: 0.03, vol: 0.06, type: 'square', lp: 2500, pan: 0.3, wet: 0.3 }); }
     },

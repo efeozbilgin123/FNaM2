@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108p';
+const ASSET_V = '20261108q';
 const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
@@ -113,16 +113,25 @@ function begin() {
   note('Sistem hazır. Nöbet başladı.');
   last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
 }
+// Telefon: iki kez çalar, ahize kalkar (tık), sonra kayıt başlar. Telefona tıklamak her aşamada susturur.
+let phoneTimers = [];
 function playPhone() {
   stopPhone();
   if (!G || G.over) return;
   const src = night <= 6 ? NIGHTS[night].phone : null; if (!src) return;
-  snd('phoneRing');
-  phone = A.playVoice(src, 0.95);
   $('game').classList.add('ringing');
-  phone.onended = phone.onerror = () => { $('game').classList.remove('ringing'); phone = null; };
+  const at = (ms, f) => phoneTimers.push(setTimeout(() => { if (G && !G.over) f(); }, ms));
+  snd('phoneRing'); at(3800, () => snd('phoneRing'));
+  at(7300, () => {
+    snd('click');
+    phone = A.playVoice(src, 0.95);
+    phone.onended = phone.onerror = () => { $('game').classList.remove('ringing'); phone = null; };
+  });
 }
-function stopPhone() { if (phone) { try { phone.pause(); } catch (e) { } phone = null; } $('game').classList.remove('ringing'); }
+function stopPhone() {
+  phoneTimers.forEach(clearTimeout); phoneTimers = [];
+  if (phone) { try { phone.pause(); } catch (e) { } phone = null; } $('game').classList.remove('ringing');
+}
 $('phone').onclick = () => { snd('click'); stopPhone(); };
 
 function input() {
