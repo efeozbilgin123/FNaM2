@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109m';
+const ASSET_V = '20261109n';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -114,7 +114,7 @@ function begin() {
   note('Sistem hazır. Nöbet başladı.');
   last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
 }
-// Telefon: bir kez çalar, ahize kendiliğinden kalkar (tık), sonra kayıt başlar. Telefona tıklamak her aşamada susturur.
+// Telefon: bir kez çalar, ahize kendiliğinden kalkar (tık), sonra kayıt başlar. Tıklamak açar, kırmızı tuş kapatır.
 let phoneTimers = [];
 function playPhone() {
   stopPhone();
@@ -204,7 +204,7 @@ function handle(e) {
     case 'sound': return sound(e);
     // Sahil ağza gelince metal çarpma: 2. gecede her zaman, 3. geceden itibaren yarı yarıya sessiz gelir (ışıkla bakmak gerekir)
     case 'move': if (e.who === 'sahil' && e.to === 'mouth' && (night <= 2 || Math.random() < 0.5)) snd('bang'); if (e.who !== 'pasta' || e.stage < 3) note(moveNote(e)); return;
-    case 'hack': frozen = { cam: e.cam, src: camSrc(e.cam), time: clock() }; note('UYARI: ' + CAM_SHORT[e.cam] + ' sinyali kararsız'); return;
+    case 'hack': frozen = { cam: e.cam, src: camSrc(e.cam), time: clockFull() }; note('UYARI: ' + CAM_SHORT[e.cam] + ' sinyali kararsız'); return;
     case 'unhack': frozen = null; note(CAM_SHORT[e.cam] + ' yeniden başlatıldı.'); snd('blip'); return;
     case 'phase':
       $('game').classList.toggle('sultanA', e.phase === 'approach');
@@ -392,6 +392,11 @@ if (document.fonts) document.fonts.load('30px VT323').then(() => { powerKey = ''
 
 // ---------- çizim ----------
 function clock() { const h = Math.floor(G.t / (Core.PARAMS.NIGHT_SEC / 6)); return h === 0 ? 12 : h; }
+// masadaki saatle aynı: oyun saati + oyun dakikası + gerçek saniye ("12:07:41")
+function clockFull() {
+  const hourSec = Core.PARAMS.NIGHT_SEC / 6, m = Math.floor((G.t % hourSec) / hourSec * 60);
+  return `${clock()}:${String(m).padStart(2, '0')}:${String(new Date().getSeconds()).padStart(2, '0')}`;
+}
 function camSrc(cam) {
   const g = G, v = {
     corr: g.pasta.stage === 1 || g.pasta.stage === 2 ? 'corr_pasta' : 'corr',
@@ -450,12 +455,13 @@ function render() {
   sting('corr', g.dev.flash && g.pasta.stage === 3 && corrVar === 'corr_pasta3', 0);
   // masa
   const h = clock();
-  const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;
+  const hourSec = Core.PARAMS.NIGHT_SEC / 6, minF = (g.t % hourSec) / hourSec * 60;
+  const clk = `${h}:${String(Math.floor(minF)).padStart(2, '0')} AM`;
   $('monClock').textContent = clk; $('camClock').textContent = clk;
-  renderClock(h, (g.t % 50) / 50 * 60);
+  renderClock(h, minF);
   drawPower(Math.ceil(g.power), Math.min(6, Math.round(Core.usage(g) / 0.12)));
   const u = Core.usage(g), n = Math.min(6, Math.round(u / 0.12));
-  $('camTimeR').textContent = `${h} AM  │  JEN %${Math.ceil(g.power)}`;
+  $('camTimeR').textContent = `${clk}  │  JEN %${Math.ceil(g.power)}`;
   if (ui.monitor) renderCam();
 }
 function renderCam() {
@@ -474,7 +480,7 @@ function renderCam() {
   fb.classList.toggle('frozen', !!hacked);
   fb.classList.toggle('blind', !!g.dev.camBlind);
   fb.classList.toggle('cold', cam === 'cold');
-  $('stamp').textContent = `${hacked ? frozen.time : clock()}:${hacked ? '00' : String(Math.floor(g.t * 7) % 60).padStart(2, '0')} AM  ${CAM_SHORT[cam]}`;
+  $('stamp').textContent = `${hacked ? frozen.time : clockFull()} AM  ${CAM_SHORT[cam]}`;   // bozuk kamerada saat donar
   $('d5').style.opacity = hacked && Math.random() < 0.04 ? 1 : 0;
   const temp = Core.shownTemp(g);
   $('tempFill').style.width = Math.min(100, temp) + '%';
