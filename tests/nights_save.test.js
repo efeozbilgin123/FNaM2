@@ -63,13 +63,13 @@ test('unlock rules', () => {
   p = Save.unlock(p, { night: 2, result: 'death', doc: 'doc2' }); assert.deepStrictEqual(p.docs, ['doc2']);
 });
 
-test('nobody moves during the phone call grace period, then they do', () => {
+test('nobody moves during the phone call grace period (Denek 5 still heats), then they do', () => {
   const { Core } = require('./helpers');
   const levels = { pasta: 20, avukat: 20, sahil: 20, sayici: 0, muh: 0, arda: 0, sultan: 0, denek5: 20 };
   const G = Core.createGame({ night: 2, levels, seed: 3, noItsMe: true, grace: 30 });
   let moves = 0;
   for (let t = 0; t < 29; t += 0.1) moves += Core.step(G, 0.1, {}).filter(e => e.type === 'move').length;
-  assert.strictEqual(moves, 0); assert.strictEqual(G.denek5.temp, Core.createGame({ night: 2, levels, seed: 3 }).denek5.temp);
+  assert.strictEqual(moves, 0); assert.ok(G.denek5.temp > 0, 'Denek 5 heats up during the call too');
   for (let t = 0; t < 20 && !G.over; t += 0.1) moves += Core.step(G, 0.1, {}).filter(e => e.type === 'move').length;
   assert.ok(moves > 0);
 });

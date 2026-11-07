@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109o';
+const ASSET_V = '20261109p';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -227,8 +227,8 @@ function moveNote(e) {
 function sound(e) {
   const p = PAN[e.from] ?? 0;
   switch (e.id) {
-    // 3. geceden itibaren Pasta koridorun sonuna yarı yarıya sessiz gelir: kamera ya da fenerle bakmak gerekir
-    case 'step': if (e.stage === 3 && night >= 3 && Math.random() < 0.5) return; return snd('step', p);
+    // Pasta'nın ayak sesleri: koridora ilk girişi (1. adım) bazen sessiz; sonraki adımlar ve koridorun sonuna gelişi hep duyulur
+    case 'step': if (e.stage === 1 && Math.random() < 0.5) return; return snd('step', p);
     case 'retreat': return snd('step', p);
     case 'knock': return snd('knock', p);
     // havalandırma: sürünme sesi yok; sadece Sahil ağızda belirirken (move olayında) ve giderken metal çarpma.
