@@ -260,6 +260,31 @@ function useVar(region, name) {
   $('game').classList.toggle('v' + region, !!ok || (name === null && [...haveVar].some(v => v.startsWith(region + '_') && v !== 'door_shutter')));
 }
 
+// ---------- duvardaki jeneratör ekranı (tuval) ----------
+const pctx = $('pscreen').getContext('2d');
+let powerKey = '';
+function drawPower(pw, n) {
+  const low = pw < 20, blink = low && Math.floor(performance.now() / 500) % 2;
+  const key = pw + '|' + n + '|' + blink; if (key === powerKey) return; powerKey = key;
+  const c = pctx, W = 400, H = 300, col = low ? '#ff7a5a' : '#8dffa0';
+  const gr = c.createRadialGradient(W / 2, H * .45, 20, W / 2, H / 2, 260);
+  gr.addColorStop(0, '#16421f'); gr.addColorStop(1, '#030b05');
+  c.fillStyle = gr; c.fillRect(0, 0, W, H);
+  c.shadowColor = col; c.fillStyle = col;
+  c.shadowBlur = 8; c.font = '30px VT323, monospace'; c.globalAlpha = .85; c.fillText('JENERATÖR', 34, 52);
+  c.globalAlpha = blink ? .35 : 1; c.shadowBlur = 16; c.font = '128px VT323, monospace'; c.fillText('%' + pw, 30, 170);
+  c.globalAlpha = 1; c.shadowBlur = 10;
+  for (let i = 0; i < 6; i++) {
+    const x = 34 + i * 56, on = i < n, hot = i >= 4;
+    c.strokeStyle = 'rgba(141,255,160,.4)'; c.lineWidth = 2; c.strokeRect(x, 205, 48, 34);
+    if (on) { c.fillStyle = hot ? '#ff6a4a' : col; c.shadowColor = c.fillStyle; c.fillRect(x + 3, 208, 42, 28); }
+  }
+  c.shadowBlur = 0; c.fillStyle = 'rgba(0,0,0,.3)';
+  for (let y = 0; y < H; y += 4) c.fillRect(0, y, W, 2);   // tarama çizgileri
+  c.fillStyle = 'rgba(255,255,255,.05)'; c.beginPath(); c.ellipse(120, 60, 140, 50, -.2, 0, Math.PI * 2); c.fill();
+}
+if (document.fonts) document.fonts.load('30px VT323').then(() => { powerKey = ''; });
+
 // ---------- çizim ----------
 function clock() { const h = Math.floor(G.t / (Core.PARAMS.NIGHT_SEC / 6)); return h === 0 ? 12 : h; }
 function camSrc(cam) {
@@ -300,10 +325,8 @@ function render() {
   const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;
   $('monClock').textContent = clk; $('camClock').textContent = clk;
   renderClock(h, (g.t % 50) / 50 * 60);
-  $('tPower').textContent = `%${Math.ceil(g.power)}`;
-  $('pscreen').classList.toggle('low', g.power < 20);
+  drawPower(Math.ceil(g.power), Math.min(6, Math.round(Core.usage(g) / 0.12)));
   const u = Core.usage(g), n = Math.min(6, Math.round(u / 0.12));
-  $('tUsage').innerHTML = Array.from({ length: 6 }, (_, i) => `<i class="${i < n ? (i >= 4 ? 'hot' : 'on') : ''}"></i>`).join('');
   $('camTimeR').textContent = `${h} AM  │  JEN %${Math.ceil(g.power)}`;
   if (ui.monitor) renderCam();
 }
@@ -352,7 +375,7 @@ function quadMatrix(w, h, p) {
 const QUADS = {
   dwL: { w: 320, h: 750, p: [[402, 82], [570, 160], [572, 672], [404, 664]] },
   vent: { w: 600, h: 440, p: [[1656, 522], [1952, 575], [1945, 812], [1658, 715]] },
-  pscreen: { w: 400, h: 300, p: [[91, 254], [307, 275], [306, 450], [94, 472]] },     // duvardaki MIRIKVISION ekranı
+  pscreen: { w: 400, h: 300, p: [[95, 258], [303, 278], [302, 447], [97, 468]] },     // duvardaki MIRIKVISION ekranının camı
   mon: { w: 400, h: 300, p: [[674, 530], [848, 520], [850, 658], [678, 676]] },        // masadaki monitörün camı
 };
 // Yazı içeren katmanlar (masadaki saat, duvar ekranı, kamera arayüzü) 3B perspektif yerine 2B eğmeyle oturur:
@@ -364,7 +387,7 @@ function quadAffine(w, h, p) { // (0,0)(w,0)(w,h)(0,h) -> p, en küçük kareler
   const e = mx - a * w / 2 - c * h / 2, f = my - b * w / 2 - d * h / 2;
   return { a, b, c, d, e, f, css: `matrix(${[a, b, c, d, e, f].map(v => +v.toFixed(6)).join(',')})` };
 }
-const TEXT_LAYERS = new Set(['pscreen', 'mon']);
+const TEXT_LAYERS = new Set(['mon']); // pscreen tuval: tam perspektif
 for (const [id, q] of Object.entries(QUADS)) $(id).style.transform = TEXT_LAYERS.has(id) ? quadAffine(q.w, q.h, q.p).css : quadMatrix(q.w, q.h, q.p);
 
 // ---------- bakış ----------
