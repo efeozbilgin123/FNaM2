@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109h';
+const ASSET_V = '20261109i';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -123,18 +123,21 @@ function playPhone() {
   $('game').classList.add('ringing');
   const at = (ms, f) => phoneTimers.push(setTimeout(() => { if (G && !G.over) f(); }, ms));
   snd('phoneRing'); at(3800, () => snd('phoneRing'));
-  at(7300, () => {
+  answerPhone = () => {   // zil çalarken telefona tıklamak hemen açar; kendiliğinden de 2 zilden sonra açılır
+    answerPhone = null; phoneTimers.forEach(clearTimeout); phoneTimers = [];
     snd('click');
     $('game').classList.remove('ringing'); $('game').classList.add('oncall');
     phone = A.playVoice(src, 1);
     phone.onended = phone.onerror = () => { $('game').classList.remove('oncall'); phone = null; };
-  });
+  };
+  at(7300, () => answerPhone && answerPhone());
 }
+let answerPhone = null;
 function stopPhone() {
-  phoneTimers.forEach(clearTimeout); phoneTimers = [];
+  phoneTimers.forEach(clearTimeout); phoneTimers = []; answerPhone = null;
   if (phone) { try { phone.pause(); } catch (e) { } phone = null; } $('game').classList.remove('ringing', 'oncall');
 }
-$('phone').onclick = () => { snd('click'); stopPhone(); };
+$('phone').onclick = () => { if (answerPhone && G && !G.over) answerPhone(); };   // konuşma sırasında tıklamak bir şey yapmaz
 
 function input() {
   return { doorL: ui.doorL, lightL: ui.lightL, flash: ui.flash, ventLight: ui.ventLight, monitor: ui.monitor, sheet: ui.sheet,
