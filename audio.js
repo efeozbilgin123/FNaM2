@@ -383,7 +383,22 @@ const Audio5 = (() => {
     chime() { // 6 AM çanları
       const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
       notes.forEach((f, i) => bell(now() + i * 0.32, f, 0.22));
-      setTimeout(() => cheer(), 2100);
+    },
+    yay() { // çocukların "yaaay" tezahüratı: kayıt varsa (sfx/yay.mp3) o, yoksa sentez: perdesi yükselip inen çocuk sesleri, "a"dan "i"ye kayan ünlü
+      if (play('yay', { vol: 0.9, wet: 0.35 })) return;
+      const t0 = now() + 0.02;
+      for (let k = 0; k < 9; k++) {
+        const t = t0 + Math.random() * 0.12, dur = 1.2 + Math.random() * 0.5, f0 = 330 + Math.random() * 230, p = (Math.random() - 0.5) * 1.4;
+        const o = ctx.createOscillator(); o.type = 'sawtooth';
+        o.frequency.setValueAtTime(f0 * 0.85, t); o.frequency.exponentialRampToValueAtTime(f0 * 1.25, t + 0.25); o.frequency.exponentialRampToValueAtTime(f0 * 1.05, t + dur);
+        const vib = ctx.createOscillator(), vg = ctx.createGain(); vib.frequency.value = 5 + Math.random() * 2; vg.gain.value = f0 * 0.02; vib.connect(vg).connect(o.frequency);
+        const f1 = ctx.createBiquadFilter(); f1.type = 'bandpass'; f1.Q.value = 5; f1.frequency.setValueAtTime(900, t); f1.frequency.linearRampToValueAtTime(380, t + dur * 0.85);
+        const f2 = ctx.createBiquadFilter(); f2.type = 'bandpass'; f2.Q.value = 7; f2.frequency.setValueAtTime(1300, t); f2.frequency.linearRampToValueAtTime(2400, t + dur * 0.85);
+        const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.1, t + 0.08); g.gain.setValueAtTime(0.1, t + dur * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(f1).connect(g); o.connect(f2).connect(g); out(g, { pan: p, wet: 0.35 });
+        o.start(t); vib.start(t); o.stop(t + dur + 0.05); vib.stop(t + dur + 0.05);
+      }
+      cheer();
     },
     powerdown() {
       sfx.light(false);

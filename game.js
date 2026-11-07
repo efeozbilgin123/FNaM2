@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109j';
+const ASSET_V = '20261109k';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -296,12 +296,37 @@ function die(who) {
 }
 function win() {
   cancelAnimationFrame(raf); stopPhone(); closeCam(true); snd('breathing', false); snd('sahilNear', false); snd('doorBreath', false); snd('lampHum', 'lightL', false); snd('lampHum', 'ventLight', false); snd('darkTuneLoop', false);
-  show('six'); $('sixClock').textContent = '5 AM'; $('sixMsg').textContent = ''; $('bNext').style.visibility = 'hidden';
-  setTimeout(() => { $('sixClock').textContent = '6 AM'; snd('chime'); }, 1600);
+  show('six'); $('sixMsg').textContent = ''; $('bNext').style.visibility = 'hidden';
+  const six = $('six'); six.classList.remove('go', 'six'); void six.offsetWidth; six.classList.add('go'); snd('static');
+  setTimeout(() => { six.classList.add('six'); snd('chime'); }, 1700);
+  setTimeout(() => { snd('yay'); confetti(); }, 3900);
   persist({ night, result: 'win', levels: night === 7 ? customLevels : undefined });
   const msg = night === 5 ? 'Sabah oldu. Ama telefonda yeni bir mesaj var.' : night === 6 ? 'Custom Night açıldı.' :
     night === 7 ? (Object.values(customLevels).every(v => v === 20) ? '20/20. Arşive bir şey eklendi.' : 'Hayatta kaldın.') : 'Hayatta kaldın. Şimdilik.';
-  setTimeout(() => { $('sixMsg').textContent = msg; $('bNext').style.visibility = 'visible'; }, 3200);
+  setTimeout(() => { $('sixMsg').textContent = msg; $('bNext').style.visibility = 'visible'; }, 5200);
+}
+// Konfeti: iki köşeden fışkırır, sonra salınarak düşer
+function confetti() {
+  const cv = $('confetti'), cx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const COLORS = ['#ff3b3b', '#ffd23b', '#3bff6e', '#3bb2ff', '#c33bff', '#ff8a3b', '#ffffff'];
+  const ps = [];
+  for (let i = 0; i < 220; i++) {
+    const left = i % 2 === 0, th = (50 + Math.random() * 35) * Math.PI / 180, v = 13 + Math.random() * 12;   // alt köşelerden yukarı-içeri
+    ps.push({ x: left ? 30 : W - 30, y: H + 10, vx: (left ? 1 : -1) * Math.cos(th) * v, vy: -Math.sin(th) * v, w: 6 + Math.random() * 8, h: 3 + Math.random() * 5,
+      r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, c: COLORS[i % COLORS.length], ph: Math.random() * 6 });
+  }
+  for (let i = 0; i < 90; i++) ps.push({ x: Math.random() * W, y: -20 - Math.random() * 300, vx: 0, vy: 1 + Math.random() * 2, w: 6 + Math.random() * 8, h: 3 + Math.random() * 5,
+    r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, c: COLORS[i % COLORS.length], ph: Math.random() * 6 });
+  const t0 = performance.now();
+  (function frame(now) {
+    const t = (now - t0) / 1000; cx.clearRect(0, 0, W, H);
+    for (const p of ps) {
+      p.vy = Math.min(p.vy + 0.36, 2.6); p.vx *= 0.985; p.x += p.vx + Math.sin(t * 3 + p.ph) * 0.8; p.y += p.vy; p.r += p.vr;
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.scale(1, Math.abs(Math.cos(t * 4 + p.ph)) * 0.8 + 0.2);
+      cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); cx.restore();
+    }
+    if (t < 7 && $('six').classList.contains('on')) requestAnimationFrame(frame); else cx.clearRect(0, 0, W, H);
+  })(t0);
 }
 $('bNext').onclick = () => {
   if (night === 5) return ending();
