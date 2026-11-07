@@ -270,17 +270,25 @@ const Audio5 = (() => {
       osc({ t, f: 180, f2: 110, dur: 0.05, vol: 0.12, pan: p, wet: 0.05 });
       }
     },
-    // lamba uğultusu: gerçekten yanan ışığa bağlı (her karede çağrılır), anahtar: 'lightL' | 'ventLight'
+    // lamba vızıltısı: ışık gerçekten yanarken arada bir, rastgele kısa floresan vızıltıları (her karede çağrılır)
     lampHum(key, on, side = 0) {
-      const cur = hums[key], t = now();
+      const cur = hums[key];
       if (on && !cur) {
-        const hum = samples.lampHum && samples.lampHum[0]; if (!hum) return;
-        const src = ctx.createBufferSource(); src.buffer = hum; src.loop = true;
-        const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.22, t + 0.06);
-        src.connect(g); out(g, { pan: side * 0.6, wet: 0.12 }); src.start(t, Math.random() * hum.duration);
-        hums[key] = { src, g };
+        const h = hums[key] = { timer: 0, src: null, g: null };
+        const burst = () => {
+          const hum = samples.lampHum && samples.lampHum[0]; if (!hum || hums[key] !== h) return;
+          const t = now(), d = 0.35 + Math.random() * 0.9;
+          const src = ctx.createBufferSource(); src.buffer = hum; src.loop = true;
+          const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.2, t + 0.04);
+          g.gain.setValueAtTime(0.2, t + d - 0.08); g.gain.linearRampToValueAtTime(0.0001, t + d);
+          src.connect(g); out(g, { pan: side * 0.6, wet: 0.12 }); src.start(t, Math.random() * hum.duration); src.stop(t + d + 0.02);
+          h.src = src; h.g = g;
+          h.timer = setTimeout(burst, 2500 + Math.random() * 5500);
+        };
+        h.timer = setTimeout(burst, Math.random() < 0.3 ? 150 : 1500 + Math.random() * 3500);
       } else if (!on && cur) {
-        hums[key] = null; cur.g.gain.cancelScheduledValues(t); cur.g.gain.setValueAtTime(cur.g.gain.value, t); cur.g.gain.linearRampToValueAtTime(0.0001, t + 0.05); cur.src.stop(t + 0.08);
+        hums[key] = null; clearTimeout(cur.timer);
+        if (cur.src) { const t = now(); try { cur.g.gain.cancelScheduledValues(t); cur.g.gain.setValueAtTime(cur.g.gain.value, t); cur.g.gain.linearRampToValueAtTime(0.0001, t + 0.04); cur.src.stop(t + 0.06); } catch (e) { } }
       }
     },
     flicker() { // lamba titremesi: tel cızırtısı

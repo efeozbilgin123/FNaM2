@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109a';
+const ASSET_V = '20261109b';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -104,7 +104,7 @@ function begin() {
     app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
   wm.open = []; wm.min.clear(); wm.z = []; wm.active = null; closeStart(); pcStack.length = 0; renderPc();
   document.querySelectorAll('.win').forEach(w => { w.style.left = ''; w.style.top = ''; });
-  frozen = null; itsmeCorrUntil = 0; lastNote = ''; ghostT = 90 + Math.random() * 120; ghostUntil = 0; for (const k in stung) delete stung[k]; itsmePop = { t: nextPop(true), due: 0 };
+  frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 60 + Math.random() * 90; ghostT = 90 + Math.random() * 120; ghostUntil = 0; for (const k in stung) delete stung[k]; itsmePop = { t: nextPop(true), due: 0 };
   closeCam(true);
   $('game').className = 'screen on';
   show('game');
@@ -147,6 +147,7 @@ function loop(now) {
   if (!G) return;
   updateLook(dt);
   itsmePopTick(dt);
+  whisper(dt);
   ghostTick(dt);
   fixTick(dt);
   drawGrain(dt);
@@ -181,6 +182,15 @@ function ghostTick(dt) {
   ghostT -= dt; if (ghostT > 0) return;
   ghostT = 100 + Math.random() * 160;
   ghostUntil = performance.now() + 170; staticBurst();
+}
+
+// Sayıcı olan gecelerde havalandırmadan çok seyrek bir mırıltı ya da "kitapta mı?" fısıltısı (zararsız, sadece atmosfer)
+let whisperT = 120;
+function whisper(dt) {
+  if (!G || G.over || G.lv.sayici <= 0 || G.dark || G.t < (G.grace || 0)) return;
+  whisperT -= dt; if (whisperT > 0) return;
+  whisperT = 100 + Math.random() * 120;
+  snd(Math.random() < 0.5 ? 'murmur' : 'kitapta', 0.8);
 }
 
 // ---------- olaylar ----------
