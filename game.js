@@ -98,7 +98,7 @@ function begin() {
   window.__game = G;
   Object.assign(ui, { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false,
     app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
-  wm.open = ['cctv']; wm.min.clear(); wm.z = ['cctv']; wm.active = 'cctv'; closeStart();
+  wm.open = []; wm.min.clear(); wm.z = []; wm.active = null; closeStart(); pcStack.length = 0; renderPc();
   document.querySelectorAll('.win').forEach(w => { w.style.left = ''; w.style.top = ''; });
   frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 25;
   closeCam(true);
@@ -299,7 +299,7 @@ function render() {
   const h = clock();
   const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;
   $('monClock').textContent = clk; $('camClock').textContent = clk;
-  $('monBig').textContent = clk.replace(' AM', '');
+  renderClock(h, (g.t % 50) / 50 * 60);
   $('tPower').textContent = `%${Math.ceil(g.power)}`;
   $('pscreen').classList.toggle('low', g.power < 20);
   const u = Core.usage(g), n = Math.min(6, Math.round(u / 0.12));
@@ -446,13 +446,17 @@ const ICONS = {
   doc: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M7 3h13l6 6v20H7z" fill="#fff" stroke="#333"/><path d="M20 3v6h6" fill="#ddd" stroke="#333"/><path d="M10 13h12M10 16h12M10 19h12M10 22h8" stroke="#1c5fb0"/></svg>',
   img: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><rect x="4" y="6" width="24" height="20" fill="#fff" stroke="#333"/><rect x="6" y="8" width="20" height="16" fill="#3a6ea5"/><path d="M6 24l7-8 5 5 3-3 5 6z" fill="#2a7a3a"/><circle cx="21" cy="12" r="2" fill="#ff0"/></svg>',
   power: '<svg viewBox="0 0 32 32"><circle cx="16" cy="17" r="9" fill="none" stroke="#c22" stroke-width="3"/><path d="M16 5v11" stroke="#c22" stroke-width="3"/></svg>',
+  folder: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M3 9h10l2 3h14v15H3z" fill="#f2d16b" stroke="#7a5a00"/><path d="M3 13h26" stroke="#c9a640"/></svg>',
+  txt: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M8 3h12l5 5v21H8z" fill="#fff" stroke="#333"/><path d="M11 11h11M11 14h11M11 17h11M11 20h11M11 23h7" stroke="#555"/></svg>',
   flag: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><rect x="3" y="4" width="12" height="11" fill="#e33"/><rect x="17" y="4" width="12" height="11" fill="#3a3"/><rect x="3" y="17" width="12" height="11" fill="#36d"/><rect x="17" y="17" width="12" height="11" fill="#ec2"/></svg>',
 };
+ICONS.note = ICONS.txt;
 const fillIcons = root => root.querySelectorAll('i[data-ico]').forEach(i => { i.innerHTML = ICONS[i.dataset.ico] || ''; });
 fillIcons(document);
 const APPS = {
   cctv: { el: 'winCctv', title: 'MORG-SEC CCTV' }, fix: { el: 'winFix', title: 'Sistem Onarım' },
   pc: { el: 'winPc', title: 'Bilgisayarım' }, bin: { el: 'winBin', title: 'Geri Dönüşüm Kutusu' }, msg: { el: 'winMsg', title: 'Hata', noTask: true },
+  note: { el: 'winNote', title: 'Not Defteri' }, img: { el: 'winImg', title: 'Resim' },
 };
 const wm = { open: [], min: new Set(), z: [], active: null };
 const visible = a => wm.open.includes(a) && !wm.min.has(a);
@@ -495,11 +499,49 @@ document.querySelectorAll('.dicon').forEach(d => {
   d.addEventListener('dblclick', () => openApp(d.dataset.app));
 });
 $('desk').parentElement.addEventListener('pointerdown', e => { if (e.target === $('screen')) { document.querySelectorAll('.dicon').forEach(x => x.classList.remove('selected')); closeStart(); } });
-// dosyalar: seçilir, açılmaya çalışılınca hata
-document.querySelectorAll('.file').forEach(f => {
-  f.addEventListener('click', () => { f.parentElement.querySelectorAll('.file').forEach(x => x.classList.toggle('selected', x === f)); });
-  f.addEventListener('dblclick', () => showMsg(f.closest('#winBin') ? 'Bu dosya bozuk ya da erişim engellendi.' : 'Erişim engellendi. Yöneticinize başvurun.'));
-});
+// ---------- dosya gezgini (Bilgisayarım), Geri Dönüşüm, Not Defteri, resim ----------
+const pcStack = [];
+function fileEl(node, onOpen) {
+  const el = document.createElement('div'); el.className = 'file';
+  el.innerHTML = `<i data-ico="${node.ico}"></i><span>${node.name}</span>`; fillIcons(el);
+  el.addEventListener('click', () => { el.parentElement.querySelectorAll('.file').forEach(x => x.classList.toggle('selected', x === el)); });
+  el.addEventListener('dblclick', () => onOpen(node));
+  return el;
+}
+function openNode(node) {
+  if (node.dir) { pcStack.push(node); renderPc(); snd('click'); return; }
+  if (node.text) { $('noteTitle').textContent = node.name + ' - Not Defteri'; $('noteText').textContent = node.text; $('noteText').scrollTop = 0; APPS.note.title = node.name; openApp('note'); return; }
+  if (node.img) { $('imgTitle').textContent = node.name + ' - Resim'; $('imgView').src = node.img; APPS.img.title = node.name; openApp('img'); return; }
+  if (node.deny) showMsg(node.deny);
+}
+function renderPc() {
+  const cur = pcStack[pcStack.length - 1], items = cur ? cur.dir : Lore.FS;
+  $('pcFiles').innerHTML = ''; items.forEach(n => $('pcFiles').appendChild(fileEl(n, openNode)));
+  const name = cur ? cur.name : 'Bilgisayarım';
+  $('pcTitle').textContent = name; APPS.pc.title = name;
+  $('pcPath').textContent = pcStack.length ? pcStack.map(n => n.name.replace(/.*\((\w:)\)/, '$1')).join('\\') : 'Bilgisayarım';
+  $('pcCount').textContent = items.length + ' nesne';
+  $('tasks').dataset.key = ''; renderDesk();
+}
+$('pcUp').addEventListener('click', () => { if (pcStack.length) { pcStack.pop(); renderPc(); snd('click'); } });
+Lore.BIN.forEach(n => $('binFiles').appendChild(fileEl(n, n.text || n.img ? openNode : () => showMsg('Bu dosya bozuk ya da erişim engellendi.'))));
+renderPc();
+// masadaki monitör: Tarih/Saat Özellikleri takvimi (gerçek bugünün ayı)
+(function buildCal() {
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  const AY = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+  $('calMonth').textContent = AY[m]; $('calYear').textContent = y;
+  const first = (new Date(y, m, 1).getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
+  $('calGrid').innerHTML = ['P', 'S', 'Ç', 'P', 'C', 'C', 'P'].map(d => `<b>${d}</b>`).join('') + '<span></span>'.repeat(first) +
+    Array.from({ length: days }, (_, i) => `<span class="${i + 1 === now.getDate() ? 'today' : ''}">${i + 1}</span>`).join('');
+})();
+function renderClock(h, minF) {
+  const sec = new Date().getSeconds(), min = Math.floor(minF);
+  $('hHour').style.transform = `rotate(${(h % 12) * 30 + minF * 0.5}deg)`;
+  $('hMin').style.transform = `rotate(${minF * 6}deg)`;
+  $('hSec').style.transform = `rotate(${sec * 6}deg)`;
+  $('monBig').textContent = `${h}:${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
 // Başlat menüsü
 function closeStart() { $('startMenu').classList.remove('open'); $('bStart').classList.remove('on'); }
 $('bStart').addEventListener('click', e => { e.stopPropagation(); const o = !$('startMenu').classList.contains('open'); $('startMenu').classList.toggle('open', o); $('bStart').classList.toggle('on', o); snd('click'); });
@@ -580,7 +622,7 @@ addEventListener('keydown', e => {
   if (k === 'q') $('bDoor').onclick();
   if (k === ' ' || k === 'tab') { e.preventDefault(); toggleMonitor(); }
   if (k === 's') toggleSheet();
-  if (k >= '1' && k <= '7' && ui.monitor) selCam(Core.CAMS[+k - 1]);
+  if (k >= '1' && k <= '7' && ui.monitor) { if (cctvOn()) selCam(Core.CAMS[+k - 1]); else { ui.cam = Core.CAMS[+k - 1]; openApp('cctv'); } }
   if (k === 'r' && ui.monitor) { const c = cctvOn() && wm.active !== 'fix' ? ui.cam : ui.fixCam; openApp('fix'); ui.fixCam = c; startFix(); }
   if (e.key === 'Escape' && ui.monitor) closeCam();
   if (e.key === 'ArrowLeft') { look.keys = -1; e.preventDefault(); } if (e.key === 'ArrowRight') { look.keys = 1; e.preventDefault(); }

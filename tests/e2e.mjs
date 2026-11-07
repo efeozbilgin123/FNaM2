@@ -76,7 +76,7 @@ await check('a missing image does not break the game loop', async (page, errors)
 // ---- Task 10: kameralar ----
 async function openCold(page) {
   await page.keyboard.press('Space'); await page.waitForTimeout(700);
-  await page.keyboard.press('3'); await page.waitForTimeout(200);
+  await page.keyboard.press('3'); await page.waitForTimeout(700); // kamera uygulaması açılır
 }
 await check('holding C on the cold cam lowers the temperature', async (page) => {
   await boot(page); await startNight(page, 1, { quiet: true });
@@ -177,6 +177,15 @@ await check('the repair app fixes a hacked camera with the mouse; a healthy one 
   await page.click('#fixList div[data-cam="archive"]'); await page.click('#bFix'); await page.waitForTimeout(3400);
   assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), null);
   assert.ok((await page.textContent('#fixMsg')).includes('onarıldı'));
+});
+
+await check('the PC starts on an empty desktop and lore files open in Notepad', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.press('Space'); await page.waitForTimeout(800);
+  assert.strictEqual(await page.evaluate(() => document.querySelectorAll('.win.open').length), 0);
+  await page.dblclick('.dicon[data-app="pc"]'); await page.waitForTimeout(600);
+  await page.dblclick('#pcFiles .file:has-text("MORG_ARSIV")'); await page.dblclick('#pcFiles .file:has-text("nobet_defteri")'); await page.waitForTimeout(600);
+  assert.ok((await page.textContent('#noteText')).includes('DENEK 6'));
 });
 
 await browser.close(); server.kill();

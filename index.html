@@ -441,6 +441,45 @@
   .vimg{position:absolute; opacity:0; pointer-events:none}
   .vimg.on{opacity:1}
   #vDoorS{position:absolute}
+
+  /* Bilgisayarım gezgini, Not Defteri, resim görüntüleyici */
+  .addr{position:absolute; left:6px; right:6px; top:48px; height:22px; display:flex; gap:6px; align-items:center; font-size:12px}
+  .addr .up{padding:1px 8px; cursor:default; box-shadow:inset -1px -1px var(--w-dk), inset 1px 1px var(--w-hi)}
+  .addr .path{flex:1; background:#fff; padding:2px 6px; box-shadow:inset 1px 1px var(--w-sh), inset 2px 2px var(--w-dk)}
+  #winPc .files{top:74px}
+  #winPc{width:460px; height:320px}
+  #winNote{width:560px; height:440px; left:140px; top:40px}
+  #noteText{position:absolute; left:6px; right:6px; top:48px; bottom:6px; margin:0; overflow:auto; background:#fff; padding:8px 10px; font-family:'Courier New','DejaVu Sans Mono',monospace; font-size:14px; line-height:1.35; white-space:pre-wrap; box-shadow:inset 1px 1px var(--w-sh), inset 2px 2px var(--w-dk); user-select:text}
+  #winImg{width:420px; height:400px; left:200px; top:50px}
+  .imgv{position:absolute; left:6px; right:6px; top:30px; bottom:6px; background:#000; display:flex; align-items:center; justify-content:center; overflow:hidden}
+  .imgv img{height:100%; filter:grayscale(1) contrast(1.4) brightness(.8); animation:imgGl 3s steps(1) infinite}
+  .imgv .imgerr{position:absolute; bottom:6px; left:0; right:0; text-align:center; color:#f44; font-size:12px}
+  @keyframes imgGl{0%,86%,100%{clip-path:none; transform:none} 88%{clip-path:inset(30% 0 40% 0); transform:translateX(12px)} 92%{clip-path:inset(60% 0 10% 0); transform:translateX(-18px)}}
+  /* masadaki monitör: Tarih/Saat Özellikleri (okunaklı) */
+  #mon{background:#3a6ea5 !important; filter:brightness(.92) !important; color:#000; font-family:Tahoma,Verdana,'DejaVu Sans',sans-serif}
+  #mon .dt{position:absolute; inset:6px; background:#d4d0c8; padding:3px; box-shadow:inset -1px -1px #404040, inset 1px 1px #fff, inset -2px -2px #808080}
+  #mon .dtb{height:24px; background:linear-gradient(90deg,#0a246a,#a6caf0); color:#fff; font-weight:bold; font-size:15px; padding:3px 6px; display:flex; gap:4px}
+  #mon .dtb span{margin-left:auto; width:18px; height:16px; background:#d4d0c8; color:#000; font-size:11px; text-align:center; line-height:16px; box-shadow:inset -1px -1px #404040, inset 1px 1px #fff}
+  #mon .dtb span + span{margin-left:2px}
+  #mon .tabs{font-size:12px; padding:5px 6px 0; display:flex; gap:2px} #mon .tabs b,#mon .tabs span{padding:2px 8px; border:1px solid #808080; border-bottom:0; background:#d4d0c8} #mon .tabs span{color:#555}
+  #mon .dtc{display:flex; gap:8px; padding:4px 6px}
+  #mon fieldset{border:1px solid #808080; box-shadow:1px 1px #fff; margin:0; padding:4px 6px; font-size:11px}
+  #mon legend{padding:0 3px}
+  #mon .cal{width:140px} #mon .clk{flex:1; text-align:center}
+  #mon .mrow{display:flex; gap:4px; margin-bottom:4px} #mon .mrow span{flex:1; background:#fff; padding:1px 3px; font-size:11px; box-shadow:inset 1px 1px #808080} #mon .mrow .sel{background:#0a246a; color:#fff}
+  #calGrid{display:grid; grid-template-columns:repeat(7,1fr); background:#fff; font-size:10px; text-align:center; line-height:14px; box-shadow:inset 1px 1px #808080}
+  #calGrid b{background:#808080; color:#fff; font-weight:normal} #calGrid .today{background:#000; color:#fff}
+  #mon .face{position:relative; width:150px; height:150px; margin:2px auto 4px; border-radius:50%}
+  #mon .face i{position:absolute; left:73px; top:2px; width:4px; height:4px; background:#555; transform-origin:2px 73px; border-radius:50%}
+  #mon .face i.h{width:6px; height:6px; left:72px; top:1px; transform-origin:3px 74px; background:#0a246a; border-radius:0}
+  #mon .face b{position:absolute; left:50%; bottom:50%; transform-origin:50% 100%}
+  #mon .face .hh{width:18px; height:46px; margin-left:-9px; background:linear-gradient(90deg,#fafafa 50%,#5c5c5c 50%); clip-path:polygon(50% 0,100% 62%,50% 100%,0 62%); filter:drop-shadow(1px 1px 0 #222)}
+  #mon .face .mh{width:14px; height:66px; margin-left:-7px; background:linear-gradient(90deg,#fafafa 50%,#5c5c5c 50%); clip-path:polygon(50% 0,100% 72%,50% 100%,0 72%); filter:drop-shadow(1px 1px 0 #222)}
+  #mon .face .sh{width:3px; height:66px; margin-left:-1.5px; background:#c00}
+  #mon .face em{position:absolute; left:71px; top:71px; width:8px; height:8px; background:#333; border-radius:50%}
+  #mon .dig{display:inline-block; background:#fff; padding:2px 8px; font-size:26px; font-weight:bold; box-shadow:inset 1px 1px #808080, inset 2px 2px #404040}
+  #mon .dig small{font-size:16px}
+  #mon .tz{position:absolute; left:10px; bottom:8px; font-size:11px}
   /* SCARE */
   #scare{background:#000}
   #scareImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:lunge .5s cubic-bezier(.15,.9,.3,1) forwards, shake .06s infinite}
@@ -488,7 +527,15 @@
         <div id="pL"><div class="pbtn door" id="bDoor" title="Kapı (Q)"></div><div class="pbtn lamp" id="bLight" title="Kapı ışığı (A, basılı tut)"></div></div>
         <div class="hole" id="vent"><img id="ventImg" src="img/vent/empty.png" alt=""></div>
         <button id="ventBtn" title="Havalandırma ışığı (V, basılı tut)"></button>
-        <div id="mon"><div class="ss"><div class="t"><span id="monBig">12:00</span> <small>AM</small></div></div><span id="monClock" hidden></span></div>
+        <div id="mon"><div class="dt">
+  <div class="dtb">Tarih/Saat Özellikleri<span>?</span><span>✕</span></div>
+  <div class="tabs"><b>Tarih ve Saat</b><span>Saat Dilimi</span></div>
+  <div class="dtc">
+    <fieldset class="cal"><legend>Tarih</legend><div class="mrow"><span class="sel" id="calMonth">Kasım</span><span class="spin" id="calYear">2026</span></div><div id="calGrid"></div></fieldset>
+    <fieldset class="clk"><legend>Saat</legend><div class="face"><i style="transform:rotate(0deg)" class="h"></i><i style="transform:rotate(6deg)" class=""></i><i style="transform:rotate(12deg)" class=""></i><i style="transform:rotate(18deg)" class=""></i><i style="transform:rotate(24deg)" class=""></i><i style="transform:rotate(30deg)" class="h"></i><i style="transform:rotate(36deg)" class=""></i><i style="transform:rotate(42deg)" class=""></i><i style="transform:rotate(48deg)" class=""></i><i style="transform:rotate(54deg)" class=""></i><i style="transform:rotate(60deg)" class="h"></i><i style="transform:rotate(66deg)" class=""></i><i style="transform:rotate(72deg)" class=""></i><i style="transform:rotate(78deg)" class=""></i><i style="transform:rotate(84deg)" class=""></i><i style="transform:rotate(90deg)" class="h"></i><i style="transform:rotate(96deg)" class=""></i><i style="transform:rotate(102deg)" class=""></i><i style="transform:rotate(108deg)" class=""></i><i style="transform:rotate(114deg)" class=""></i><i style="transform:rotate(120deg)" class="h"></i><i style="transform:rotate(126deg)" class=""></i><i style="transform:rotate(132deg)" class=""></i><i style="transform:rotate(138deg)" class=""></i><i style="transform:rotate(144deg)" class=""></i><i style="transform:rotate(150deg)" class="h"></i><i style="transform:rotate(156deg)" class=""></i><i style="transform:rotate(162deg)" class=""></i><i style="transform:rotate(168deg)" class=""></i><i style="transform:rotate(174deg)" class=""></i><i style="transform:rotate(180deg)" class="h"></i><i style="transform:rotate(186deg)" class=""></i><i style="transform:rotate(192deg)" class=""></i><i style="transform:rotate(198deg)" class=""></i><i style="transform:rotate(204deg)" class=""></i><i style="transform:rotate(210deg)" class="h"></i><i style="transform:rotate(216deg)" class=""></i><i style="transform:rotate(222deg)" class=""></i><i style="transform:rotate(228deg)" class=""></i><i style="transform:rotate(234deg)" class=""></i><i style="transform:rotate(240deg)" class="h"></i><i style="transform:rotate(246deg)" class=""></i><i style="transform:rotate(252deg)" class=""></i><i style="transform:rotate(258deg)" class=""></i><i style="transform:rotate(264deg)" class=""></i><i style="transform:rotate(270deg)" class="h"></i><i style="transform:rotate(276deg)" class=""></i><i style="transform:rotate(282deg)" class=""></i><i style="transform:rotate(288deg)" class=""></i><i style="transform:rotate(294deg)" class=""></i><i style="transform:rotate(300deg)" class="h"></i><i style="transform:rotate(306deg)" class=""></i><i style="transform:rotate(312deg)" class=""></i><i style="transform:rotate(318deg)" class=""></i><i style="transform:rotate(324deg)" class=""></i><i style="transform:rotate(330deg)" class="h"></i><i style="transform:rotate(336deg)" class=""></i><i style="transform:rotate(342deg)" class=""></i><i style="transform:rotate(348deg)" class=""></i><i style="transform:rotate(354deg)" class=""></i><b class="hh" id="hHour"></b><b class="mh" id="hMin"></b><b class="sh" id="hSec"></b><em></em></div><div class="dig"><span id="monBig">12:00:00</span> <small>AM</small></div></fieldset>
+  </div>
+  <div class="tz">Geçerli saat dilimi: İstanbul (GMT+03:00)</div>
+</div><span id="monClock" hidden></span></div>
         <div id="phone" title="Telefonu sustur"><div id="phoneLed"></div></div>
         <div id="pscreen"><span class="lbl">JENERATÖR</span><span id="tPower">%100</span><div class="bars" id="tUsage"></div></div>
         <div class="shade"></div><div class="flk"></div>
@@ -542,25 +589,26 @@
           <div class="status"><span>Hazır</span><span>MORG-SEC 2000</span></div>
         </div>
         <div class="win small" id="winPc">
-          <div class="tb"><span class="tt"><i data-ico="pc" class="sm"></i>Bilgisayarım</span><span class="wb"><i data-min="pc">_</i><i class="dis">□</i><i class="x" data-close="pc">✕</i></span></div>
+          <div class="tb"><span class="tt"><i data-ico="pc" class="sm"></i><span id="pcTitle">Bilgisayarım</span></span><span class="wb"><i data-min="pc">_</i><i class="dis">□</i><i class="x" data-close="pc">✕</i></span></div>
           <div class="menu"><u>D</u>osya &nbsp; <u>D</u>üzen &nbsp; <u>G</u>örünüm &nbsp; <u>Y</u>ardım</div>
-          <div class="files">
-            <div class="file" data-deny><i data-ico="floppy"></i><span>3½ Disket (A:)</span></div>
-            <div class="file" data-deny><i data-ico="drive"></i><span>Yerel Disk (C:)</span></div>
-            <div class="file" data-deny><i data-ico="drive"></i><span>MORG_ARSIV (D:)</span></div>
-            <div class="file" data-deny><i data-ico="cd"></i><span>CD Sürücüsü (E:)</span></div>
-          </div>
-          <div class="status"><span>4 nesne</span><span>Bilgisayarım</span></div>
+          <div class="addr"><span class="up" id="pcUp">⬆ Yukarı</span><span class="path" id="pcPath">Bilgisayarım</span></div>
+          <div class="files" id="pcFiles"></div>
+          <div class="status"><span id="pcCount">4 nesne</span><span>Bilgisayarım</div>
         </div>
         <div class="win small" id="winBin">
           <div class="tb"><span class="tt"><i data-ico="bin" class="sm"></i>Geri Dönüşüm Kutusu</span><span class="wb"><i data-min="bin">_</i><i class="dis">□</i><i class="x" data-close="bin">✕</i></span></div>
           <div class="menu"><u>D</u>osya &nbsp; <u>D</u>üzen &nbsp; <u>G</u>örünüm &nbsp; <u>Y</u>ardım</div>
-          <div class="files list">
-            <div class="file" data-deny><i data-ico="doc"></i><span>proje456_gunluk.doc</span><em>14.06.1998</em></div>
-            <div class="file" data-deny><i data-ico="img"></i><span>denek5_otopsi.bmp</span><em>14.06.1998</em></div>
-            <div class="file" data-deny><i data-ico="doc"></i><span>nobet_listesi_DENEK6.xls</span><em>bugün</em></div>
-          </div>
+          <div class="files list" id="binFiles"></div>
           <div class="status"><span>3 nesne</span><span>Silinen dosyalar</span></div>
+        </div>
+        <div class="win" id="winNote">
+          <div class="tb"><span class="tt"><i data-ico="txt" class="sm"></i><span id="noteTitle">Not Defteri</span></span><span class="wb"><i data-min="note">_</i><i class="dis">□</i><i class="x" data-close="note">✕</i></span></div>
+          <div class="menu"><u>D</u>osya &nbsp; <u>D</u>üzen &nbsp; <u>B</u>içim &nbsp; <u>Y</u>ardım</div>
+          <pre id="noteText"></pre>
+        </div>
+        <div class="win" id="winImg">
+          <div class="tb"><span class="tt"><i data-ico="img" class="sm"></i><span id="imgTitle">Resim</span></span><span class="wb"><i data-min="img">_</i><i class="dis">□</i><i class="x" data-close="img">✕</i></span></div>
+          <div class="imgv"><img id="imgView" alt=""><div class="imgerr">Görüntü kısmen bozuk.</div></div>
         </div>
         <div class="win dlg" id="winMsg">
           <div class="tb"><span class="tt">Hata</span><span class="wb"><i class="x" data-close="msg">✕</i></span></div>
@@ -599,10 +647,11 @@
   <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
 </div>
 
-<script src="audio.js?v=20261107k"></script>
-<script src="core.js?v=20261107k"></script>
-<script src="nights.js?v=20261107k"></script>
-<script src="save.js?v=20261107k"></script>
-<script src="game.js?v=20261107k"></script>
+<script src="audio.js?v=20261107m"></script>
+<script src="core.js?v=20261107m"></script>
+<script src="nights.js?v=20261107m"></script>
+<script src="save.js?v=20261107m"></script>
+<script src="lore.js?v=1"></script>
+<script src="game.js?v=20261107m"></script>
 </body>
 </html>
