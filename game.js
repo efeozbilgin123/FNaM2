@@ -73,7 +73,8 @@ $('doc').onclick = () => { if (!docNext) return; const f = docNext; docNext = nu
 
 // ---------- oyun durumu ----------
 let G = null, raf = 0, last = 0, night = 1, customLevels = null, quiet = false;
-const ui = { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false };
+const ui = { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false,
+  app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: '' };
 const look = { x: 209, mouse: null, keys: 0, zoom: false, drag: null };
 const VIEW_SCALE = 720 / 848, PAN_MAX = 2000 * VIEW_SCALE - 1280, PAN_Y = 0;
 const CAM_NAMES = { corr: 'CAM 01 — KORİDOR', autopsy: 'CAM 02 — OTOPSİ SALONU', cold: 'CAM 03 — SOĞUK ODA', ventA: 'CAM 04 — HAVALANDIRMA A', ventB: 'CAM 05 — HAVALANDIRMA B', archive: 'CAM 06 — ARŞİV', lift: 'CAM 07 — ASANSÖR' };
@@ -95,7 +96,8 @@ function begin() {
   const levels = night === 7 ? customLevels : NIGHTS[night].levels;
   G = Core.createGame({ night, levels, noItsMe: quiet });
   window.__game = G;
-  Object.assign(ui, { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false });
+  Object.assign(ui, { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false,
+    app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
   frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 25;
   closeCam(true);
   $('game').className = 'screen on';
@@ -120,7 +122,8 @@ $('phone').onclick = () => { snd('click'); stopPhone(); };
 
 function input() {
   return { doorL: ui.doorL, lightL: ui.lightL, flash: ui.flash, ventLight: ui.ventLight, monitor: ui.monitor, sheet: ui.sheet,
-    cam: ui.monitor ? ui.cam : null, cooling: ui.monitor && ui.cam === 'cold' && ui.cooling, reboot: ui.monitor && ui.reboot ? ui.cam : null };
+    cam: ui.monitor && ui.app === 'cctv' ? ui.cam : null, cooling: ui.monitor && ui.app === 'cctv' && ui.cam === 'cold' && ui.cooling,
+    reboot: ui.monitor && ui.fixing ? ui.fixCam : null };
 }
 
 function loop(now) {
@@ -128,6 +131,7 @@ function loop(now) {
   if (!G) return;
   updateLook(dt);
   whisper(dt);
+  fixTick(dt);
   drawGrain(dt);
   const evs = Core.step(G, dt, input());
   for (const e of evs) handle(e);
@@ -286,6 +290,7 @@ function render() {
   const h = clock();
   const clk = `${h}:${String(Math.floor((g.t % 50) / 50 * 60)).padStart(2, '0')} AM`;
   $('monClock').textContent = clk; $('camClock').textContent = clk;
+  $('monBig').textContent = clk.replace(' AM', '');
   $('tPower').textContent = `%${Math.ceil(g.power)}`;
   $('pscreen').classList.toggle('low', g.power < 20);
   const u = Core.usage(g), n = Math.min(6, Math.round(u / 0.12));
@@ -294,6 +299,9 @@ function render() {
   if (ui.monitor) renderCam();
 }
 function renderCam() {
+  renderDesk();
+  if (ui.app === 'fix') renderFix();
+  if (ui.app !== 'cctv') return;
   const g = G, cam = ui.cam, fb = $('feedBox');
   $('camName').textContent = CAM_NAMES[cam];
   const hacked = frozen && frozen.cam === cam;
@@ -308,9 +316,8 @@ function renderCam() {
   $('tempTxt').textContent = Math.round(temp) + '°';
   $('coldPanel').classList.toggle('hot', temp >= 70);
   $('bCool').classList.toggle('on', !!g.dev.cooling);
-  $('rebootBar').style.width = (g.muh.cam === cam && g.dev.reboot ? Math.min(1, g.muh.rebootT / Core.PARAMS.MUH_REBOOT) * 100 : 0) + '%';
   document.querySelectorAll('#map button').forEach(b => b.classList.toggle('sel', b.dataset.cam === cam));
-  $('camPow').textContent = `JENERATÖR %${Math.ceil(g.power)}`;
+  $('camPow').textContent = `JEN %${Math.ceil(g.power)}`;
   drawStatic();
 }
 const sctx = $('static').getContext('2d'), sImg = sctx.createImageData(320, 180);
@@ -404,7 +411,54 @@ function toggleSheet() {
   if (!ui.sheet && ui.monitor) closeCam(true);
   ui.sheet = !ui.sheet; snd('sheet');
 }
-function selCam(cam) { if (ui.cam === cam) return; ui.cam = cam; ui.reboot = false; snd('blip'); $('static').style.opacity = 1; setTimeout(() => $('static').style.opacity = '', 160); }
+function selCam(cam) { if (ui.app !== 'cctv' || ui.cam === cam) return; ui.cam = cam; snd('blip'); $('static').style.opacity = 1; setTimeout(() => $('static').style.opacity = '', 160); }
+
+// ---------- monitör masaüstü: uygulamalar ----------
+// Kamera (CCTV) ve Sistem Onarım ayrı pencereler; aynı anda biri açık. Açılış kısa bir "yükleniyor" sürer.
+const APP_WIN = { cctv: 'winCctv', fix: 'winFix' };
+let appTimer = 0;
+function openApp(name) {
+  if (ui.app === name && !ui.loading) return;
+  clearTimeout(appTimer); ui.app = null; ui.loading = true; snd('click');
+  appTimer = setTimeout(() => { ui.loading = false; ui.app = name; snd('blip'); if (G && ui.monitor) renderCam(); }, 380);
+  renderDesk();
+}
+function closeApp(name) { if (ui.app === name) { ui.app = null; snd('click'); renderDesk(); } }
+function renderDesk() {
+  for (const [a, id] of Object.entries(APP_WIN)) $(id).classList.toggle('open', ui.app === a);
+  $('screen').classList.toggle('loading', ui.loading);
+  document.querySelectorAll('#osBottom .tbtn').forEach(b => b.classList.toggle('act', b.dataset.app === ui.app));
+}
+document.querySelectorAll('.dicon[data-app], #osBottom .tbtn').forEach(el => el.addEventListener('click', () => {
+  const a = el.dataset.app; if (el.classList.contains('tbtn') && ui.app === a) closeApp(a); else openApp(a);
+}));
+document.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => closeApp(el.dataset.close)));
+document.querySelectorAll('[data-min]').forEach(el => el.addEventListener('click', () => closeApp(el.dataset.min)));
+// Sistem Onarım: kamerayı seç, Onar. 3 sn video yok. Hangi kameranın bozuk olduğunu söylemez.
+$('fixList').innerHTML = Core.CAMS.map(c => `<div data-cam="${c}">${CAM_NAMES[c]}</div>`).join('');
+document.querySelectorAll('#fixList div').forEach(d => d.addEventListener('click', () => { if (ui.fixing) return; ui.fixCam = d.dataset.cam; ui.fixMsg = 'Onar düğmesine basın.'; snd('tick'); renderFix(); }));
+$('bFix').addEventListener('click', () => startFix());
+function startFix() {
+  if (!G || G.over || ui.fixing) return;
+  ui.fixing = true; ui.fixT = 0; ui.fixHadHack = G.muh.cam === ui.fixCam; ui.fixMsg = 'Onarılıyor: ' + CAM_SHORT[ui.fixCam] + '...'; snd('reboot');
+}
+function fixTick(dt) {
+  if (!ui.fixing || !ui.monitor) return;          // monitörden kalkınca onarım duraklar
+  ui.fixT += dt;
+  // bitiş oyunun gerçek durumuna bağlı: bozuk kamera düzelince ya da (bozuk değilse) süre dolunca
+  const fixed = ui.fixHadHack && G.muh.cam !== ui.fixCam;
+  if (!fixed && ui.fixT < Core.PARAMS.MUH_REBOOT + (ui.fixHadHack ? 1 : 0.05)) return;
+  ui.fixing = false;
+  ui.fixMsg = fixed ? '✔ ' + CAM_SHORT[ui.fixCam] + ' onarıldı.' : 'Sorun bulunamadı.';
+  snd('blip');
+}
+function renderFix() {
+  $('fixSel').textContent = CAM_NAMES[ui.fixCam];
+  document.querySelectorAll('#fixList div').forEach(d => d.classList.toggle('sel', d.dataset.cam === ui.fixCam));
+  $('fixBar').style.width = (ui.fixing ? Math.min(1, ui.fixT / Core.PARAMS.MUH_REBOOT) * 100 : 0) + '%';
+  $('bFix').classList.toggle('on', ui.fixing);
+  $('fixMsg').textContent = ui.fixMsg;
+}
 
 // harita düğmeleri
 $('map').insertAdjacentHTML('beforeend', Core.CAMS.map(c => `<button data-cam="${c}" style="left:${CAM_POS[c][0]}px;top:${CAM_POS[c][1]}px">${CAM_SHORT[c]}</button>`).join(''));
@@ -416,7 +470,7 @@ function hold(el, key) {
   const off = () => { if (ui[key]) { ui[key] = false; if (key !== 'flash' && key !== 'cooling' && key !== 'reboot') snd('light', false); } };
   el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointerleave', off); el.addEventListener('pointercancel', off);
 }
-hold($('corrHit'), 'flash'); hold($('bLight'), 'lightL'); hold($('ventBtn'), 'ventLight'); hold($('bCool'), 'cooling'); hold($('bReboot'), 'reboot');
+hold($('corrHit'), 'flash'); hold($('bLight'), 'lightL'); hold($('ventBtn'), 'ventLight'); hold($('bCool'), 'cooling');
 $('bDoor').onclick = () => {
   if (!G || G.over || G.dark) return;
   ui.doorL = !ui.doorL; snd('door', -1, ui.doorL);
@@ -426,16 +480,17 @@ $('barMon').addEventListener('mouseenter', toggleMonitor); $('barMon').addEventL
 $('barSheet').addEventListener('mouseenter', toggleSheet); $('barSheet').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleSheet(); });
 $('camClose').onclick = () => closeCam();
 $('mon').addEventListener('click', () => { if (!ui.monitor) toggleMonitor(); }); // masadaki monitöre tıklayınca kameralar açılır
-const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling', r: 'reboot' };
+const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling' };
 addEventListener('keydown', e => {
   if (!G || G.over || !$('game').classList.contains('on')) return;
   const k = e.key.toLowerCase();
-  if (HOLD_KEYS[k]) { if (!e.repeat) { ui[HOLD_KEYS[k]] = true; if (k === 'f') snd('flashClick'); if (k === 'r') snd('reboot'); if (k === 'a' || k === 'v') snd('light', true, k === 'a' ? -1 : 1); } return; }
+  if (HOLD_KEYS[k]) { if (!e.repeat) { ui[HOLD_KEYS[k]] = true; if (k === 'f') snd('flashClick'); if (k === 'a' || k === 'v') snd('light', true, k === 'a' ? -1 : 1); } return; }
   if (e.repeat) return;
   if (k === 'q') $('bDoor').onclick();
   if (k === ' ' || k === 'tab') { e.preventDefault(); toggleMonitor(); }
   if (k === 's') toggleSheet();
   if (k >= '1' && k <= '7' && ui.monitor) selCam(Core.CAMS[+k - 1]);
+  if (k === 'r' && ui.monitor) { const c = ui.app === 'cctv' ? ui.cam : ui.fixCam; openApp('fix'); ui.fixCam = c; startFix(); }
   if (e.key === 'Escape' && ui.monitor) closeCam();
   if (e.key === 'ArrowLeft') { look.keys = -1; e.preventDefault(); } if (e.key === 'ArrowRight') { look.keys = 1; e.preventDefault(); }
 });

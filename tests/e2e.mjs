@@ -167,6 +167,19 @@ await check('without variants the flat door overlay is used', async (page) => {
   await page.keyboard.up('a');
 });
 
+await check('the repair app fixes a hacked camera with the mouse; a healthy one reports no problem', async (page) => {
+  await boot(page); await startNight(page, 1, { quiet: true });
+  await page.keyboard.press('Space'); await page.waitForTimeout(800);
+  await page.evaluate(() => Core._internal.hack(window.__game, 'archive'));
+  await page.click('#osBottom .tbtn[data-app="fix"]'); await page.waitForTimeout(500);
+  await page.click('#fixList div[data-cam="lift"]'); await page.click('#bFix'); await page.waitForTimeout(3400);
+  assert.strictEqual(await page.textContent('#fixMsg'), 'Sorun bulunamadı.');
+  assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), 'archive');
+  await page.click('#fixList div[data-cam="archive"]'); await page.click('#bFix'); await page.waitForTimeout(3400);
+  assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), null);
+  assert.ok((await page.textContent('#fixMsg')).includes('onarıldı'));
+});
+
 await browser.close(); server.kill();
 console.log(results.join('\n'));
 console.log(`# pass ${results.length - failed}\n# fail ${failed}`);
