@@ -294,7 +294,6 @@ const Audio5 = (() => {
       }
     },
     flicker() { // lamba titremesi: tel cızırtısı
-      if (play('flicker', { vol: 0.85, wet: 0.2 })) return;
       const t = now();
       for (let i = 0; i < 4; i++) { const tt = t + i * 0.06 + Math.random() * 0.03; noise({ t: tt, dur: 0.03, type: 'bandpass', f: 2800 + Math.random() * 2000, q: 3, vol: 0.12, pan: -0.25, wet: 0.2 }); osc({ t: tt, f: 100, dur: 0.04, vol: 0.05, type: 'sawtooth', lp: 600, pan: -0.25, wet: 0.1 }); }
     },

@@ -13,5 +13,4 @@ Pixabay (Pixabay Content License, ücretsiz kullanım) — kesilip seviyesi ayar
   death_any: "Sucked into Classroom" (freesound_community, 103774)
   powerdown: "Power Outage" (hisound, 451574)
   lamp_hum: "Fluorescent Light Buzzing" (freesound_community, 98373)
-  flicker_1: "Faulty fluorescent light starter amp hum" (freesound_community, 61228)
 rattle_1/2.mp3: "METLImpt_MetalHitSurface" 01 ve 05 (Oculus Audio Pack 01, CC BY 4.0), perdesi düşürüldü ve boğuklaştırıldı.

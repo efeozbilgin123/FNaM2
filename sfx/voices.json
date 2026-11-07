@@ -68,9 +68,6 @@
  "powerdown": [
   "sfx/powerdown.mp3"
  ],
- "flicker": [
-  "sfx/flicker_1.mp3"
- ],
  "scream_1": [
   "sfx/scream_1.mp3"
  ],

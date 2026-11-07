@@ -270,7 +270,7 @@
   TICKS.push(function pendingSheet(G) { G.pending.sheet = G.sahil.stage === PARAMS.SAHIL_MOUTH || G.sayici.active; });
 
   // ---------- Denek 5 (soğuk oda) ----------
-  Object.assign(PARAMS, { D5_BASE: 0.35, D5_PER_LV: 0.08, D5_COOL: 6, D5_OPEN_DELAY: 4, D5_RATTLE: 70, D5_RATTLE_EVERY: 5 });
+  Object.assign(PARAMS, { D5_BASE: 0.35, D5_PER_LV: 0.08, D5_COOL: 6, D5_OPEN_DELAY: 4, D5_RATTLE: 70, D5_RATTLE_EVERY: 3 });
   INIT.denek5 = () => ({ temp: 0, open: false, openT: 0, rattleT: 0 });
   TICKS.push(function tickDenek5(G, dt) {
     const s = G.denek5, lv = G.lv.denek5;
