@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109z';
+const ASSET_V = '20261110a';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -430,6 +430,7 @@ function render() {
   const d = Object.assign({}, g.dev); if (!G.dark && !g.dev.sheet && !ui.monitor) for (const k in fl) if (fl[k]) d[k] = true;
   c.toggle('doorL', d.doorL); c.toggle('lightL', d.lightL); c.toggle('flash', d.flash); c.toggle('ventLight', d.ventLight);
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
+  $('monClose').hidden = !(TOUCH && ui.monitor);
   snd('breathing', !!d.sheet && !g.over);
   snd('lampHum', 'lightL', !!d.lightL && !g.over, -1); snd('lampHum', 'ventLight', !!d.ventLight && !g.over, 1);
   snd('doorBreath', g.avukat.at && g.avukat.knock <= 0 && g.avukat.t >= 5.5 && !g.over);   // geç başlar: erken uyarı değil
@@ -541,7 +542,8 @@ for (const [id, q] of Object.entries(QUADS)) $(id).style.transform = TEXT_LAYERS
 
 // ---------- bakış ----------
 function stageX(cx) { const r = stage.getBoundingClientRect(); return (cx - r.left) / r.width * 1280; }
-addEventListener('mousemove', e => { look.mouse = stageX(e.clientX); });
+// sadece gerçek fare: telefonda dokunuşun ürettiği sahte fare hareketi bakışı kenara kilitlemesin
+addEventListener('pointermove', e => { if (e.pointerType === 'mouse') look.mouse = stageX(e.clientX); });
 document.addEventListener('mouseleave', () => { look.mouse = null; });
 $('office').addEventListener('touchstart', e => { look.drag = stageX(e.touches[0].clientX); look.mouse = null; }, { passive: true });
 $('office').addEventListener('touchmove', e => { const x = stageX(e.touches[0].clientX); if (look.drag != null) { look.x = Math.max(0, Math.min(PAN_MAX, look.x - (x - look.drag) * 1.1)); look.drag = x; applyLook(); } }, { passive: true });
@@ -565,7 +567,9 @@ function updateLook(dt) {
 // ---------- monitör (1. oyundaki CRT geçişi) ----------
 // Monitör: kamera masadaki gerçek monitöre yakınlaşır, kamera arayüzü o monitörün camına perspektifle oturur.
 const MON_GLASS = QUADS.mon.p;                     // masadaki monitörün camı (ofis görseli koordinatı)
-const MON = { x: 762, y: 604 }, ZOOM = 4.0;        // camın merkezi ve yakınlaşma
+// dokunmatik (telefon/tablet) ekranlarda monitöre biraz daha yakından bakılır: yazılar okunur kalsın
+const TOUCH = matchMedia('(pointer: coarse)').matches;
+const MON = { x: 762, y: TOUCH ? 597 : 604 }, ZOOM = TOUCH ? 4.4 : 4.0;        // camın merkezi ve yakınlaşma
 function zoomTransform() { return `translate(${640 - MON.x * ZOOM}px, ${360 - MON.y * ZOOM}px) scale(${ZOOM})`; }
 // cam köşelerini yakınlaşmış sahnede ekrana çevir, kamera arayüzünü (808×632) oraya oturt
 const SCREEN_AFF = quadAffine(808, 632, MON_GLASS.map(([x, y]) => [640 + (x - MON.x) * ZOOM, 360 + (y - MON.y) * ZOOM]));
@@ -583,7 +587,7 @@ function openCam() {
 }
 function closeCam(silent) {
   const c = $('cam'), v = $('view');
-  ui.monitor = false; ui.cooling = false; ui.reboot = false;
+  ui.monitor = false; ui.cooling = false; ui.reboot = false; $('monClose').hidden = true;
   if (silent || !c.classList.contains('on')) {
     clearTimeout(camTimer); camBusy = false; c.classList.remove('on', 'booting'); c.style.transition = 'none'; c.style.opacity = '';
     look.zoom = false; v.style.transition = 'none'; applyLook(); $('game').classList.remove('cam-mode'); return;
@@ -825,7 +829,7 @@ function barControl(el, fn) {
   el.addEventListener('mouseenter', () => { if (!OPTS.barsHover) return; hoverAt = performance.now(); fn(); });
   el.addEventListener('click', e => { if (e.pointerType === 'mouse' && performance.now() - hoverAt < 700) return; fn(); });
 }
-barControl($('barMon'), toggleMonitor); barControl($('barSheet'), toggleSheet);
+barControl($('barMon'), toggleMonitor); $('monClose').addEventListener('click', () => { if (ui.monitor) closeCam(); }); barControl($('barSheet'), toggleSheet);
 
 $('mon').addEventListener('click', () => { if (!ui.monitor) toggleMonitor(); }); // masadaki monitöre tıklayınca kameralar açılır
 const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling' };
@@ -924,7 +928,14 @@ new MutationObserver(() => { for (const n of [...document.body.children]) if (n.
 })();
 setTimeout(() => $('splash').querySelector('.cassette').classList.add('in'), 100);
 let ready = false;
-$('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
+// telefonda: ilk dokunuşta tam ekran ve yatay kilit (destekleniyorsa)
+function goFullscreen() {
+  if (!TOUCH || document.fullscreenElement) return;
+  const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen;
+  try { const p = req && req.call(el, { navigationUI: 'hide' }); if (p && p.then) p.then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => { })).catch(() => { }); } catch (e) { }
+}
+document.addEventListener('gesturestart', e => e.preventDefault());   // iOS: iki parmakla yakınlaştırmayı engelle
+$('splash').onclick = () => { if (!ready) return; goFullscreen(); A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
 (function preload() {
   const imgs = ['office', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor',
     ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan', 'wash', 'wash_sahil', 'menu_hasan'].map(c => 'cam/' + c),

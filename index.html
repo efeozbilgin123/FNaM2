@@ -10,9 +10,15 @@
 <style>
   :root{ --red:#b0101c; --bone:#cfd6d2; --dim:#7d8a88; --green:#7dff8a; --cold:#9fd8e6 }
   body > *:not(#stage):not(script){display:none !important}
+  /* telefon dik tutulunca: yan çevir uyarısı */
+  #rotate{display:none; position:fixed; inset:0; z-index:9999; background:#000; color:#f2f2f2; font-family:'VT323',monospace; align-items:center; justify-content:center; text-align:center}
+  #rotate b{display:block; font-size:34px; font-weight:400; margin-top:14px; letter-spacing:2px} #rotate span{display:block; font-size:20px; color:#9aa4a6}
+  @media (orientation: portrait) and (pointer: coarse){ #rotate{display:flex} }
+  /* dokunmatikte ağır bulanıklıkları hafiflet (telefonda takılmasın) */
+  @media (pointer: coarse){ #sheetLayer, #game.sheet #sheetLayer{-webkit-backdrop-filter:blur(7px) !important; backdrop-filter:blur(7px) !important} #camBlur{-webkit-backdrop-filter:none !important; backdrop-filter:none !important; background:rgba(0,0,0,.25)} }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none}
   img, canvas{-webkit-user-drag:none; user-drag:none}
-  html,body{margin:0; height:100%; background:#000; overflow:hidden; font-family:'VT323',monospace; color:#fff}
+  html,body{margin:0; height:100%; background:#000; overflow:hidden; overscroll-behavior:none; touch-action:none; font-family:'VT323',monospace; color:#fff}
   #stage{position:absolute; left:50%; top:50%; width:1280px; height:720px; transform-origin:center; background:#05080a; overflow:hidden}
   .screen{position:absolute; inset:0; display:none}
   .screen.on{display:block}
@@ -33,7 +39,7 @@
   #splash .vlines{position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px)}
   #splash .osd{position:absolute; font-size:34px; text-shadow:2px 2px 0 #000} #splash .tl{left:40px; top:28px} #splash .tr{right:40px; top:28px}
   /* gerçek VHS kaset fotoğrafı (img/ui/cassette.webp, 1188x692); etiket yazısı ve dönen makaralar üstüne oturur */
-  #splash .cassette{position:absolute; left:50%; top:104px; width:640px; height:373px; margin-left:-320px; background:url(img/ui/cassette.webp?v=20261109z) 0 0/100% 100%; filter:drop-shadow(0 30px 40px rgba(0,0,0,.9)); transform:translateY(-30px); opacity:0; transition:transform .9s cubic-bezier(.2,.8,.3,1), opacity .6s}
+  #splash .cassette{position:absolute; left:50%; top:104px; width:640px; height:373px; margin-left:-320px; background:url(img/ui/cassette.webp?v=20261110a) 0 0/100% 100%; filter:drop-shadow(0 30px 40px rgba(0,0,0,.9)); transform:translateY(-30px); opacity:0; transition:transform .9s cubic-bezier(.2,.8,.3,1), opacity .6s}
   #splash.ready .cassette, #splash .cassette.in{transform:none; opacity:1}
   #splash .lab{position:absolute; left:176px; top:52px; width:290px; height:136px; color:#1d1a16; font-family:'Special Elite',monospace; mix-blend-mode:multiply; opacity:.9; transform:rotate(-.6deg)}
   #splash .lab b{display:block; font-weight:400; font-size:62px; letter-spacing:9px; line-height:1}
@@ -41,9 +47,9 @@
   #splash .lab i{position:absolute; right:4px; bottom:6px; font-style:normal; font-size:14px; color:#4a443a}
   /* kaset penceresi: makaralar bunun içinde döner, üst kenar çerçevenin altında kalır */
   #splash .reels{position:absolute; left:42px; top:207px; width:556px; height:125px; overflow:hidden}
-  #splash .reels em{position:absolute; top:-38px; width:112px; height:112px; background:url(img/ui/reel.png?v=20261109z) 0 0/100% 100%; filter:brightness(.92)}
+  #splash .reels em{position:absolute; top:-38px; width:112px; height:112px; background:url(img/ui/reel.png?v=20261110a) 0 0/100% 100%; filter:brightness(.92)}
   #splash .reels em:first-child{left:65px} #splash .reels em:last-child{left:383px}
-  #splash .reels::after{content:''; position:absolute; inset:0; background:url(img/ui/cassette_glass.webp?v=20261109z) 0 0/100% 100%; mix-blend-mode:screen; opacity:.8}
+  #splash .reels::after{content:''; position:absolute; inset:0; background:url(img/ui/cassette_glass.webp?v=20261110a) 0 0/100% 100%; mix-blend-mode:screen; opacity:.8}
   #splash .reels em{box-shadow:inset 0 0 0 0 transparent; filter:brightness(.85) sepia(.15)}
   #splash.ready .reels em{animation:reel 2.2s linear infinite}
   @keyframes reel{to{transform:rotate(360deg)}}
@@ -75,7 +81,7 @@
   /* DOCUMENT */
   #doc{background:#030405; cursor:pointer}
   #paperDoc{position:absolute; left:50%; top:50%; width:560px; height:690px; transform:translate(-50%,-50%) rotate(-1.2deg); padding:40px 46px; color:#1c1a16; font-family:'Special Elite','Courier New',monospace; font-size:15.5px; line-height:1.45;
-    background:linear-gradient(rgba(214,205,180,.55),rgba(214,205,180,.55)), url(img/doc/paper.png?v=20261109z) center/cover, #cfc7b0; box-shadow:0 30px 90px rgba(0,0,0,.95), inset 0 0 80px rgba(70,50,20,.5); filter:sepia(.25) brightness(.86) contrast(1.05); animation:paperIn .9s cubic-bezier(.2,.8,.3,1); overflow:hidden}
+    background:linear-gradient(rgba(214,205,180,.55),rgba(214,205,180,.55)), url(img/doc/paper.png?v=20261110a) center/cover, #cfc7b0; box-shadow:0 30px 90px rgba(0,0,0,.95), inset 0 0 80px rgba(70,50,20,.5); filter:sepia(.25) brightness(.86) contrast(1.05); animation:paperIn .9s cubic-bezier(.2,.8,.3,1); overflow:hidden}
   @keyframes paperIn{from{transform:translate(-50%,-30%) rotate(-8deg) scale(.7); opacity:0} to{transform:translate(-50%,-50%) rotate(-1.2deg); opacity:1}}
   #paperDoc .hd{font-size:12.5px; letter-spacing:1px; border-bottom:2px solid #1c1a16; padding-bottom:6px; text-transform:uppercase}
   #paperDoc h2{font-size:24px; margin:14px 0 10px; letter-spacing:2px}
@@ -238,6 +244,8 @@
   #toast.on{opacity:1}
 
   /* CAMERA (CRT) */
+  /* telefonda monitörü kapatma düğmesi (alt çubuk monitörün arkasında kalıyor) */
+  #monClose{position:absolute; right:24px; bottom:10px; z-index:40; padding:8px 26px; background:rgba(0,0,0,.6); border:2px solid rgba(200,230,235,.6); color:#cfd6d2; font:400 30px 'VT323',monospace; border-radius:4px}
   #cam{position:absolute; inset:0; display:none; z-index:20; overflow:hidden; transform-origin:0 0; will-change:transform,opacity}
   #cam.on{display:block}
   #screenWrap{position:absolute; left:0; top:0; width:808px; height:632px; transform-origin:0 0} /* game.js: masadaki monitörün camına perspektifle oturur */
@@ -558,7 +566,7 @@
 
   /* ---------- ana menü v2 ---------- */
   #title{background:#020405}
-  #title .tbg{position:absolute; inset:-40px; background:url(img/office.png?v=20261109z) 40% 50%/cover; filter:blur(5px) brightness(.32) saturate(.6) hue-rotate(10deg); animation:tpan 40s ease-in-out infinite alternate}
+  #title .tbg{position:absolute; inset:-40px; background:url(img/office.png?v=20261110a) 40% 50%/cover; filter:blur(5px) brightness(.32) saturate(.6) hue-rotate(10deg); animation:tpan 40s ease-in-out infinite alternate}
   @keyframes tpan{from{transform:scale(1.08) translateX(-30px)} to{transform:scale(1.15) translateX(30px)}}
   #title .tflk{position:absolute; inset:0; background:linear-gradient(90deg, rgba(2,4,5,.95) 30%, rgba(2,4,5,.4) 60%, rgba(2,4,5,.85)); animation:tflick 7s steps(1) infinite}
   @keyframes tflick{0%,93%,100%{opacity:1} 94%{opacity:.82} 95%{opacity:1} 97%{opacity:.7}}
@@ -616,8 +624,8 @@
 
   /* ---------- ana menü v3: 1998 güvenlik kamerası kaydı ---------- */
   #title{background:#000; font-family:'VT323',monospace; color:#f2f2f2}
-  #title .vfeed{position:absolute; inset:-20px; background:url(img/cam/corr.png?v=20261109z) center/cover; filter:grayscale(1) contrast(1.25) brightness(.8); animation:vjit 6s steps(1) infinite}
-  #title .vfeed.who{background-image:url(img/cam/menu_hasan.png?v=20261109z); opacity:0; animation:vappear 11s steps(1) infinite}
+  #title .vfeed{position:absolute; inset:-20px; background:url(img/cam/corr.png?v=20261110a) center/cover; filter:grayscale(1) contrast(1.25) brightness(.8); animation:vjit 6s steps(1) infinite}
+  #title .vfeed.who{background-image:url(img/cam/menu_hasan.png?v=20261110a); opacity:0; animation:vappear 11s steps(1) infinite}
   @keyframes vappear{0%,80%,100%{opacity:0} 82%,85%{opacity:1}}
   @keyframes vjit{0%,95%,100%{transform:none} 96%{transform:translate(0,4px) skewX(1deg)} 97%{transform:translate(0,-3px)}}
   #title .vlines{position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px); pointer-events:none}
@@ -653,8 +661,8 @@
 
   /* ---------- VHS ekranları (arşiv, custom night, gece başı, 6 AM, belge) ---------- */
   .vhs{background:#000; font-family:'VT323',monospace; color:#f2f2f2}
-  .vhs .vbg{position:absolute; inset:-20px; background:url(img/cam/archive.png?v=20261109z) center/cover; filter:grayscale(1) contrast(1.2) brightness(.32) blur(1px); animation:vjit 7s steps(1) infinite}
-  #custom .vbg{background-image:url(img/cam/cold.png?v=20261109z)} #doc .vbg{background-image:url(img/cam/autopsy.png?v=20261109z); filter:grayscale(1) brightness(.18) blur(3px)}
+  .vhs .vbg{position:absolute; inset:-20px; background:url(img/cam/archive.png?v=20261110a) center/cover; filter:grayscale(1) contrast(1.2) brightness(.32) blur(1px); animation:vjit 7s steps(1) infinite}
+  #custom .vbg{background-image:url(img/cam/cold.png?v=20261110a)} #doc .vbg{background-image:url(img/cam/autopsy.png?v=20261110a); filter:grayscale(1) brightness(.18) blur(3px)}
   .vhs .vlines{position:absolute; inset:0; background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px); pointer-events:none; z-index:1}
   .vhs .vvig{position:absolute; inset:0; background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.85)); pointer-events:none}
   .vhs .osd{position:absolute; font-size:34px; text-shadow:2px 2px 0 #000; z-index:2}
@@ -693,7 +701,7 @@
   /* arşiv: kaset rafı */
   #arcList{position:absolute; left:70px; right:70px; top:130px; display:grid; grid-template-columns:repeat(4, 1fr); gap:34px 28px; z-index:2}
   /* gerçek VHS kaset fotoğrafı (açılıştakiyle aynı); başlık kâğıt etiketin üstüne yazılır */
-  .tapebox{position:relative; aspect-ratio:1188/692; background:url(img/ui/cassette.webp?v=20261109z) 0 0/100% 100%; filter:drop-shadow(0 10px 14px rgba(0,0,0,.8)); cursor:pointer; transition:transform .2s cubic-bezier(.3,1.5,.5,1), filter .2s}
+  .tapebox{position:relative; aspect-ratio:1188/692; background:url(img/ui/cassette.webp?v=20261110a) 0 0/100% 100%; filter:drop-shadow(0 10px 14px rgba(0,0,0,.8)); cursor:pointer; transition:transform .2s cubic-bezier(.3,1.5,.5,1), filter .2s}
   .tapebox .lab{position:absolute; left:26%; top:14%; width:48.5%; height:37%; padding:2px 3px; overflow:hidden; color:#1d1a16; font:400 13px/1.12 'Special Elite',monospace; letter-spacing:-.2px; mix-blend-mode:multiply; transform:rotate(-.6deg)}
   .tapebox .lab small{display:block; font-size:11px; color:#4a443a; margin-top:4px}
   .tapebox:nth-child(3n+1){transform:rotate(-.8deg)} .tapebox:nth-child(3n+2){transform:rotate(.6deg)}
@@ -756,6 +764,7 @@
 <div id="stage">
   <svg width="0" height="0" style="position:absolute;pointer-events:none"><filter id="crtBulge" x="0" y="0" width="808" height="632" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feImage href="data:image/png;base64,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" x="0" y="0" width="808" height="632" preserveAspectRatio="none" result="m"/><feGaussianBlur in="m" stdDeviation="2.2" edgeMode="duplicate" result="mb"/><feDisplacementMap in="SourceGraphic" in2="mb" scale="18" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
   <canvas id="glitch" width="320" height="180"></canvas>
+  <div id="rotate"><div><svg viewBox="0 0 64 64" width="90" height="90"><rect x="18" y="6" width="28" height="52" rx="4" fill="none" stroke="#f2f2f2" stroke-width="3"/><path d="M8 40a24 24 0 0 0 20 18" fill="none" stroke="#8b1018" stroke-width="3"/><path d="M24 56l4 2-2 4" fill="none" stroke="#8b1018" stroke-width="3"/></svg><b>TELEFONU YAN ÇEVİR</b><span>MORG yatay ekranda oynanır</span></div></div>
   <div id="mute"><button id="muteBtn" title="Sesi aç/kapat"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor"/><path id="muteWaves" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none"/><path id="muteX" d="M15 9l6 6M21 9l-6 6" stroke="currentColor" stroke-width="2"/></svg></button><input id="vol" type="range" min="0" max="100" aria-label="Ses düzeyi"></div>
 
   <section id="splash" class="screen on">
@@ -789,7 +798,7 @@
   <section id="game" class="screen">
     <div id="office">
       <div id="view">
-        <img class="bg" src="img/office.png?v=20261109z" alt="">
+        <img class="bg" src="img/office.png?v=20261110a" alt="">
         <div id="doorClip"></div>
         <div class="hole" id="corr"><div class="beam"></div><div id="headlight"></div></div>
         <div class="hole" id="dwL"><div class="shutter"></div></div>
@@ -813,13 +822,14 @@
       <canvas id="grain" width="320" height="180"></canvas>
       <div class="vignette"></div>
       <div id="edgeL"></div><div id="edgeR"></div>
-      <div id="dark"></div><img id="darkFace" src="img/ui/dark_face.png?v=20261109z" alt="">
+      <div id="dark"></div><img id="darkFace" src="img/ui/dark_face.png?v=20261110a" alt="">
       <div id="sheetLayer"><div class="flk1"></div><div class="flk2"></div></div>
       <div id="toast"></div>
       <div class="bar" id="barMon">▲ MONİTÖR</div>
       <div class="bar" id="barSheet">▲ ÖRTÜ</div>
     </div>
     <div id="camBlur"></div>
+    <button id="monClose" hidden>▼ MONİTÖR</button>
     <div id="cam">
       <div id="screenWrap"><div id="screen">
         <div id="desk">
@@ -833,7 +843,7 @@
           <div class="menu"><u>D</u>osya &nbsp; <u>G</u>örünüm &nbsp; <u>K</u>ameralar &nbsp; <u>Y</u>ardım</div>
           <div id="feedWin">
             <div class="wtitle"><span id="camName"></span><span>● REC</span></div>
-            <div id="feedBox"><img id="feedImg" src="img/cam/corr.png?v=20261109z" alt=""><canvas id="static" width="320" height="180"></canvas><div class="tint"></div><div id="stamp"></div><div id="d5">D5</div><div id="itsmeCam">IT'S ME</div>
+            <div id="feedBox"><img id="feedImg" src="img/cam/corr.png?v=20261110a" alt=""><canvas id="static" width="320" height="180"></canvas><div class="tint"></div><div id="stamp"></div><div id="d5">D5</div><div id="itsmeCam">IT'S ME</div>
               <div id="coldPanel"><span>SOĞUK ODA</span><div id="tempBar"><div id="tempFill"></div></div><span id="tempTxt">0°</span><button id="bCool">Soğut (C)</button></div>
             </div>
           </div>
@@ -920,7 +930,7 @@
   <section id="scare" class="screen"><img id="scareImg" src="" alt=""><div class="flash"></div></section>
   <section id="six" class="screen vhs"><canvas id="confetti" width="1280" height="720"></canvas><div class="vlines"></div><div class="vignette"></div><div class="center"><div class="clock" id="sixClock"><span class="roll"><span>5</span><span>6</span></span> AM</div><div class="msg" id="sixMsg"></div><button class="big-btn" id="bNext" style="visibility:hidden">DEVAM →</button></div></section>
   <section id="over" class="screen"><div class="vignette"></div><div class="center"><div class="t">ÖLDÜN</div><div class="why" id="overWhy"></div><div><button class="big-btn" id="bRetry">TEKRAR DENE</button> <button class="big-btn" id="bMenu1">MENÜ</button></div></div></section>
-  <section id="ending" class="screen"><img id="endImg" src="img/ending.png?v=20261109z" alt=""><div class="txt" id="endTxt"></div><button class="big-btn" id="bMenu2" style="position:absolute;right:40px;top:20px;margin:0;font-size:24px">MENÜ</button></section>
+  <section id="ending" class="screen"><img id="endImg" src="img/ending.png?v=20261110a" alt=""><div class="txt" id="endTxt"></div><button class="big-btn" id="bMenu2" style="position:absolute;right:40px;top:20px;margin:0;font-size:24px">MENÜ</button></section>
   <section id="crash" class="screen"><div class="center"><b>:(</b><b>Bu sayfa yanıt vermiyor</b><i>Hata kodu: DENEK_5_CEVRIMICI</i></div></section>
   <section id="archive" class="screen vhs"><div class="vbg"></div><div class="vlines"></div><div class="vvig"></div><div class="osd tl"><span class="play">▶</span> ARŞİV · KASET RAFI</div><div class="osd tr" id="arcCount"></div><div id="arcList"></div><button class="back" id="bArcBack">◀ MENÜ</button></section>
   <section id="settings" class="screen vhs"><div class="vbg"></div><div class="vlines"></div><div class="vvig"></div><div class="osd tl"><span class="play">▶</span> AYARLAR · MENÜ</div>
@@ -933,11 +943,11 @@
   <section id="custom" class="screen vhs"><div class="vbg"></div><div class="vlines"></div><div class="vvig"></div><div class="osd tl"><span class="play">●</span> CUSTOM NIGHT · KANAL AYARI</div><div class="osd tr">7. GECE</div><div id="ccards"></div><div id="cpresets"><span>HAZIR:</span><button data-p="easy">KOLAY</button><button data-p="n6">6. GECE</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">◀ MENÜ</button><button id="cStart">▶ OYNAT</button></section>
 </div>
 
-<script src="audio.js?v=20261109z"></script>
-<script src="core.js?v=20261109z"></script>
-<script src="nights.js?v=20261109z"></script>
-<script src="save.js?v=20261109z"></script>
-<script src="lore.js?v=20261109z"></script>
-<script src="game.js?v=20261109z"></script>
+<script src="audio.js?v=20261110a"></script>
+<script src="core.js?v=20261110a"></script>
+<script src="nights.js?v=20261110a"></script>
+<script src="save.js?v=20261110a"></script>
+<script src="lore.js?v=20261110a"></script>
+<script src="game.js?v=20261110a"></script>
 </body>
 </html>

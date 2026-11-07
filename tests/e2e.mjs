@@ -33,6 +33,27 @@ async function startNight(page, n = 1, opts = {}) {
   await page.waitForSelector('#game.on', { timeout: 5000 });
 }
 
+// ---- telefon (dokunmatik, yatay) ----
+{
+  const { devices } = require('playwright');
+  const ctx = await browser.newContext({ ...devices['Pixel 7 landscape'] });
+  const page = await ctx.newPage();
+  try {
+    await page.goto(URL0); await page.waitForFunction(() => window.__m5g && window.__m5g.ready, null, { timeout: 20000 });
+    await page.tap('#splash'); await page.waitForSelector('#title.on', { timeout: 5000 });
+    await page.evaluate(() => window.__m5g.startNight(1, { quiet: true })); await page.waitForSelector('#game.on', { timeout: 5000 });
+    const view = () => page.evaluate(() => getComputedStyle(document.getElementById('view')).transform);
+    const v0 = await view(); await page.tap('#ventBtn', { force: true }); await page.waitForTimeout(1200);
+    assert.strictEqual(await view(), v0, 'tapping a button near the edge must not keep turning the view');
+    await page.tap('#barMon'); await page.waitForTimeout(900);
+    assert.strictEqual(await page.isVisible('#monClose'), true);
+    await page.tap('#monClose'); await page.waitForTimeout(900);
+    assert.strictEqual(await page.evaluate(() => window.__game.dev.monitor), false);
+    results.push('ok - phone: taps do not drift the view, the monitor has its own close button');
+  } catch (e) { failed++; results.push('not ok - phone controls\n    ' + e.message.split('\n')[0]); }
+  await ctx.close();
+}
+
 // ---- Task 9: ofis ----
 await check('menu loads without console errors', async (page, errors) => {
   await boot(page);
