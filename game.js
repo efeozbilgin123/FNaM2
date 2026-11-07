@@ -98,6 +98,8 @@ function begin() {
   window.__game = G;
   Object.assign(ui, { doorL: false, lightL: false, flash: false, ventLight: false, monitor: false, sheet: false, cam: 'corr', cooling: false, reboot: false,
     app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
+  wm.open = ['cctv']; wm.min.clear(); wm.z = ['cctv']; wm.active = 'cctv'; closeStart();
+  document.querySelectorAll('.win').forEach(w => { w.style.left = ''; w.style.top = ''; });
   frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 25;
   closeCam(true);
   $('game').className = 'screen on';
@@ -122,7 +124,7 @@ $('phone').onclick = () => { snd('click'); stopPhone(); };
 
 function input() {
   return { doorL: ui.doorL, lightL: ui.lightL, flash: ui.flash, ventLight: ui.ventLight, monitor: ui.monitor, sheet: ui.sheet,
-    cam: ui.monitor && ui.app === 'cctv' ? ui.cam : null, cooling: ui.monitor && ui.app === 'cctv' && ui.cam === 'cold' && ui.cooling,
+    cam: ui.monitor && cctvOn() ? ui.cam : null, cooling: ui.monitor && cctvOn() && ui.cam === 'cold' && ui.cooling,
     reboot: ui.monitor && ui.fixing ? ui.fixCam : null };
 }
 
@@ -300,8 +302,8 @@ function render() {
 }
 function renderCam() {
   renderDesk();
-  if (ui.app === 'fix') renderFix();
-  if (ui.app !== 'cctv') return;
+  if (visible('fix')) renderFix();
+  if (!cctvOn()) return;
   const g = G, cam = ui.cam, fb = $('feedBox');
   $('camName').textContent = CAM_NAMES[cam];
   const hacked = frozen && frozen.cam === cam;
@@ -374,7 +376,7 @@ function updateLook(dt) {
 // ---------- monitör (1. oyundaki CRT geçişi) ----------
 // Monitör: kamera masadaki gerçek monitöre yakınlaşır, kamera arayüzü o monitörün camına perspektifle oturur.
 const MON_GLASS = QUADS.mon.p;                     // masadaki monitörün camı (ofis görseli koordinatı)
-const MON = { x: 762, y: 600 }, ZOOM = 4.4;        // camın merkezi ve yakınlaşma
+const MON = { x: 762, y: 604 }, ZOOM = 4.0;        // camın merkezi ve yakınlaşma
 function zoomTransform() { return `translate(${640 - MON.x * ZOOM}px, ${360 - MON.y * ZOOM}px) scale(${ZOOM})`; }
 // cam köşelerini yakınlaşmış sahnede ekrana çevir, kamera arayüzünü (808×632) oraya oturt
 $('screenWrap').style.transform = quadMatrix(808, 632, MON_GLASS.map(([x, y]) => [640 + (x - MON.x) * ZOOM, 360 + (y - MON.y) * ZOOM]));
@@ -411,29 +413,104 @@ function toggleSheet() {
   if (!ui.sheet && ui.monitor) closeCam(true);
   ui.sheet = !ui.sheet; snd('sheet');
 }
-function selCam(cam) { if (ui.app !== 'cctv' || ui.cam === cam) return; ui.cam = cam; snd('blip'); $('static').style.opacity = 1; setTimeout(() => $('static').style.opacity = '', 160); }
+function selCam(cam) { if (!cctvOn() || ui.cam === cam) return; ui.cam = cam; snd('blip'); $('static').style.opacity = 1; setTimeout(() => $('static').style.opacity = '', 160); }
 
-// ---------- monitör masaüstü: uygulamalar ----------
-// Kamera (CCTV) ve Sistem Onarım ayrı pencereler; aynı anda biri açık. Açılış kısa bir "yükleniyor" sürer.
-const APP_WIN = { cctv: 'winCctv', fix: 'winFix' };
+// ---------- monitör masaüstü: küçük bir pencere yöneticisi ----------
+// Pencereler sürüklenir, tıklanınca öne gelir, simge durumuna küçülür, görev çubuğundan geri açılır.
+const ICONS = {
+  pc: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><rect x="4" y="3" width="24" height="18" fill="#d8d4c8" stroke="#333"/><rect x="7" y="6" width="18" height="12" fill="#1c5fb0"/><rect x="8" y="7" width="7" height="3" fill="#7fb2ff"/><rect x="12" y="21" width="8" height="3" fill="#b8b4a8" stroke="#333"/><rect x="6" y="24" width="20" height="5" fill="#d8d4c8" stroke="#333"/><rect x="20" y="26" width="4" height="1" fill="#2a2"/></svg>',
+  bin: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M7 8h18l-2 21H9z" fill="#dfe6ea" stroke="#333"/><rect x="6" y="5" width="20" height="3" fill="#c8d0d4" stroke="#333"/><path d="M10 10v17M13 10v17M16 10v17M19 10v17M22 10v17" stroke="#9aa4aa"/><path d="M13 14l3-3 3 3h-2v3h-2v-3z M11 22l-2 3h4z M21 22l2 3h-4z" fill="#1a9a3a"/></svg>',
+  cctv: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><rect x="3" y="9" width="20" height="10" fill="#4a5058" stroke="#111"/><rect x="23" y="11" width="6" height="6" fill="#2a2e33" stroke="#111"/><circle cx="26" cy="14" r="2" fill="#5fb0ff"/><rect x="5" y="11" width="3" height="2" fill="#e22"/><rect x="11" y="19" width="3" height="6" fill="#888" stroke="#111"/><rect x="6" y="25" width="13" height="3" fill="#777" stroke="#111"/></svg>',
+  fix: '<svg viewBox="0 0 32 32"><path d="M7 25l11-11" stroke="#555" stroke-width="5" stroke-linecap="round"/><circle cx="21" cy="11" r="6" fill="#9aa0a6" stroke="#333"/><circle cx="23" cy="9" r="3" fill="#c0c0c0"/><path d="M25 25L14 14" stroke="#c0c0c0" stroke-width="2.5"/><path d="M27 27l-5-5" stroke="#c22" stroke-width="5" stroke-linecap="round"/></svg>',
+  floppy: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><rect x="5" y="4" width="22" height="24" fill="#333"/><rect x="9" y="4" width="13" height="8" fill="#c8c8c8"/><rect x="18" y="5" width="3" height="6" fill="#333"/><rect x="8" y="16" width="16" height="12" fill="#eee"/></svg>',
+  drive: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><rect x="3" y="11" width="26" height="12" fill="#c8c4b8" stroke="#333"/><rect x="5" y="20" width="22" height="1" fill="#888"/><rect x="23" y="15" width="3" height="2" fill="#2c2"/></svg>',
+  cd: '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#cfd8e0" stroke="#666"/><circle cx="16" cy="16" r="3" fill="#fff" stroke="#666"/><path d="M8 11a10 10 0 0 1 8-5" stroke="#9ae" stroke-width="2" fill="none"/></svg>',
+  doc: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><path d="M7 3h13l6 6v20H7z" fill="#fff" stroke="#333"/><path d="M20 3v6h6" fill="#ddd" stroke="#333"/><path d="M10 13h12M10 16h12M10 19h12M10 22h8" stroke="#1c5fb0"/></svg>',
+  img: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><rect x="4" y="6" width="24" height="20" fill="#fff" stroke="#333"/><rect x="6" y="8" width="20" height="16" fill="#3a6ea5"/><path d="M6 24l7-8 5 5 3-3 5 6z" fill="#2a7a3a"/><circle cx="21" cy="12" r="2" fill="#ff0"/></svg>',
+  power: '<svg viewBox="0 0 32 32"><circle cx="16" cy="17" r="9" fill="none" stroke="#c22" stroke-width="3"/><path d="M16 5v11" stroke="#c22" stroke-width="3"/></svg>',
+  flag: '<svg viewBox="0 0 32 32" shape-rendering="crispEdges"><rect x="3" y="4" width="12" height="11" fill="#e33"/><rect x="17" y="4" width="12" height="11" fill="#3a3"/><rect x="3" y="17" width="12" height="11" fill="#36d"/><rect x="17" y="17" width="12" height="11" fill="#ec2"/></svg>',
+};
+const fillIcons = root => root.querySelectorAll('i[data-ico]').forEach(i => { i.innerHTML = ICONS[i.dataset.ico] || ''; });
+fillIcons(document);
+const APPS = {
+  cctv: { el: 'winCctv', title: 'MORG-SEC CCTV' }, fix: { el: 'winFix', title: 'Sistem Onarım' },
+  pc: { el: 'winPc', title: 'Bilgisayarım' }, bin: { el: 'winBin', title: 'Geri Dönüşüm Kutusu' }, msg: { el: 'winMsg', title: 'Hata', noTask: true },
+};
+const wm = { open: [], min: new Set(), z: [], active: null };
+const visible = a => wm.open.includes(a) && !wm.min.has(a);
 let appTimer = 0;
 function openApp(name) {
-  if (ui.app === name && !ui.loading) return;
-  clearTimeout(appTimer); ui.app = null; ui.loading = true; snd('click');
-  appTimer = setTimeout(() => { ui.loading = false; ui.app = name; snd('blip'); if (G && ui.monitor) renderCam(); }, 380);
-  renderDesk();
+  closeStart();
+  if (wm.open.includes(name)) { wm.min.delete(name); focusWin(name); return; }
+  clearTimeout(appTimer); ui.loading = true; snd('click'); renderDesk();
+  appTimer = setTimeout(() => { ui.loading = false; wm.open.push(name); focusWin(name); snd('blip'); if (G && ui.monitor) renderCam(); }, name === 'msg' ? 0 : 380);
 }
-function closeApp(name) { if (ui.app === name) { ui.app = null; snd('click'); renderDesk(); } }
+function closeApp(name) { wm.open = wm.open.filter(a => a !== name); wm.min.delete(name); if (wm.active === name) wm.active = topVisible(); snd('click'); renderDesk(); }
+function minimizeApp(name) { wm.min.add(name); if (wm.active === name) wm.active = topVisible(); renderDesk(); }
+function focusWin(name) { wm.z = wm.z.filter(a => a !== name).concat(name); wm.active = name; renderDesk(); }
+function topVisible() { for (let i = wm.z.length - 1; i >= 0; i--) if (visible(wm.z[i])) return wm.z[i]; return null; }
+function showMsg(t) { $('msgTxt').textContent = t; snd('static'); openApp('msg'); }
 function renderDesk() {
-  for (const [a, id] of Object.entries(APP_WIN)) $(id).classList.toggle('open', ui.app === a);
+  for (const [a, o] of Object.entries(APPS)) {
+    const el = $(o.el); el.classList.toggle('open', visible(a)); el.classList.toggle('active', wm.active === a);
+    el.style.zIndex = 10 + wm.z.indexOf(a);
+  }
   $('screen').classList.toggle('loading', ui.loading);
-  document.querySelectorAll('#osBottom .tbtn').forEach(b => b.classList.toggle('act', b.dataset.app === ui.app));
+  const tasks = wm.open.filter(a => !APPS[a].noTask);
+  const key = tasks.join(',') + '|' + wm.active + '|' + [...wm.min].join(',');
+  if ($('tasks').dataset.key !== key) {
+    $('tasks').dataset.key = key;
+    $('tasks').innerHTML = tasks.map(a => `<span class="tbtn${wm.active === a && !wm.min.has(a) ? ' act' : ''}" data-app="${a}"><i data-ico="${a}" class="sm"></i><span>${APPS[a].title}</span></span>`).join('');
+    fillIcons($('tasks'));
+  }
 }
-document.querySelectorAll('.dicon[data-app], #osBottom .tbtn').forEach(el => el.addEventListener('click', () => {
-  const a = el.dataset.app; if (el.classList.contains('tbtn') && ui.app === a) closeApp(a); else openApp(a);
+$('tasks').addEventListener('click', e => {
+  const b = e.target.closest('.tbtn'); if (!b) return; const a = b.dataset.app;
+  if (wm.active === a && !wm.min.has(a)) minimizeApp(a); else { wm.min.delete(a); focusWin(a); }
+});
+document.querySelectorAll('.win').forEach(w => w.addEventListener('pointerdown', () => { const a = Object.keys(APPS).find(k => APPS[k].el === w.id); if (a && wm.active !== a) focusWin(a); }));
+document.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); closeApp(el.dataset.close); }));
+document.querySelectorAll('[data-min]').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); minimizeApp(el.dataset.min); }));
+// masaüstü simgeleri: tek tık seçer, çift tık açar
+document.querySelectorAll('.dicon').forEach(d => {
+  d.addEventListener('click', () => { document.querySelectorAll('.dicon').forEach(x => x.classList.toggle('selected', x === d)); closeStart(); });
+  d.addEventListener('dblclick', () => openApp(d.dataset.app));
+});
+$('desk').parentElement.addEventListener('pointerdown', e => { if (e.target === $('screen')) { document.querySelectorAll('.dicon').forEach(x => x.classList.remove('selected')); closeStart(); } });
+// dosyalar: seçilir, açılmaya çalışılınca hata
+document.querySelectorAll('.file').forEach(f => {
+  f.addEventListener('click', () => { f.parentElement.querySelectorAll('.file').forEach(x => x.classList.toggle('selected', x === f)); });
+  f.addEventListener('dblclick', () => showMsg(f.closest('#winBin') ? 'Bu dosya bozuk ya da erişim engellendi.' : 'Erişim engellendi. Yöneticinize başvurun.'));
+});
+// Başlat menüsü
+function closeStart() { $('startMenu').classList.remove('open'); $('bStart').classList.remove('on'); }
+$('bStart').addEventListener('click', e => { e.stopPropagation(); const o = !$('startMenu').classList.contains('open'); $('startMenu').classList.toggle('open', o); $('bStart').classList.toggle('on', o); snd('click'); });
+document.querySelectorAll('#startMenu .smi[data-app]').forEach(m => m.addEventListener('click', () => openApp(m.dataset.app)));
+document.querySelectorAll('#startMenu .smi[data-deny]').forEach(m => m.addEventListener('click', () => { closeStart(); showMsg('Bu işlem için yönetici izni gerekiyor.'); }));
+$('smShut').addEventListener('click', () => { closeStart(); closeCam(); });
+// sürükleme: ekran perspektifli olduğu için fare konumu ters homografiyle ekranın kendi koordinatına çevrilir
+function invQuad(m) { // matrix3d (sütun öncelikli) -> sahne(X,Y) => yerel(x,y)
+  const a = m[0], b = m[4], c = m[12], d = m[1], e = m[5], f = m[13], g = m[3], h = m[7], i = m[15];
+  const A = e * i - f * h, B = -(b * i - c * h), C = b * f - c * e, D = -(d * i - f * g), E = a * i - c * g, F = -(a * f - c * d), Gx = d * h - e * g, H = -(a * h - b * g), I = a * e - b * d;
+  return (X, Y) => { const w = Gx * X + H * Y + I; return [(A * X + B * Y + C) / w, (D * X + E * Y + F) / w]; };
+}
+const screenMat = $('screenWrap').style.transform.slice(9, -1).split(',').map(Number);
+const toLocal = invQuad(screenMat);
+function stageXY(e) { const r = stage.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 1280, (e.clientY - r.top) / r.height * 720]; }
+let drag = null;
+document.querySelectorAll('.win .tb').forEach(tb => tb.addEventListener('pointerdown', e => {
+  if (e.target.closest('.wb')) return;
+  const w = tb.parentElement; const [x, y] = toLocal(...stageXY(e));
+  drag = { w, dx: x - w.offsetLeft, dy: y - w.offsetTop }; tb.setPointerCapture(e.pointerId);
 }));
-document.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => closeApp(el.dataset.close)));
-document.querySelectorAll('[data-min]').forEach(el => el.addEventListener('click', () => closeApp(el.dataset.min)));
+addEventListener('pointermove', e => {
+  if (!drag) return; const [x, y] = toLocal(...stageXY(e)), w = drag.w;
+  w.style.left = Math.max(-w.offsetWidth + 80, Math.min(808 - 80, x - drag.dx)) + 'px';
+  w.style.top = Math.max(0, Math.min(592 - 24 - 4, y - drag.dy)) + 'px';
+});
+addEventListener('pointerup', () => { drag = null; });
+// eski adlar: kamera ve onarım
+function cctvOn() { return visible('cctv'); }
 // Sistem Onarım: kamerayı seç, Onar. 3 sn video yok. Hangi kameranın bozuk olduğunu söylemez.
 $('fixList').innerHTML = Core.CAMS.map(c => `<div data-cam="${c}">${CAM_NAMES[c]}</div>`).join('');
 document.querySelectorAll('#fixList div').forEach(d => d.addEventListener('click', () => { if (ui.fixing) return; ui.fixCam = d.dataset.cam; ui.fixMsg = 'Onar düğmesine basın.'; snd('tick'); renderFix(); }));
@@ -478,7 +555,7 @@ $('bDoor').onclick = () => {
 };
 $('barMon').addEventListener('mouseenter', toggleMonitor); $('barMon').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleMonitor(); });
 $('barSheet').addEventListener('mouseenter', toggleSheet); $('barSheet').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleSheet(); });
-$('camClose').onclick = () => closeCam();
+
 $('mon').addEventListener('click', () => { if (!ui.monitor) toggleMonitor(); }); // masadaki monitöre tıklayınca kameralar açılır
 const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling' };
 addEventListener('keydown', e => {
@@ -490,7 +567,7 @@ addEventListener('keydown', e => {
   if (k === ' ' || k === 'tab') { e.preventDefault(); toggleMonitor(); }
   if (k === 's') toggleSheet();
   if (k >= '1' && k <= '7' && ui.monitor) selCam(Core.CAMS[+k - 1]);
-  if (k === 'r' && ui.monitor) { const c = ui.app === 'cctv' ? ui.cam : ui.fixCam; openApp('fix'); ui.fixCam = c; startFix(); }
+  if (k === 'r' && ui.monitor) { const c = cctvOn() && wm.active !== 'fix' ? ui.cam : ui.fixCam; openApp('fix'); ui.fixCam = c; startFix(); }
   if (e.key === 'Escape' && ui.monitor) closeCam();
   if (e.key === 'ArrowLeft') { look.keys = -1; e.preventDefault(); } if (e.key === 'ArrowRight') { look.keys = 1; e.preventDefault(); }
 });

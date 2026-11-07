@@ -171,7 +171,7 @@ await check('the repair app fixes a hacked camera with the mouse; a healthy one 
   await boot(page); await startNight(page, 1, { quiet: true });
   await page.keyboard.press('Space'); await page.waitForTimeout(800);
   await page.evaluate(() => Core._internal.hack(window.__game, 'archive'));
-  await page.click('#osBottom .tbtn[data-app="fix"]'); await page.waitForTimeout(500);
+  await page.click('#bStart'); await page.click('#startMenu .smi[data-app="fix"]'); await page.waitForTimeout(500);
   await page.click('#fixList div[data-cam="lift"]'); await page.click('#bFix'); await page.waitForTimeout(3400);
   assert.strictEqual(await page.textContent('#fixMsg'), 'Sorun bulunamadı.');
   assert.strictEqual(await page.evaluate(() => window.__game.muh.cam), 'archive');

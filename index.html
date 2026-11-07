@@ -357,6 +357,78 @@
   #mon .clockw{display:block; left:112px; top:30px; width:270px}
   #mon .clockw .big{font-size:76px; font-weight:bold; text-align:center; padding:6px 0 10px; letter-spacing:-2px; font-family:'VT323',monospace; color:#000}
   #mon .clockw .big small{font-size:34px; margin-left:6px; letter-spacing:0}
+
+  /* ---------- pencere yöneticisi v3 ---------- */
+  .win{left:0; top:0; width:808px; height:592px}
+  .win.small{width:430px; height:300px; left:190px; top:90px}
+  #winFix{width:600px; height:430px; left:110px; top:60px}
+  .win.dlg{width:330px; height:150px; left:240px; top:200px}
+  .win .tb{cursor:default; user-select:none}
+  .win:not(.active) .tb{background:linear-gradient(90deg,#808080,#c0c0c0); color:#d4d0c8}
+  .win .tt{display:flex; align-items:center; gap:5px; white-space:nowrap; overflow:hidden}
+  .win .wb i.dis{color:#808080}
+  i[data-ico]{display:inline-block; width:32px; height:32px; vertical-align:middle; border:0; background:none; box-shadow:none}
+  i[data-ico].sm{width:16px; height:16px; margin:0}
+  i[data-ico] svg{width:100%; height:100%; display:block}
+  .dicon{width:84px; margin-bottom:14px; font-size:12px; line-height:1.2}
+  .dicon span{display:inline-block; padding:0 2px; margin-top:4px}
+  .dicon:hover{outline:none}
+  .dicon.selected span{background:#0a246a; outline:1px dotted #fff}
+  .dicon.selected i{filter:brightness(.6) sepia(1) hue-rotate(190deg) saturate(3)}
+  #feedWin{left:6px; top:50px; width:790px; height:404px}
+  #feedBox{width:784px; height:376px}
+  #feedImg{width:804px; height:396px}
+  #side{left:572px; top:236px}
+  #map button{font-size:12px; width:72px}
+  #log{left:6px; top:460px; width:790px; height:100px}
+  #winCctv .status, #winFix .status{bottom:3px}
+  #winFix .fixL{left:8px; top:50px; width:300px; height:348px}
+  #winFix .fixR{left:322px; top:50px; width:266px}
+  #fixList div{padding:5px 10px; font-size:13px}
+  #fixSel{font-size:16px}
+  #bFix{font-size:15px; padding:6px 22px}
+  .files{position:absolute; left:6px; right:6px; top:50px; bottom:28px; background:#fff; display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px 4px; padding:10px; box-shadow:inset 1px 1px var(--w-sh), inset -1px -1px var(--w-hi), inset 2px 2px var(--w-dk)}
+  .file{width:92px; text-align:center; font-size:12px; cursor:default}
+  .file i{display:block; margin:0 auto 3px}
+  .file.selected span{background:#0a246a; color:#fff}
+  .files.list{flex-direction:column; flex-wrap:nowrap}
+  .files.list .file{width:auto; display:flex; align-items:center; gap:8px; text-align:left}
+  .files.list .file i{width:16px; height:16px; margin:0}
+  .files.list .file em{margin-left:auto; font-style:normal; color:#555}
+  .dlgb{display:flex; align-items:center; gap:14px; padding:18px 16px 8px; font-size:14px}
+  .dlgb .stop{width:32px; height:32px; border-radius:50%; background:#c00; color:#fff; font-style:normal; font-weight:bold; display:flex; align-items:center; justify-content:center; box-shadow:inset -2px -2px rgba(0,0,0,.3)}
+  .dlgf{text-align:center} .dlgf button{min-width:80px; padding:3px 10px; background:var(--w-face); border:0; font-family:inherit; box-shadow:inset -1px -1px var(--w-dk), inset 1px 1px var(--w-hi), inset -2px -2px var(--w-sh), 0 0 0 1px #000}
+  #startMenu{position:absolute; left:2px; bottom:40px; width:250px; display:none; background:var(--w-face); padding:3px 3px 3px 30px; z-index:500; box-shadow:inset -1px -1px var(--w-dk), inset 1px 1px var(--w-hi), inset -2px -2px var(--w-sh), 2px 2px 0 rgba(0,0,0,.3)}
+  #startMenu.open{display:block}
+  #startMenu .banner{position:absolute; left:3px; top:3px; bottom:3px; width:24px; background:linear-gradient(0deg,#0a246a,#3a6ea5); color:#c8d8f0; writing-mode:vertical-rl; transform:rotate(180deg); font-size:13px; padding:8px 0; white-space:nowrap}
+  #startMenu .banner b{color:#fff}
+  #startMenu .smi{display:flex; align-items:center; gap:10px; padding:5px 8px; font-size:14px; cursor:default}
+  #startMenu .smi i{width:24px; height:24px}
+  #startMenu .smi:hover{background:#0a246a; color:#fff}
+  #startMenu hr{border:0; border-top:1px solid var(--w-sh); border-bottom:1px solid var(--w-hi); margin:3px 2px}
+  #osBottom{padding:4px 20px 6px 24px; gap:4px; z-index:400} /* görev çubuğu hep en üstte */
+  #osBottom .start{display:flex; align-items:center; gap:5px; cursor:default}
+  #osBottom .start i{width:18px; height:18px}
+  #osBottom .start.on{box-shadow:inset 1px 1px var(--w-dk), inset -1px -1px var(--w-hi)}
+  #osBottom .sep{width:2px; height:26px; margin:0 3px; box-shadow:inset 1px 0 var(--w-sh), inset -1px 0 var(--w-hi)}
+  #tasks{display:flex; gap:4px; flex:1; min-width:0}
+  #tasks .tbtn{display:flex; align-items:center; gap:5px; flex:0 1 160px; min-width:0; overflow:hidden; text-overflow:ellipsis; font-size:13px; padding:3px 6px}
+  #tasks .tbtn span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  #camPow{font-size:13px}
+  #osBottom .tray{white-space:nowrap; min-width:0; padding:4px 10px; font-size:13px}
+  /* masadaki monitör: ekran koruyucu saat */
+  #mon{background:#000; filter:brightness(.95) blur(.2px)}
+  #mon .ss{position:absolute; left:40px; top:60px; text-align:center; animation:ssDrift 46s ease-in-out infinite alternate}
+  #mon .ss .t{font-family:Tahoma,Verdana,'DejaVu Sans',sans-serif; font-weight:bold; font-size:104px; line-height:1; letter-spacing:-3px; color:#e9f3ff; text-shadow:0 0 18px rgba(120,180,255,.55), 0 0 2px #fff}
+  #mon .ss small{font-size:34px; letter-spacing:0; margin-left:6px; color:#9fc4ff}
+  #mon .ss .d{margin-top:6px; font-size:16px; color:#6f8fbf; letter-spacing:1px}
+  @keyframes ssDrift{0%{transform:translate(0,0)} 25%{transform:translate(28px,-40px)} 50%{transform:translate(-30px,40px)} 75%{transform:translate(20px,30px)} 100%{transform:translate(-20px,-30px)}}
+
+  /* vinyet yok: ekranın kenarları kararmaz */
+  #screen .glass{background:radial-gradient(ellipse 46% 28% at 30% 14%, rgba(255,255,255,.07), transparent 70%); box-shadow:none}
+  #mon::after{background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 4px)}
+  /* tarayıcı odak/tık sırasında gizli taşmayı kaydırmasın */
+  #stage, #game, #office, #cam, #screen{overflow:clip}
   /* SCARE */
   #scare{background:#000}
   #scareImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:lunge .5s cubic-bezier(.15,.9,.3,1) forwards, shake .06s infinite}
@@ -404,7 +476,7 @@
         <div id="pL"><div class="pbtn door" id="bDoor" title="Kapı (Q)"></div><div class="pbtn lamp" id="bLight" title="Kapı ışığı (A, basılı tut)"></div></div>
         <div class="hole" id="vent"><img id="ventImg" src="img/vent/empty.png" alt=""></div>
         <button id="ventBtn" title="Havalandırma ışığı (V, basılı tut)"></button>
-        <div id="mon"><div class="ic" style="top:12px"><i></i>Bilgisayarım</div><div class="ic bin" style="top:82px"><i></i>Geri Dönüşüm Kutusu</div><div class="ic cam" style="top:166px"><i></i>MORG-SEC CCTV</div><div class="win clockw"><b>Saat</b><div class="big"><span id="monBig">12:00</span><small>AM</small></div></div><div class="task"><span class="start">Başlat</span><span class="tray" id="monClock">12:00 AM</span></div></div>
+        <div id="mon"><div class="ss"><div class="t"><span id="monBig">12:00</span><small>AM</small></div><div class="d">MORG-SEC 2000 · Bekleme</div></div><span id="monClock" hidden></span></div>
         <div id="phone" title="Telefonu sustur"><div id="phoneLed"></div></div>
         <div id="pscreen"><span class="lbl">JENERATÖR</span><span id="tPower">%100</span><div class="bars" id="tUsage"></div></div>
         <div class="shade"></div><div class="flk"></div>
@@ -423,13 +495,13 @@
     <div id="cam">
       <div id="screenWrap"><div id="screen">
         <div id="desk">
-          <div class="dicon" data-app="cctv"><i class="i-cam"></i>MORG-SEC CCTV</div>
-          <div class="dicon" data-app="fix"><i class="i-fix"></i>Sistem Onarım</div>
-          <div class="dicon"><i class="i-pc"></i>Bilgisayarım</div>
-          <div class="dicon"><i class="i-bin"></i>Geri Dönüşüm Kutusu</div>
+          <div class="dicon" data-app="pc"><i data-ico="pc"></i><span>Bilgisayarım</span></div>
+          <div class="dicon" data-app="bin"><i data-ico="bin"></i><span>Geri Dönüşüm Kutusu</span></div>
+          <div class="dicon" data-app="cctv"><i data-ico="cctv"></i><span>MORG-SEC CCTV</span></div>
+          <div class="dicon" data-app="fix"><i data-ico="fix"></i><span>Sistem Onarım</span></div>
         </div>
         <div class="win" id="winCctv">
-          <div class="tb"><span><i class="i-cam sm"></i> MORG-SEC CCTV 4.5.6 - Anatomi B-1 Katı</span><span class="wb"><i data-min="cctv">_</i><i>□</i><i class="x" data-close="cctv">✕</i></span></div>
+          <div class="tb"><span class="tt"><i data-ico="cctv" class="sm"></i>MORG-SEC CCTV 4.5.6 - Anatomi B-1 Katı</span><span class="wb"><i data-min="cctv">_</i><i class="dis">□</i><i class="x" data-close="cctv">✕</i></span></div>
           <div class="menu"><u>D</u>osya &nbsp; <u>G</u>örünüm &nbsp; <u>K</u>ameralar &nbsp; <u>Y</u>ardım</div>
           <div id="feedWin">
             <div class="wtitle"><span id="camName"></span><span>● REC</span></div>
@@ -442,10 +514,10 @@
             <div class="mt">Kat Planı - Morg B-1</div><div class="you">SEN</div>
           </div></div>
           <div id="log"><div class="mt">Olay Kaydı</div><div id="camNote"></div></div>
-          <div class="status"><span id="camTimeR"></span><span>Kayıt: Açık</span><span>Kamera 1-7</span></div>
+          <div class="status"><span id="camTimeR"></span><span>Kayıt: Açık</span><span>Kısayol: 1-7, C, R</span></div>
         </div>
         <div class="win" id="winFix">
-          <div class="tb"><span><i class="i-fix sm"></i> Sistem Onarım Aracı</span><span class="wb"><i data-min="fix">_</i><i>□</i><i class="x" data-close="fix">✕</i></span></div>
+          <div class="tb"><span class="tt"><i data-ico="fix" class="sm"></i>Sistem Onarım Aracı</span><span class="wb"><i data-min="fix">_</i><i class="dis">□</i><i class="x" data-close="fix">✕</i></span></div>
           <div class="menu"><u>D</u>osya &nbsp; <u>A</u>raçlar &nbsp; <u>Y</u>ardım</div>
           <div class="fixL"><div class="fh">Kameralar</div><div id="fixList"></div></div>
           <div class="fixR">
@@ -457,8 +529,49 @@
           </div>
           <div class="status"><span>Hazır</span><span>MORG-SEC 2000</span></div>
         </div>
+        <div class="win small" id="winPc">
+          <div class="tb"><span class="tt"><i data-ico="pc" class="sm"></i>Bilgisayarım</span><span class="wb"><i data-min="pc">_</i><i class="dis">□</i><i class="x" data-close="pc">✕</i></span></div>
+          <div class="menu"><u>D</u>osya &nbsp; <u>D</u>üzen &nbsp; <u>G</u>örünüm &nbsp; <u>Y</u>ardım</div>
+          <div class="files">
+            <div class="file" data-deny><i data-ico="floppy"></i><span>3½ Disket (A:)</span></div>
+            <div class="file" data-deny><i data-ico="drive"></i><span>Yerel Disk (C:)</span></div>
+            <div class="file" data-deny><i data-ico="drive"></i><span>MORG_ARSIV (D:)</span></div>
+            <div class="file" data-deny><i data-ico="cd"></i><span>CD Sürücüsü (E:)</span></div>
+          </div>
+          <div class="status"><span>4 nesne</span><span>Bilgisayarım</span></div>
+        </div>
+        <div class="win small" id="winBin">
+          <div class="tb"><span class="tt"><i data-ico="bin" class="sm"></i>Geri Dönüşüm Kutusu</span><span class="wb"><i data-min="bin">_</i><i class="dis">□</i><i class="x" data-close="bin">✕</i></span></div>
+          <div class="menu"><u>D</u>osya &nbsp; <u>D</u>üzen &nbsp; <u>G</u>örünüm &nbsp; <u>Y</u>ardım</div>
+          <div class="files list">
+            <div class="file" data-deny><i data-ico="doc"></i><span>proje456_gunluk.doc</span><em>14.06.1998</em></div>
+            <div class="file" data-deny><i data-ico="img"></i><span>denek5_otopsi.bmp</span><em>14.06.1998</em></div>
+            <div class="file" data-deny><i data-ico="doc"></i><span>nobet_listesi_DENEK6.xls</span><em>bugün</em></div>
+          </div>
+          <div class="status"><span>3 nesne</span><span>Silinen dosyalar</span></div>
+        </div>
+        <div class="win dlg" id="winMsg">
+          <div class="tb"><span class="tt">Hata</span><span class="wb"><i class="x" data-close="msg">✕</i></span></div>
+          <div class="dlgb"><i class="stop">✕</i><span id="msgTxt">Erişim engellendi.</span></div>
+          <div class="dlgf"><button data-close="msg">Tamam</button></div>
+        </div>
+        <div id="startMenu">
+          <div class="banner"><b>MORG-SEC</b> 2000 Professional</div>
+          <div class="items">
+            <div class="smi" data-app="cctv"><i data-ico="cctv"></i>MORG-SEC CCTV</div>
+            <div class="smi" data-app="fix"><i data-ico="fix"></i>Sistem Onarım</div>
+            <div class="smi" data-app="pc"><i data-ico="pc"></i>Bilgisayarım</div>
+            <div class="smi" data-app="bin"><i data-ico="bin"></i>Geri Dönüşüm Kutusu</div>
+            <hr>
+            <div class="smi" data-deny><i data-ico="doc"></i>Belgeler</div>
+            <div class="smi" data-deny><i data-ico="drive"></i>Ayarlar</div>
+            <hr>
+            <div class="smi" id="smShut"><i data-ico="power"></i>Bilgisayarı Kapat...</div>
+          </div>
+        </div>
         <div id="loading"><div><b>⌛</b> Yükleniyor...</div></div>
-        <div id="osBottom"><span class="start">Başlat</span><span class="tbtn" data-app="cctv"><i class="i-cam sm"></i> MORG-SEC CCTV</span><span class="tbtn" data-app="fix"><i class="i-fix sm"></i> Sistem Onarım</span><span id="camPow"></span><button id="camClose">Kalk (Esc)</button><span class="tray" id="camClock">12:00 AM</span></div>
+        <div id="osBottom"><span class="start" id="bStart"><i data-ico="flag"></i>Başlat</span><span class="sep"></span><span id="tasks"></span><span id="camPow"></span><span class="tray"><span id="camClock">12:00 AM</span></span></div>
+
         <div id="boot"><div>MORG-SEC 2000 başlatılıyor...<br>Video sinyali aranıyor</div></div>
         <div class="scan"></div><div class="glass"></div>
       </div></div>
@@ -474,10 +587,10 @@
   <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
 </div>
 
-<script src="audio.js?v=20261107g"></script>
-<script src="core.js?v=20261107g"></script>
-<script src="nights.js?v=20261107g"></script>
-<script src="save.js?v=20261107g"></script>
-<script src="game.js?v=20261107g"></script>
+<script src="audio.js?v=20261107i"></script>
+<script src="core.js?v=20261107i"></script>
+<script src="nights.js?v=20261107i"></script>
+<script src="save.js?v=20261107i"></script>
+<script src="game.js?v=20261107i"></script>
 </body>
 </html>
