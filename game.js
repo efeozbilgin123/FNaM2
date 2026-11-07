@@ -79,7 +79,10 @@ const look = { x: 209, mouse: null, keys: 0, zoom: false, drag: null };
 const VIEW_SCALE = 720 / 848, PAN_MAX = 2000 * VIEW_SCALE - 1280, PAN_Y = 0;
 const CAM_NAMES = { corr: 'CAM 01 — KORİDOR', autopsy: 'CAM 02 — OTOPSİ SALONU', cold: 'CAM 03 — SOĞUK ODA', ventA: 'CAM 04 — HAVALANDIRMA A', ventB: 'CAM 05 — HAVALANDIRMA B', archive: 'CAM 06 — ARŞİV', lift: 'CAM 07 — ASANSÖR' };
 const CAM_SHORT = { corr: 'KORİDOR', autopsy: 'OTOPSİ', cold: 'SOĞUK', ventA: 'HAV. A', ventB: 'HAV. B', archive: 'ARŞİV', lift: 'ASANSÖR' };
-const CAM_POS = { archive: [40, 44], lift: [140, 44], cold: [16, 110], autopsy: [16, 180], corr: [140, 140], ventA: [268, 90], ventB: [268, 170] };
+// Kat planı: oda merkezleri (348×286 harita). Koridor çizgileri merkezden merkeze, dik açılı.
+const MAP_C = { archive: [64, 66], lift: [174, 66], cold: [64, 130], ventA: [284, 130], autopsy: [64, 196], corr: [174, 196], ventB: [284, 196], you: [174, 254] };
+const MAP_LINKS = [['archive', 'lift'], ['lift', 'corr'], ['cold', 'autopsy'], ['autopsy', 'corr'], ['corr', 'you'], ['cold', 'ventA'], ['ventA', 'ventB'], ['ventB', 'you', 'v']];
+const CAM_POS = Object.fromEntries(Object.entries(MAP_C).map(([k, [x, y]]) => [k, [x - 38, y - 14]]));
 let phone = null, itsmeCorrUntil = 0, frozen = null, camBusy = false, lastNote = '';
 
 function startNight(n, opts = {}) {
@@ -617,6 +620,11 @@ function renderFix() {
 }
 
 // harita düğmeleri
+$('map').querySelector('.plan').innerHTML = MAP_LINKS.map(([a, b, v]) => {
+  const [x1, y1] = MAP_C[a], [x2, y2] = MAP_C[b];
+  return `<path d="M${x1} ${y1} ${v ? `V${y2} H${x2}` : `H${x2} V${y2}`}"/>`;   // v: önce dikey
+}).join('');
+$('map').querySelector('.you').style.cssText = `left:${CAM_POS.you[0]}px;top:${CAM_POS.you[1]}px`;
 $('map').insertAdjacentHTML('beforeend', Core.CAMS.map(c => `<button data-cam="${c}" style="left:${CAM_POS[c][0]}px;top:${CAM_POS[c][1]}px">${CAM_SHORT[c]}</button>`).join(''));
 document.querySelectorAll('#map button').forEach(b => b.onclick = () => selCam(b.dataset.cam));
 
