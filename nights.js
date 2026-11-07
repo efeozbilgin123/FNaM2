@@ -13,9 +13,9 @@
     1: { levels: L(5, 3, 0, 0, 0, 0, 0, 3), doc: 'doc1', phone: 'voice/phone1.mp3', grace: 81 },
     2: { levels: L(14, 15, 14, 0, 0, 0, 0, 8), doc: 'doc2', phone: 'voice/phone2.mp3', grace: 58 },
     3: { levels: L(11, 10, 12, 8, 8, 0, 0, 6), doc: 'doc3', phone: 'voice/phone3.mp3', grace: 67 },
-    4: { levels: L(8, 7, 9, 6, 8, 5, 3, 5), doc: 'doc4', phone: 'voice/phone4.mp3', grace: 70 },
-    5: { levels: L(10, 10, 10, 8, 13, 6, 6, 7), doc: 'doc5', phone: 'voice/phone5.mp3', grace: 69 },
-    6: { levels: L(11, 11, 11, 10, 10, 8, 8, 6), doc: null, phone: 'voice/phone6_secret.mp3' },
+    4: { levels: L(12, 10, 13, 9, 12, 7, 4, 7), doc: 'doc4', phone: 'voice/phone4.mp3', grace: 70 },
+    5: { levels: L(14, 14, 14, 11, 18, 8, 8, 9), doc: 'doc5', phone: 'voice/phone5.mp3', grace: 69 },
+    6: { levels: L(14, 14, 14, 13, 13, 10, 10, 8), doc: null, phone: 'voice/phone6_secret.mp3' },
   };
 
   const DOCS = {
@@ -47,7 +47,7 @@ Beş gecedir etüt odasında kaldığı belirtilen H.E.M. (17), sınav sabahı �
       html: `<div class="hd">GİZLİ — 3-4-5 YAYINLARI AR-GE / BİREY KOLEJİ<br>PROJE 4-5-6 — UYANIK-345</div>
 <h2>DENEY GÜNLÜĞÜ</h2>
 <p><b>Gece 1:</b> Denek 4 ve Denek 5'e 345 mg verildi. İkisi de 06.00'ya kadar uyumadı. Verim artışı %40. Denek 5 durmadan "kitapta mı?" diye soruyor.</p>
-<p><b>Gece 2:</b> Denek 5 kendi kendine konuşuyor. Kayıtlarda <b>altı ayrı ses tonu</b> tespit edildi. Biri sürekli sayıyor.</p>
+<p><b>Gece 2:</b> Denek 5 kendi kendine konuşuyor. Kayıtlarda <b>beş ayrı ses tonu</b> tespit edildi. Denek 4 havalandırmanın önünde oturmuş, durmadan sayıyor: dört, beş...</p>
 <p><b>Gece 3:</b> Denek 5 ile görüşme. Gelecek planlarını sorduk. Cevap: "bilgisayar mühendisi olacaktım." Ardından güvenlik kameralarının tamamı 4 dakika boyunca aynı kareyi gösterdi.</p>
 <p><b>Gece 4:</b> Denek 4 uyumayı tamamen bıraktı. Gözleri kapanmıyor. Hâlâ Denek 5'le birlikte bilgisayar oyunu oynamak istiyor.</p>
 <p><b>Gece 5:</b> Doz 456 mg'a çıkarıldı.</p>
@@ -61,6 +61,7 @@ Beş gecedir etüt odasında kaldığı belirtilen H.E.M. (17), sınav sabahı �
 <p><b>Durum (1998):</b> Uyanık-345 sonrası uyku ihtiyacı tamamen ortadan kalktı. Bölünme gözlenmedi.</p>
 <p><b>Durum (bugün):</b> Denek yaşlanmamaktadır. Fakülte binasında, özellikle havalandırma kanallarında görüldüğüne dair 14 ihbar var. İhbar edenlerin tamamı "bir kedi sesi" duyduğunu söylüyor.</p>
 <p><b>Davranış:</b> Denek, duyduğu sesleri birebir taklit edebilmektedir. Taklit sonunda istemsiz bir ses çıkarmaktadır.</p>
+<p><b>Not:</b> Denek havalandırma kanallarında saymaktadır: "dört, beş..." "Altı" dediğinde görüş alanındaki kişi bir daha bulunamamaktadır. Örtünün altında kıpırdamayan kişiyi saymamaktadır.</p>
 <hr>
 <p><b>Kime:</b> 3-4-5 Yayınları Hukuk Birimi<br><b>Konu:</b> Denek 5 cesedi</p>
 <p>Ceset hâlâ fakültemizdedir ve "uygun beden" bulunduğu takdirde deneyin son aşamasına geçilebilir. Nöbet listesini ben hazırlıyorum. Avukatlarınızın binaya girmesine gerek yok; <b>zaten içerideler.</b></p>
@@ -93,7 +94,7 @@ Beş gecedir etüt odasında kaldığı belirtilen H.E.M. (17), sınav sabahı �
 <h2>DÖRT. BEŞ. ALTI.</h2>
 <p>Bu notu okuyorsan altıncı geceyi de bitirdin. Kimse bitirmemişti.</p>
 <p>1998'deki etüt görevlisi de beş gece dayanmıştı. 3-4-5'in avukatları yıllarca onu aradı. Ben nerede olduğunu biliyordum: <b>9 numaralı çekmecede.</b> Ona da aynı formu imzalatmıştık.</p>
-<p>Yirmi sekiz yıldır her yıl birini nöbete yazıyorum, çünkü onlar istiyor. Pasta, avukat, deniz, sayılar, makineler, taht. Hepsi bir beden istiyor. Sen altı geceyi bitirdin. Demek ki artık seçen sen değilsin.</p>
+<p>Yirmi sekiz yıldır her yıl birini nöbete yazıyorum, çünkü onlar istiyor. Pasta, avukat, deniz, makineler, taht. Hepsi bir beden istiyor. Denek 4 hâlâ sayıyor; altıya ulaştığı gece sen olacaksın. Sen altı geceyi bitirdin. Demek ki artık seçen sen değilsin.</p>
 <p>Sabah aynaya baktığında gözlerin simsiyah olacak.</p>
 <p>Kitapta mı? Kitapta.</p>`,
     },

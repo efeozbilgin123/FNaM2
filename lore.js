@@ -89,8 +89,10 @@ Her yıl tek bir öğrenci. Her yıl Prof.'un listesinden.`;
 Gece 6:
 Kişilikler birbirleriyle konuşuyor. Biri "kitapta mı" diye
 soruyor, öteki "pastaymış" diye cevap veriyor. Biri avukatını
-istiyor. Biri ıslak, denizden bahsediyor. Biri hep sayıyor.
-Altıncısı makineleri seviyor; kameraları o donduruyor.
+istiyor. Biri ıslak, denizden bahsediyor.
+Beşincisi makineleri seviyor; soğuk odanın kamerasını o bozuyor.
+Denek 4 (A.B.) havalandırmada oturup sayıyor. Dört. Beş.
+"Altı"yı hiç söylemiyor. Sanırım altıncıyı bekliyor.
 Sultan dediğimiz sessiz. En tehlikelisi o.
 
 Gece 7:
@@ -129,8 +131,9 @@ Onu ilk gördüğümde on yedi yaşındaydı ve uyumuyordu.
 
 Uyanık-345 uykuyu almadı. Uykunun yerine başka bir şey koydu.
 Denek 5 bir değil. Hiç bir olmadı.
-Pasta, avukat, deniz, sayılar, makineler, taht.
-Altısı da bana "hocam" diyor.
+Pasta, avukat, deniz, makineler, taht.
+Beşi de bana "hocam" diyor.
+Denek 4 ise hâlâ sayıyor. Dört, beş. Altıyı bizi bekletmek için saklıyor.
 
 Her yıl birini nöbete yazıyorum. Her yıl çekmece biraz daha ısınıyor.
 Bu yıl ısı yükselmiyor.

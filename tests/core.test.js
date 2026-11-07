@@ -81,3 +81,13 @@ test('once the power is out, only the power-out ending can kill', () => {
   const d = evs.filter(e => e.type === 'death');
   assert.strictEqual(d.length, 1); assert.strictEqual(d[0].who, 'powerout');
 });
+
+test('while Sultan is coming nothing else starts in the vents or the cold room, and he waits for them', () => {
+  const G = game(); for (const k in G.lv) G.lv[k] = 0; G.lv.sayici = 20; G.lv.muh = 20; G.lv.denek5 = 10;
+  G.sultan.phase = 'here'; G.sultan.t = 999; const t0 = G.denek5.temp;
+  run(G, 20);
+  assert.strictEqual(G.sayici.active, false); assert.strictEqual(G.muh.cam, null); assert.strictEqual(G.denek5.temp, t0);
+  const H = game(); for (const k in H.lv) H.lv[k] = 0; H.lv.sultan = 20; H.t = 100; H.sayici.active = true; H.sayici.count = 4; H.sultan.tick = 999;
+  run(H, 1, { sheet: true });
+  assert.strictEqual(H.sultan.phase, 'none');
+});

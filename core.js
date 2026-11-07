@@ -202,6 +202,8 @@
       s.tick += dt;
       if (s.tick < PARAMS.SULTAN_TICK) return;
       s.tick = 0;
+      // havalandırmada ya da soğuk odada iş varken gelmez: Sultan 'her şeyi kapat' der, diğerleriyle üst üste binerse çıkış kalmaz
+      if (G.sayici.active || G.arda.fake || G.muh.cam) return;
       if (!roll(G, G.lv.sultan)) return;
       s.phase = 'approach'; s.t = PARAMS.SULTAN_APPROACH;
       if (G.pasta.stage >= 2) { knockOut(G, 'flash'); G.pasta.stage = 1; G.pasta.flashT = 0; emit(G, { type: 'move', who: 'pasta', to: 'corr', stage: 1 }); }
@@ -264,6 +266,7 @@
       s.active = false; s.count = 0; s.tick = 0;
       return;
     }
+    if (G.sultan.phase !== 'none') return;   // Sultan gelirken saymaya başlamaz
     s.tick += dt;
     if (s.tick < PARAMS.SAYICI_TICK) return;
     s.tick = 0;
@@ -279,7 +282,7 @@
   TICKS.push(function tickDenek5(G, dt) {
     const s = G.denek5, lv = G.lv.denek5;
     if (s.open) { s.openT -= dt; if (s.openT <= 0) die(G, 'denek5'); return; }
-    if (lv > 0) s.temp += (PARAMS.D5_BASE + PARAMS.D5_PER_LV * lv) * dt * (G.muh.cam === 'cold' ? PARAMS.MUH_HEAT : 1);
+    if (lv > 0 && G.sultan.phase !== 'here') s.temp += (PARAMS.D5_BASE + PARAMS.D5_PER_LV * lv) * dt * (G.muh.cam === 'cold' ? PARAMS.MUH_HEAT : 1);
     if (G.dev.cooling) s.temp -= PARAMS.D5_COOL * dt;
     s.temp = Math.max(0, s.temp);
     if (s.temp >= 100) { s.temp = 100; s.open = true; s.openT = PARAMS.D5_OPEN_DELAY; emit(G, { type: 'sound', id: 'drawer', from: 'cold' }); return; }
@@ -312,7 +315,7 @@
     m.tick += dt;
     if (m.tick < PARAMS.MUH_TICK) return;
     m.tick = 0;
-    if (roll(G, G.lv.muh)) hack(G, 'cold');
+    if (G.sultan.phase === 'none' && roll(G, G.lv.muh)) hack(G, 'cold');
   });
   // ---------- Arda Baz (Denek 4, taklitçi) ----------
   // Arda öldürmez: taklide kanmak sadece zaman/elektrik kaybettirir (mistakes yalnızca sayılır). Sayıcı da Arda'dır, onu taklit etmez.
@@ -349,7 +352,7 @@
     a.tick += dt;
     if (a.tick < PARAMS.ARDA_TICK) return;
     a.tick = 0;
-    if (G.sahil.stage >= 2 || G.t - (G.sahil.endT ?? -99) < PARAMS.VENT_GAP) return;   // Sahil havalandırmadayken ya da az önce gittiyse Arda başlamaz
+    if (G.sahil.stage >= 2 || G.t - (G.sahil.endT ?? -99) < PARAMS.VENT_GAP || G.sultan.phase !== 'none') return;   // Sahil havalandırmadayken ya da az önce gittiyse Arda başlamaz
     if (!roll(G, G.lv.arda)) return;
     const opts = ['sahil', 'avukat'].filter(c => G.lv[c] > 0);
     if (!opts.length) return;
