@@ -120,6 +120,51 @@ Cuma       : ${'\u2588'.repeat(11)}
 Onay: Prof.
 Not: Kahveye 345 mg. Her gece.`;
 
+  // PROJE_456: şifreli klasör. Şifre: Denek 5'in geliş tarihi (gazete küpürü + giriş kaydı) -> 14061998
+  const profNot = `KİŞİSEL — ATMAYIN
+
+Onu ilk gördüğümde on yedi yaşındaydı ve uyumuyordu.
+3-4-5'in adamları "verim" dedi. Ben "deney" dedim.
+İkimiz de yalan söyledik.
+
+Uyanık-345 uykuyu almadı. Uykunun yerine başka bir şey koydu.
+Denek 5 bir değil. Hiç bir olmadı.
+Pasta, avukat, deniz, sayılar, makineler, taht.
+Altısı da bana "hocam" diyor.
+
+Her yıl birini nöbete yazıyorum. Her yıl çekmece biraz daha ısınıyor.
+Bu yıl ısı yükselmiyor.
+Bu yıl çekmece beni bekliyor.
+
+— Prof.`;
+  const yazisma = `KİMDEN : 3-4-5 Yayınları Hukuk Birimi
+KİME   : Prof. Dr. ———
+KONU   : Denek 6 / "uygun beden"
+
+Sayın Hocam,
+
+Seçtiğiniz öğrencinin dosyasını aldık. Kurul sınavı haftası, uykusuz,
+"kitapta mı" diye soruyor. Profil birebir.
+
+Kahveye konan dozun 345 mg olduğunu teyit ederiz. Beşinci geceden
+sonra deneğin binadan çıkmasına izin verilmeyecektir.
+
+Avukatlarımızın binaya girmesine gerek yok.
+Siz de biliyorsunuz: zaten içerideler.
+
+Saygılarımızla,
+3-4-5 Hukuk
+
+el yazısıyla altına eklenmiş:
+"sınavdan önce bitsin. kitapta mı? kitapta."`;
+  const proje = DIR('PROJE_456', [
+    T('prof_kisisel.txt', profNot),
+    T('345_yazisma.txt', yazisma),
+    { name: 'denek4_5_1998.bmp', ico: 'img', img: 'img/lore/etut_foto.jpg', note: 'Denek 4 ve Denek 5. Birey Koleji etüt odası, 13.06.1998. Saat 23:59. İkisi de kameraya bakıyor.' },
+  ]);
+  proje.lock = '14061998';
+  proje.hint = 'Bu klasör şifreli.\nŞifre ipucu: "geldiği gün"';
+
   const FS = [
     DENY('3½ Disket (A:)', 'floppy', 'A:\\ erişilemiyor.\nAygıt hazır değil.'),
     DIR('Yerel Disk (C:)', [
@@ -130,7 +175,7 @@ Not: Kahveye 345 mg. Her gece.`;
     DIR('MORG_ARSIV (D:)', [
       DIR('1998', [T('kayit_98_0456.txt', kayit456), T('kayit_98_0457.txt', kayit457)]),
       T('nobet_defteri.txt', nobetDefteri),
-      DENY('PROJE_456', 'folder', 'Bu klasör şifreli.\nErişim engellendi.'),
+      proje,
     ], 'drive'),
     DENY('CD Sürücüsü (E:)', 'cd', 'Sürücüde disk yok.'),
   ];

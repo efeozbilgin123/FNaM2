@@ -78,6 +78,15 @@ Beş gecedir etüt odasında kaldığı belirtilen H.E.M. (17), sınav sabahı �
 <p><b>Ek:</b> Bkz. 1998 etüt görevlisi. Aynı form. Aynı sonuç.</p>
 <p class="sig">Onay: Prof. Dr. ———<br>Hukuk onayı: 3-4-5</p>`,
     },
+    proje456: {
+      title: 'PROJE_456 — Klasör',
+      html: `<div class="hd">MORG_ARSIV (D:) \\ PROJE_456 — ŞİFRE ÇÖZÜLDÜ</div>
+<h2>"SINAVDAN ÖNCE BİTSİN"</h2>
+<p>Klasörde üç dosya vardı: Profesörün kişisel notu, 3-4-5 Hukuk Birimi ile yazışma ve 1998'den bir fotoğraf.</p>
+<p>Yazışmada senin adın geçiyor. Profilin "birebir" bulunmuş: kurul sınavı haftası, uykusuz, "kitapta mı" diye soran biri.</p>
+<p>Profesörün notunun son satırı: <b>"Bu yıl çekmece beni bekliyor."</b></p>
+<p class="sig">Şifre: 14061998 — Denek 5'in morga geldiği gün.</p>`,
+    },
     secret: {
       title: 'Son Not',
       html: `<div class="hd">PROJE 4-5-6 — KAPANIŞ</div>

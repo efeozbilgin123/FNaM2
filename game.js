@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109t';
+const ASSET_V = '20261109u';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -633,7 +633,7 @@ const fillIcons = root => root.querySelectorAll('i[data-ico]').forEach(i => { i.
 fillIcons(document);
 const APPS = {
   cctv: { el: 'winCctv', title: 'MORG-SEC CCTV' }, fix: { el: 'winFix', title: 'Sistem Onarım' },
-  pc: { el: 'winPc', title: 'Bilgisayarım' }, bin: { el: 'winBin', title: 'Geri Dönüşüm Kutusu' }, msg: { el: 'winMsg', title: 'Hata', noTask: true }, itsme: { el: 'winItsme', title: "IT'S ME", noTask: true },
+  pc: { el: 'winPc', title: 'Bilgisayarım' }, bin: { el: 'winBin', title: 'Geri Dönüşüm Kutusu' }, msg: { el: 'winMsg', title: 'Hata', noTask: true }, pw: { el: 'winPw', title: 'PROJE_456', noTask: true }, itsme: { el: 'winItsme', title: "IT'S ME", noTask: true },
   note: { el: 'winNote', title: 'Not Defteri' }, img: { el: 'winImg', title: 'Resim' },
 };
 const wm = { open: [], min: new Set(), z: [], active: null };
@@ -688,7 +688,21 @@ function fileEl(node, onOpen) {
   el.addEventListener('pointerup', e => { if (e.pointerType === 'touch') onOpen(node); });
   return el;
 }
+// şifreli klasör: doğru şifre bir kez girilince kalıcı açılır (kayda yazılır) ve arşive kaset eklenir
+let pwNode = null;
+function askPassword(node) {
+  pwNode = node; $('pwHint').textContent = node.hint; $('pwIn').value = ''; snd('static'); openApp('pw'); setTimeout(() => $('pwIn').focus(), 50);
+}
+function tryPassword() {
+  if (!pwNode) return;
+  if ($('pwIn').value.replace(/\D/g, '') === pwNode.lock) {
+    persist({ night: 0, result: 'seen', doc: 'proje456' }); closeApp('pw'); snd('blip'); const n = pwNode; pwNode = null; openNode(n);
+  } else { $('pwIn').value = ''; $('pwHint').textContent = 'Şifre yanlış.\n' + pwNode.hint.split('\n')[1]; snd('static'); }
+}
+$('pwOk').onclick = tryPassword;
+$('pwIn').addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') tryPassword(); });
 function openNode(node) {
+  if (node.lock && !P.docs.includes('proje456')) return askPassword(node);
   if (node.dir) { pcStack.push(node); renderPc(); snd('click'); return; }
   if (node.text) { $('noteTitle').textContent = node.name + ' - Not Defteri'; $('noteText').textContent = node.text; $('noteText').scrollTop = 0; APPS.note.title = node.name; openApp('note'); return; }
   if (node.img) { $('imgTitle').textContent = node.name + ' - Resim'; $('imgView').src = av(node.img); document.querySelector('.imgv .imgerr').textContent = node.note || 'Görüntü kısmen bozuk.'; APPS.img.title = node.name; openApp('img'); return; }
@@ -871,9 +885,9 @@ function renderArchive() {
   const items = ['doc1', 'doc2', 'doc3', 'doc4', 'doc5'].map((id, i) => P.docs.includes(id) ? tape(id, DOCS[id].title, `${i + 1}. gece`) : tape(0, 0, `${i + 1}. gece · bulunmadı`, true));
   items.push(P.itsme.length ? tape(0, "IT'S ME", `görülen: ${P.itsme.length} / 3`) : tape(0, 0, 'bazen gece bir şey görürsün', true));
   items.push(P.custom2020 ? tape('secret', DOCS.secret.title, '20/20 ödülü') : tape(0, 0, "20/20'de hayatta kal", true));
-  items.push(tape(0, 0, 'kayıt dışı', true));
+  items.push(P.docs.includes('proje456') ? tape('proje456', DOCS.proje456.title, 'şifreli klasör') : tape(0, 0, 'kayıt dışı', true));
   $('arcList').innerHTML = items.join('');
-  $('arcCount').textContent = `${P.docs.length + (P.custom2020 ? 1 : 0)} / 6 KASET`;
+  $('arcCount').textContent = `${P.docs.filter(d => d !== 'secret').length + (P.custom2020 ? 1 : 0)} / 7 KASET`;
   document.querySelectorAll('#arcList [data-doc]').forEach(el => el.onclick = () => showDoc(el.dataset.doc, () => { renderArchive(); show('archive'); }));
 }
 const CNAME = { pasta: 'PASTA', avukat: 'AVUKAT', sahil: 'SAHİL', sayici: 'SAYICI', muh: 'MÜHENDİS', arda: 'ARDA BAZ', sultan: 'SULTAN', denek5: 'DENEK 5' };
