@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261109i';
+const ASSET_V = '20261109j';
 const av = u => /^(img|sfx|voice)\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 window.ASSET_V = ASSET_V;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
@@ -751,8 +751,14 @@ $('bDoor').onclick = () => {
   ui.doorL = !ui.doorL; snd('door', -1, ui.doorL);
   if (ui.doorL) setTimeout(() => { $('office').classList.add('slam'); setTimeout(() => $('office').classList.remove('slam'), 260); }, 250);
 };
-$('barMon').addEventListener('mouseenter', toggleMonitor); $('barMon').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleMonitor(); });
-$('barSheet').addEventListener('mouseenter', toggleSheet); $('barSheet').addEventListener('click', e => { if (e.pointerType !== 'mouse') toggleSheet(); });
+// Monitör / örtü çubukları: fareyle üstüne gelince VE tıklayınca çalışır.
+// Üstüne gelir gelmez yapılan tıklama yok sayılır (yoksa açıp hemen geri kapatırdı).
+function barControl(el, fn) {
+  let hoverAt = -1e9;
+  el.addEventListener('mouseenter', () => { hoverAt = performance.now(); fn(); });
+  el.addEventListener('click', e => { if (e.pointerType === 'mouse' && performance.now() - hoverAt < 700) return; fn(); });
+}
+barControl($('barMon'), toggleMonitor); barControl($('barSheet'), toggleSheet);
 
 $('mon').addEventListener('click', () => { if (!ui.monitor) toggleMonitor(); }); // masadaki monitöre tıklayınca kameralar açılır
 const HOLD_KEYS = { f: 'flash', a: 'lightL', v: 'ventLight', c: 'cooling' };
