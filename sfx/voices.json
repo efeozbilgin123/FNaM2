@@ -23,5 +23,9 @@
  ],
  "breath": [
   "sfx/breath.mp3"
+ ],
+ "knock": [
+  "sfx/knock_1.mp3",
+  "sfx/knock_2.mp3"
  ]
 }

@@ -10,7 +10,7 @@ addEventListener('resize', fit); fit();
 const BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQAY3Y2wAAAAAElFTkSuQmCC';
 addEventListener('error', e => { const t = e.target; if (t && t.tagName === 'IMG' && t.src !== BLANK) { t.dataset.missing = t.getAttribute('src'); t.src = BLANK; } }, true);
 // görsel adreslerine sürüm eklenir: güncellemeden sonra tarayıcı eski görseli önbellekten getirmesin
-const ASSET_V = '20261108o';
+const ASSET_V = '20261108p';
 const av = u => /^img\//.test(u) && !u.includes('?') ? u + '?v=' + ASSET_V : u;
 function setSrc(img, src) { if (img.dataset.want !== src) { img.dataset.want = src; img.src = av(src); } }
 
@@ -103,7 +103,7 @@ function begin() {
     app: 'cctv', loading: false, fixing: false, fixCam: 'corr', fixT: 0, fixMsg: 'Onarmak istediğiniz kamerayı seçin.' });
   wm.open = []; wm.min.clear(); wm.z = []; wm.active = null; closeStart(); pcStack.length = 0; renderPc();
   document.querySelectorAll('.win').forEach(w => { w.style.left = ''; w.style.top = ''; });
-  frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 25;
+  frozen = null; itsmeCorrUntil = 0; lastNote = ''; whisperT = 25; itsmePop = { t: nextPop(true), due: 0 };
   closeCam(true);
   $('game').className = 'screen on';
   show('game');
@@ -136,11 +136,31 @@ function loop(now) {
   if (!G) return;
   updateLook(dt);
   whisper(dt);
+  itsmePopTick(dt);
   fixTick(dt);
   drawGrain(dt);
   const evs = Core.step(G, dt, input());
   for (const e of evs) handle(e);
   if (!G.over) { render(); raf = requestAnimationFrame(loop); }
+}
+
+// Monitörde arada bir "IT'S ME" hata penceresi: 2. geceden itibaren, gece ilerledikçe sıklaşır.
+// Zararsız ama kameraları kapatır; kapatınca gider. Monitör kapalıyken sırası gelirse monitör açılınca biraz sonra çıkar.
+let itsmePop = { t: 999, due: 0 };
+function nextPop(first) { const n = night === 7 ? 5 : night; return (first ? 45 : 0) + (70 + Math.random() * 110) / (1 + 0.3 * (n - 2)); }
+function itsmePopTick(dt) {
+  if (quiet || night < 2 || G.over) return;
+  if (itsmePop.due > 0) {
+    if (!ui.monitor || camBusy) return;
+    itsmePop.due -= dt; if (itsmePop.due > 0) return;
+    itsmePop.due = 0; itsmePop.t = nextPop();
+    if (wm.open.includes('itsme')) return;
+    const w = $('winItsme'); w.style.left = (60 + Math.random() * 380) + 'px'; w.style.top = (60 + Math.random() * 300) + 'px';
+    snd('static'); openApp('itsme');
+    return;
+  }
+  itsmePop.t -= dt;
+  if (itsmePop.t <= 0) itsmePop.due = ui.monitor ? 0.05 : 0.4 + Math.random() * 1.2;
 }
 
 // Sayıcı aktif gecelerde havalandırmadan arada bir mırıltı / "kitapta mı" fısıltısı (zararsız, sadece atmosfer)
@@ -504,7 +524,7 @@ const fillIcons = root => root.querySelectorAll('i[data-ico]').forEach(i => { i.
 fillIcons(document);
 const APPS = {
   cctv: { el: 'winCctv', title: 'MORG-SEC CCTV' }, fix: { el: 'winFix', title: 'Sistem Onarım' },
-  pc: { el: 'winPc', title: 'Bilgisayarım' }, bin: { el: 'winBin', title: 'Geri Dönüşüm Kutusu' }, msg: { el: 'winMsg', title: 'Hata', noTask: true },
+  pc: { el: 'winPc', title: 'Bilgisayarım' }, bin: { el: 'winBin', title: 'Geri Dönüşüm Kutusu' }, msg: { el: 'winMsg', title: 'Hata', noTask: true }, itsme: { el: 'winItsme', title: "IT'S ME", noTask: true },
   note: { el: 'winNote', title: 'Not Defteri' }, img: { el: 'winImg', title: 'Resim' },
 };
 const wm = { open: [], min: new Set(), z: [], active: null };
@@ -780,4 +800,4 @@ addEventListener('contextmenu', e => e.preventDefault());
 addEventListener('dragstart', e => e.preventDefault());
 
 // test kancası
-window.__m5g = Object.assign(window.__m5g || {}, { startNight, get G() { return G; }, save: () => P, show });
+window.__m5g = Object.assign(window.__m5g || {}, { startNight, get G() { return G; }, save: () => P, show, popItsme: () => { itsmePop.t = 0; } });

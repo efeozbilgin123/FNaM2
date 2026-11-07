@@ -1,6 +1,6 @@
 // MIRIK'LA 5 GECE — ses motoru (dosya yok, hepsi Web Audio ile sentezleniyor)
 const Audio5 = (() => {
-  let ctx = null, master, comp, verb, verbIn, sfxBus, musicBus, ambBus;
+  let ctx = null, master, comp, verb, verbIn, sfxBus, musicBus, ambBus, breathBus;
   let muted = false, volume = 0.9; try { muted = localStorage.getItem('m5g_morg_mute') === '1'; const v = parseFloat(localStorage.getItem('m5g_morg_vol')); if (v >= 0 && v <= 1) volume = v; } catch (e) { }
   let musicTimer = null, musicNodes = [], ambNodes = [], ambTimer = null, buzz = null;
   const buffers = {};
@@ -23,7 +23,7 @@ const Audio5 = (() => {
     verbIn = ctx.createGain(); verbIn.gain.value = 1;
     const verbOut = ctx.createGain(); verbOut.gain.value = 0.55;
     verbIn.connect(verb).connect(verbOut).connect(master);
-    sfxBus = bus(1); musicBus = bus(0.75); ambBus = bus(0.8);
+    sfxBus = bus(1); musicBus = bus(0.75); ambBus = bus(0.8); breathBus = ctx.createGain(); breathBus.connect(sfxBus);
     buffers.white = noiseBuf('white', 2); buffers.brown = noiseBuf('brown', 4); buffers.pink = noiseBuf('pink', 3);
   }
   function bus(v) { const g = ctx.createGain(); g.gain.value = v; g.connect(master); return g; }
@@ -91,7 +91,8 @@ const Audio5 = (() => {
   const sfx = {
 
     // ---------- MORG sesleri ----------
-    knock(side = -1) { // çelik kapıya yumruk
+    knock(side = -1) { // çelik kepenge vurma (kayıt: sfx/knock_*.mp3; yoksa sentez)
+      if (play('knock', { pan: side * 0.7, vol: 0.85, wet: 0.3, rate: 0.96 + Math.random() * 0.08 })) return;
       const t = now(), p = side * 0.7;
       for (let i = 0; i < 3; i++) {
         const tt = t + i * 0.32 + Math.random() * 0.04;
@@ -173,7 +174,7 @@ const Audio5 = (() => {
         const all = samples.breath; if (!all || !all.length) return;
         const s = ctx.createBufferSource(); s.buffer = all[0]; s.loop = true;
         const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.14, t + 0.9);
-        s.connect(g); out(g, { wet: 0.15 }); s.start(t, Math.random() * all[0].duration);
+        s.connect(g); out(g, { bus: breathBus, wet: 0.15 }); s.start(t, Math.random() * all[0].duration);
         breathNode = { s, g };
       } else if (!on && breathNode) {
         const { s, g } = breathNode; breathNode = null;
@@ -455,7 +456,21 @@ const Audio5 = (() => {
     o.connect(lp).connect(g); out(g, { bus: ambBus, wet: 0.2 }); o.start(t); lfo.start(t);
     comp2 = [o, lfo]; ambNodes.push(o, lfo);
   }
-  function playVoice(url, vol = 0.9) { const a = new Audio(url); a.volume = muted ? 0 : vol * volume; a.play().catch(() => {}); return a; }
+  // Telefon / konuşma kaydı: çalarken atmosfer ve örtü nefesi kısılır, konuşma rahat duyulsun
+  let voices = 0;
+  function duck(on) {
+    if (!ctx || !graphReady) return;
+    const t = now();
+    ambBus.gain.setTargetAtTime(on ? 0.28 : 0.8, t, on ? 0.15 : 0.6);
+    breathBus.gain.setTargetAtTime(on ? 0.3 : 1, t, on ? 0.15 : 0.6);
+  }
+  function playVoice(url, vol = 0.9) {
+    const a = new Audio(url); a.volume = muted ? 0 : vol * volume; a.play().catch(() => {});
+    voices++; duck(true); let done = false;
+    const end = () => { if (done) return; done = true; voices = Math.max(0, voices - 1); if (!voices) duck(false); };
+    a.addEventListener('ended', end); a.addEventListener('pause', end); a.addEventListener('error', end);
+    return a;
+  }
   function stopAmbience(fade = 0.5) {
     comp2 = null;
     if (ambTimer) { clearTimeout(ambTimer); ambTimer = null; }
