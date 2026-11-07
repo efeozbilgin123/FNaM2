@@ -311,15 +311,6 @@ function render() {
   c.toggle('sheet', d.sheet); c.toggle('cam-mode', ui.monitor && !d.sheet);
   if (d.sheet && ui.monitor) { ui.monitor = false; closeCam(); }
   // koridor
-  let corr = 'img/corr/lit.png';
-  if (g.pasta.stage === 3) corr = 'img/corr/pasta3.png';
-  else if (g.pasta.stage === 2) corr = 'img/corr/pasta2.png';
-  else if (g.pasta.stage === 1) corr = 'img/corr/pasta1.png';
-  if (g.sultan.phase === 'here') corr = 'img/corr/sultan.png';
-  if (itsmeCorrUntil > g.t && g.pasta.stage === 0) corr = 'img/itsme_photo.png'; // Pasta gelirken gizlemesin
-  setSrc($('corrImg'), corr);
-  setSrc($('dwImg'), g.avukat.at ? 'img/doorway/avukat.png' : 'img/doorway/empty.png');
-  setSrc($('ventImg'), g.sahil.stage === 3 ? 'img/vent/sahil.png' : 'img/vent/empty.png');
   const corrVar = g.sultan.phase === 'here' ? 'corr_sultan' : !d.flash ? null : itsmeCorrUntil > g.t && !g.pasta.stage ? 'corr_itsme' : g.pasta.stage ? 'corr_pasta' + g.pasta.stage : 'corr_lit';
   useVar('corr', corrVar);
   // kapalı kapı ayrı katman (#vDoorS): çelik kepenk, CSS ile tavandan kayar
@@ -731,7 +722,7 @@ new MutationObserver(() => { for (const n of [...document.body.children]) if (n.
 let ready = false;
 $('splash').onclick = () => { if (!ready) return; A.init(); try { A.playMenuMusic(); } catch (e) { } glitchBurst(() => { refreshMenu(); show('title'); }); };
 (function preload() {
-  const imgs = ['office', 'door', 'panel', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor',
+  const imgs = ['office', 'menu_face', 'menu_face_scary', 'doc/paper', 'ending', 'itsme_photo', 'ui/monitor',
     'corr/empty', 'corr/lit', 'corr/pasta1', 'corr/pasta2', 'corr/pasta3', 'corr/sultan', 'vent/empty', 'vent/sahil', 'doorway/empty', 'doorway/avukat',
     ...['corr', 'corr_pasta', 'autopsy', 'autopsy_pasta', 'cold', 'cold_hot', 'cold_open', 'ventA', 'ventA_sahil', 'ventB', 'ventB_sahil', 'archive', 'archive_avukat', 'lift', 'lift_avukat', 'lift_sultan'].map(c => 'cam/' + c),
     ...Core.CHARS.concat('itsme').map(c => 'scare/' + c)].map(s => `img/${s}.png`);

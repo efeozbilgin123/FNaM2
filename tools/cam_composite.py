@@ -35,11 +35,27 @@ def cctv(im):
     a[::3] *= 0.9
     return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
 
+def glow(im, cx, cy, r, strength=1.0):
+    """Far/lamba parlaması."""
+    a = np.asarray(im, float); H, W = a.shape[:2]; yy, xx = np.mgrid[0:H, 0:W]
+    g = np.clip(1 - np.hypot(xx - cx, yy - cy) / r, 0, 1) ** 2 * 255 * strength
+    return Image.fromarray(np.clip(a + g[..., None], 0, 255).astype(np.uint8))
+
 if __name__ == '__main__':
     np.random.seed(5)
-    pasta = Image.open(ROOT / 'img/ref/cut_pasta.png').convert('RGBA')
-    bg = Image.open(ROOT / 'img/cam/corr.png')
-    cctv(place(bg, pasta, cx=262, foot_y=228, height=104, light=1.25)).save(ROOT / 'img/cam/corr_pasta.png')
-    bg = Image.open(ROOT / 'img/cam/autopsy.png')
-    cctv(place(bg, pasta, cx=212, foot_y=196, height=150, light=1.15)).save(ROOT / 'img/cam/autopsy_pasta.png')
-    print('img/cam/corr_pasta.png, img/cam/autopsy_pasta.png')
+    C = lambda n: Image.open(ROOT / f'img/ref/cut_{n}.png').convert('RGBA')
+    B = lambda n: Image.open(ROOT / f'img/cam/{n}.png')
+    jobs = [  # (çıktı, arka plan, kesit, merkez x, ayak/alt y, yükseklik, ışık)
+        ('corr_pasta', 'corr', 'pasta_full', 262, 230, 110, 1.25),
+        ('autopsy_pasta', 'autopsy', 'pasta_full', 212, 198, 150, 1.1),
+        ('archive_avukat', 'archive', 'avukat', 468, 262, 170, 1.15),
+        ('lift_avukat', 'lift', 'avukat', 410, 300, 200, 1.1),
+        ('ventA_sahil', 'ventA', 'sahil', 318, 262, 95, 1.0),
+        ('ventB_sahil', 'ventB', 'sahil', 330, 372, 250, .95),
+    ]
+    for out, bg, cut, x, y, h, l in jobs:
+        cctv(place(B(bg), C(cut), x, y, h, l)).save(ROOT / f'img/cam/{out}.png'); print(f'img/cam/{out}.png')
+    sx, foot, h = 420, 310, 230
+    im = place(B('lift'), C('sultan'), sx, foot, h, 1.0)
+    im = glow(im, sx, foot - h * .5, 120, 1.2)
+    cctv(im).save(ROOT / 'img/cam/lift_sultan.png'); print('img/cam/lift_sultan.png')

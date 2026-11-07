@@ -3,7 +3,7 @@
 **Nasıl kullanılır:**
 - Her satırda dosyanın oyundaki adı, boyutu ve Gemini'ye yapıştıracağın metin var.
 - "📷" olanlarda önce fotoğraf yükle. Ya 1. oyundaki karakter fotoğrafı ya da senin elindeki gerçek fotoğraf olabilir.
-- Üretilen görseli bana dosya adıyla birlikte at ("bu `img/corr/lit.png`" gibi). Arka planları ben silerim, boyutları ben ayarlarım.
+- Üretilen görseli bana dosya adıyla birlikte at ("bu img/corr/lit.png *(kullanılmıyor, kaldırıldı)*" gibi). Arka planları ben silerim, boyutları ben ayarlarım.
 - Görsel gelene kadar oyunda o adla koyu gri bir yer tutucu duruyor; oyun yine oynanabiliyor.
 
 Bütün promptlarda aynı stil korunsun diye sonuna şunu eklemen yeterli (zaten ekli):
@@ -19,17 +19,17 @@ Kapıyı, koridor görüntüsünü, havalandırma içini ve monitör ekranını 
 First-person view from an office chair inside a cramped morgue night-watch room in the basement of an old medical faculty, 3am, ultra-wide 21:9 panoramic horror video game background. On the far left wall: a tall empty pitch-black doorway with a heavy steel frame and no door, with a bare wall section next to it at chest height. In the exact center behind the desk: a tall open archway leading into a long pitch-black hospital corridor, completely dark inside. On the far right wall, low near the floor: a large rectangular metal ventilation duct opening with its grille removed, pitch-black inside. In front: a worn steel desk with an old beige 1990s CRT monitor whose screen is dark and turned off, a beige rotary landline telephone with a small red light, a clipboard, a coffee mug, latex gloves, an anatomy textbook. White cracked ceramic wall tiles, a steel autopsy sink, a stretcher with a white sheet covering a body in a corner, a wall chart of the human skeleton, flickering fluorescent tube on the ceiling. Realistic horror video game, very dark, cold fluorescent and green-blue tones, film grain, no people visible, no text, no watermark.
 ```
 
-### `img/door.png` — 320×750
+### img/door.png *(kullanılmıyor, kaldırıldı)* — 320×750
 ```
 A heavy old steel morgue cold-room door that slides down from the ceiling, seen perfectly straight-on like a flat texture filling the whole image edge to edge. Brushed stainless steel with dents, rust streaks, dried stains, a small frosted porthole window, rubber seal at the bottom, a faded biohazard sticker. Very dark, lit by cold fluorescent light from above. Realistic horror video game texture, tall vertical 3:7 image, no wall, no background, no text.
 ```
 
-### `img/panel.png` — 120×300
+### img/panel.png *(kullanılmıyor, kaldırıldı)* — 120×300
 ```
 An old wall-mounted hospital control box seen perfectly straight-on, filling the entire image: worn white-grey painted metal plate with a screw in each corner, two large round push buttons stacked vertically, top red, bottom off-white, each in a scratched chrome ring, unlit. Rust spots, grime, yellowed tape. Very dark, cold light. Realistic horror video game texture, tall vertical 2:5 image, no background, no text.
 ```
 
-### `img/sheet.png` — 1280×720
+### img/sheet.png *(kullanılmıyor, kaldırıldı)* — 1280×720
 Örtü çekilince ekrana gelen görüntü: içeriden bakıyormuşsun gibi.
 ```
 View from underneath a thin white hospital morgue sheet pulled over the face, the cloth very close to the camera filling the entire frame, faint cold light from a fluorescent tube glowing through the fabric weave, wrinkles and folds, a faint yellowed stain, a vague dark silhouette of something standing nearby visible through the fabric. Realistic horror video game, very dark, cold fluorescent and green-blue tones, film grain, no text, no watermark. 16:9.
@@ -39,23 +39,23 @@ View from underneath a thin white hospital morgue sheet pulled over the face, th
 
 Hepsi aynı açıdan: ofisten koridorun derinine bakış, el feneri ışık halkası ortada.
 
-### `img/corr/lit.png` — 560×1000
+### img/corr/lit.png *(kullanılmıyor, kaldırıldı)* — 560×1000
 ```
 A long narrow abandoned hospital basement corridor seen straight down its length from the doorway, lit only by a single circular flashlight beam in the center, everything outside the beam pitch black. Cracked white tiles, a gurney pushed against the wall, a fallen IV stand, puddles reflecting the light, a sign for MORG too blurry to read. Empty, no people. Realistic horror video game, very dark, cold fluorescent and green-blue tones, film grain, no text, no watermark. Tall vertical 9:16.
 ```
 
-### `img/corr/empty.png` — 560×1000
+### img/corr/empty.png *(kullanılmıyor, kaldırıldı)* — 560×1000
 ```
 The same long abandoned hospital basement corridor, completely dark, only very faint shapes visible, no flashlight. Realistic horror video game, almost pitch black, film grain, no text. Tall vertical 9:16.
 ```
 
-### `img/corr/pasta1.png`, `img/corr/pasta2.png`, `img/corr/pasta3.png` — 560×1000 📷
+### img/corr/pasta1.png *(kullanılmıyor, kaldırıldı)*, img/corr/pasta2.png *(kullanılmıyor, kaldırıldı)*, img/corr/pasta3.png *(kullanılmıyor, kaldırıldı)* — 560×1000 📷
 1. oyundaki Pasta Mırık fotoğrafını yükle. 1 = koridorun en ucunda, 2 = ortada, 3 = hemen dibinde.
 ```
 Using the person in this photo, place him in a long abandoned hospital basement corridor lit by a single flashlight beam. He stands [far at the end of the corridor, small | in the middle of the corridor | very close to the camera, filling most of the frame], pale grey skin, completely black glossy eyes, blood running from the eyes, head slightly tilted, holding a rotten slice of green pistachio cake dripping onto the floor, the word PASTAYMIŞ scratched into the tiles behind him. Realistic horror video game, very dark, cold green-blue tones, film grain, no other text. Tall vertical 9:16.
 ```
 
-### `img/corr/sultan.png` — 560×1000 📷
+### img/corr/sultan.png *(kullanılmıyor, kaldırıldı)* — 560×1000 📷
 1. oyundaki Sultan Mırık Han fotoğrafı.
 ```
 Using the person in this photo, a terrifying undead Ottoman sultan with a jeweled turban and fur cloak riding a white motorcycle down a long dark hospital basement corridor straight toward the camera, one blinding headlight glaring, face barely visible behind the light with completely black eyes and a wide grin. Realistic horror video game, very dark, harsh headlight glare, film grain, no text. Tall vertical 9:16.
@@ -69,12 +69,12 @@ Using the person in this photo, he stands perfectly still at the end of a dark h
 
 ## 3. Havalandırma (sağdaki açıklık, ışık yakınca)
 
-### `img/vent/empty.png` — 600×440
+### img/vent/empty.png *(kullanılmıyor, kaldırıldı)* — 600×440
 ```
 Looking into a dark square metal ventilation duct from its opening, lit by a small harsh light, dusty galvanized steel walls, dents, a drip of dark water, the duct continuing into blackness. Empty. Realistic horror video game, very dark, cold tones, film grain, no text. 4:3.
 ```
 
-### `img/vent/sahil.png` — 600×440 📷
+### img/vent/sahil.png *(kullanılmıyor, kaldırıldı)* — 600×440 📷
 1. oyundaki Sahil Mırık fotoğrafı.
 ```
 Using the person in this photo, he is crawling on his stomach inside a dark square metal ventilation duct right at the opening, face toward the camera, soaked wet hair dripping seawater, grey coat soaked, pale grey wet skin, completely black glossy eyes, head twisted at an unnatural angle, seaweed and wet sand on the duct floor. Lit by a small harsh light. Realistic horror video game, very dark, cold tones, film grain, no text. 4:3.
@@ -82,12 +82,12 @@ Using the person in this photo, he is crawling on his stomach inside a dark squa
 
 ## 4. Sol kapı (kapı ışığı yakınca)
 
-### `img/doorway/empty.png` — 320×750
+### img/doorway/empty.png *(kullanılmıyor, kaldırıldı)* — 320×750
 ```
 A tall dark doorway seen straight-on from inside a room, lit by a single harsh lamp from above, showing an empty cold hospital hallway right outside, white tiles, a drain in the floor. Empty. Realistic horror video game, very dark, cold tones, film grain, no text. Tall vertical 3:7.
 ```
 
-### `img/doorway/avukat.png` — 320×750 📷
+### img/doorway/avukat.png *(kullanılmıyor, kaldırıldı)* — 320×750 📷
 1. oyundaki Avukat Mırık fotoğrafı.
 ```
 Using the person in this photo, he stands right in a tall dark doorway lit harshly from above, black suit, white shirt, red tie pulled tight like a noose, pale grey skin, completely black glossy eyes, a wide unnatural grin, holding a thick legal folder stamped 3-4-5, leaning slightly into the room. Realistic horror video game, very dark, cold tones, film grain, no other text. Tall vertical 3:7.
