@@ -137,6 +137,7 @@ Not: Kahveye 345 mg. Her gece.`;
   const BIN = [
     T('proje456_gunluk.doc', gunluk, 'doc'),
     { name: 'denek5_otopsi.bmp', ico: 'img', img: 'img/itsme_photo.png' },
+    { name: 'etut_odasi_14061998.bmp', ico: 'img', img: 'img/lore/etut_foto.jpg', note: 'Birey Koleji etüt odası. Saat 03:12. Sonraki kare yok.' },
     T('nobet_listesi_DENEK6.xls', liste, 'doc'),
   ];
   root.Lore = { FS, BIN };

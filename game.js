@@ -511,7 +511,7 @@ function fileEl(node, onOpen) {
 function openNode(node) {
   if (node.dir) { pcStack.push(node); renderPc(); snd('click'); return; }
   if (node.text) { $('noteTitle').textContent = node.name + ' - Not Defteri'; $('noteText').textContent = node.text; $('noteText').scrollTop = 0; APPS.note.title = node.name; openApp('note'); return; }
-  if (node.img) { $('imgTitle').textContent = node.name + ' - Resim'; $('imgView').src = node.img; APPS.img.title = node.name; openApp('img'); return; }
+  if (node.img) { $('imgTitle').textContent = node.name + ' - Resim'; $('imgView').src = node.img; document.querySelector('.imgv .imgerr').textContent = node.note || 'Görüntü kısmen bozuk.'; APPS.img.title = node.name; openApp('img'); return; }
   if (node.deny) showMsg(node.deny);
 }
 function renderPc() {
