@@ -218,7 +218,12 @@ function die(who) {
   const img = who === 'powerout' ? 'denek5' : who;
   $('scareImg').src = `img/scare/${img}.png`;
   show('scare'); snd('scream'); if (who === 'sayici') snd('sayScare'); $('scare').classList.add('shakeAll');
-  setTimeout(() => { $('scare').classList.remove('shakeAll'); $('overWhy').textContent = WHY[who] || ''; show('over'); }, 1700);
+  // jumpscare -> parazitle bozulup yavaşça kararır -> "Öldün" ekranı karanlıktan belirir
+  setTimeout(() => { $('scare').classList.remove('shakeAll'); $('scare').classList.add('dying'); snd('static'); }, 1500);
+  setTimeout(() => {
+    $('scare').classList.remove('dying'); $('overWhy').textContent = WHY[who] || '';
+    show('over'); $('over').classList.remove('rise'); void $('over').offsetWidth; $('over').classList.add('rise');
+  }, 3300);
 }
 function win() {
   cancelAnimationFrame(raf); stopPhone(); closeCam(true);

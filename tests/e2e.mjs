@@ -125,7 +125,7 @@ await check('a forced death shows the jumpscare, then game over', async (page) =
   await page.evaluate(() => { window.__game.pasta.stage = 3; window.__game.pasta.window = 0.01; });
   await page.waitForSelector('#scare.on', { timeout: 3000 });
   assert.ok((await page.getAttribute('#scareImg', 'src')).includes('scare/pasta'));
-  await page.waitForSelector('#over.on', { timeout: 4000 });
+  await page.waitForSelector('#over.on', { timeout: 6000 });
 });
 await check('winning a night shows 6 AM and unlocks the next night', async (page) => {
   await boot(page); await startNight(page, 1, { quiet: true });

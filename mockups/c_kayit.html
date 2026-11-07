@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><title>C · Kayıt 03:12</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+:root{--osd:#f2f2f2;--rec:#ff2b2b;--tape:#f0e6c8}
+*{box-sizing:border-box;margin:0}
+body{width:1280px;height:720px;overflow:hidden;background:#000;font-family:'VT323',monospace;color:var(--osd)}
+.feed{position:absolute;inset:-20px;background:url(../img/cam/corr.png) center/cover;filter:grayscale(1) contrast(1.25) brightness(.8);animation:jit 6s steps(1) infinite}
+.feed.who{background-image:url(../img/cam/corr_pasta.png);opacity:0;animation:appear 9s steps(1) infinite}
+@keyframes appear{0%,78%,100%{opacity:0} 80%,83%{opacity:1}}
+@keyframes jit{0%,95%,100%{transform:none} 96%{transform:translate(0,4px) skewX(1deg)} 97%{transform:translate(0,-3px)}}
+.lines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 4px);pointer-events:none}
+.track{position:absolute;left:0;right:0;height:60px;background:linear-gradient(transparent,rgba(255,255,255,.08),transparent);animation:roll 4.5s linear infinite}
+@keyframes roll{from{top:-60px} to{top:720px}}
+.vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.8))}
+.osd{position:absolute;font-size:34px;text-shadow:2px 2px 0 #000,0 0 6px rgba(255,255,255,.3)}
+.tl{left:40px;top:28px}.tr{right:40px;top:28px}.bl{left:40px;bottom:26px}
+.rec{color:var(--rec)} .rec::before{content:'●';margin-right:8px;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+.tape{position:absolute;left:70px;top:110px;padding:14px 26px 10px;background:var(--tape);color:#1b1b1b;transform:rotate(-3deg);box-shadow:0 8px 16px rgba(0,0,0,.6);font:400 54px 'Permanent Marker';line-height:1}
+.tape small{display:block;font-size:22px;margin-top:6px}
+.tape::before,.tape::after{content:'';position:absolute;top:-10px;width:70px;height:24px;background:rgba(230,230,210,.55)}
+.tape::before{left:10px;transform:rotate(-6deg)}.tape::after{right:10px;transform:rotate(5deg)}
+.menu{position:absolute;left:70px;top:290px;display:flex;flex-direction:column;gap:2px;font-size:40px}
+.menu button{all:unset;cursor:pointer;padding:0 16px;width:360px;text-shadow:2px 2px 0 #000}
+.menu button:hover,.menu button:focus-visible{background:var(--osd);color:#000;text-shadow:none}
+.menu button:hover::before,.menu button:focus-visible::before{content:'▶ '}
+.help{position:absolute;left:86px;top:560px;font-size:24px;opacity:.75}
+</style></head><body>
+<div class="feed"></div><div class="feed who"></div>
+<div class="lines"></div><div class="track"></div><div class="vig"></div>
+<div class="osd tl rec">REC &nbsp;CH-01 KORİDOR</div>
+<div class="osd tr" id="ts">14.06.1998 &nbsp;03:12:07</div>
+<div class="osd bl">SP ▸▸ &nbsp; SES ▮▮▮▮▮▮▯▯</div>
+<div class="tape">MORG<small>Mırık'la 5 Gece · gece nöbeti kaydı</small></div>
+<div class="menu">
+  <button>YENİ OYUN</button><button>DEVAM ET · 3. GECE</button><button>6. GECE</button><button>CUSTOM NIGHT</button><button>ARŞİV</button>
+</div>
+<div class="help">menü ▲▼ &nbsp; seç ⏎</div>
+<script>let s=7;setInterval(()=>{s=(s+1)%60;document.getElementById('ts').innerHTML='14.06.1998 &nbsp;03:12:'+String(s).padStart(2,'0')},1000)</script>
+</body></html>

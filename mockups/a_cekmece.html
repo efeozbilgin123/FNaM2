@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><title>A · Çekmece duvarı</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{--steel:#6f777b;--steel-dk:#2b3135;--frost:#dbe6ea;--card:#e9e3cf;--ink:#1b1d22;--alarm:#b3121a}
+*{box-sizing:border-box;margin:0}
+body{width:1280px;height:720px;overflow:hidden;background:#05080a;font-family:'Special Elite',monospace}
+.wall{position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 50% 40%,#1b2226,#05080a 80%)}
+.lintel{position:absolute;left:150px;right:150px;top:40px;height:96px;background:linear-gradient(#4b5357,#2f363a);border-radius:4px;box-shadow:inset 0 2px 0 rgba(255,255,255,.12),0 10px 30px rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;gap:28px}
+.lintel h1{font:400 74px 'Saira Stencil One';letter-spacing:22px;color:#b9c3c6;opacity:.85;text-shadow:0 1px 0 rgba(0,0,0,.6)}
+.lintel span{font:400 22px 'Saira Stencil One';letter-spacing:6px;color:var(--alarm)}
+.grid{position:absolute;left:150px;right:150px;top:160px;bottom:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.d{position:relative;background:linear-gradient(160deg,#8d969a,#5d6569 55%,#454c50);border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.4),0 6px 14px rgba(0,0,0,.6);transition:transform .25s cubic-bezier(.3,1.4,.5,1),box-shadow .25s}
+.d::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px);border-radius:inherit}
+.d .num{position:absolute;right:14px;top:10px;font:400 26px 'Saira Stencil One';color:#2b3135;opacity:.7}
+.d .handle{position:absolute;left:50%;bottom:22px;width:120px;height:16px;margin-left:-60px;border-radius:8px;background:linear-gradient(#cfd6d9,#7d868a);box-shadow:0 3px 4px rgba(0,0,0,.6)}
+.d .card{position:absolute;left:22px;top:28px;padding:10px 16px 8px;min-width:180px;background:var(--card);color:var(--ink);font-size:24px;letter-spacing:1px;box-shadow:inset 0 0 0 3px #a8a296, 0 1px 0 rgba(255,255,255,.2)}
+.d .card small{display:block;font-size:13px;color:#5e5a50;letter-spacing:0;margin-top:2px}
+button.d{border:0;padding:0;cursor:pointer;text-align:left}
+button.d:hover,button.d:focus-visible{transform:translateY(-4px) scale(1.035);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 22px 30px rgba(0,0,0,.8);outline:none;z-index:2}
+button.d:focus-visible .card{box-shadow:inset 0 0 0 3px var(--alarm)}
+.d.five{transform:translateY(-6px) scale(1.02)}
+.d.five::after{content:'';position:absolute;left:-6px;right:-6px;top:-10px;height:16px;background:linear-gradient(transparent,rgba(220,235,240,.5));filter:blur(6px);animation:breath 3s ease-in-out infinite}
+.d.five .num{color:var(--alarm);opacity:1}
+.d.five .led{position:absolute;left:16px;bottom:24px;width:10px;height:10px;border-radius:50%;background:var(--alarm);box-shadow:0 0 12px var(--alarm);animation:blink 1.4s steps(2) infinite}
+@keyframes breath{50%{opacity:.25;transform:translateY(-8px)}}
+@keyframes blink{50%{opacity:.2}}
+.d.blank .card{opacity:.35}
+.frost{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 90% 40% at 50% 100%,rgba(200,225,235,.08),transparent 70%)}
+</style></head><body>
+<div class="wall"></div>
+<div class="lintel"><span>B-1</span><h1>MORG</h1><span>Mırık'la 5 Gece</span></div>
+<div class="grid">
+  <button class="d"><span class="num">1</span><span class="card">Yeni oyun<small>nöbete baştan başla</small></span><span class="handle"></span></button>
+  <button class="d"><span class="num">2</span><span class="card">Devam et<small>3. gece</small></span><span class="handle"></span></button>
+  <button class="d"><span class="num">3</span><span class="card">Arşiv<small>bulunan belgeler</small></span><span class="handle"></span></button>
+  <button class="d"><span class="num">4</span><span class="card">6. gece<small>kilidi açıldı</small></span><span class="handle"></span></button>
+  <div class="d five"><span class="num">5</span><span class="card">H.E.M.<small>98/0456 · açmayın</small></span><span class="led"></span><span class="handle"></span></div>
+  <button class="d"><span class="num">6</span><span class="card">Custom Night<small>seviyeleri sen seç</small></span><span class="handle"></span></button>
+  <div class="d blank"><span class="num">7</span><span class="card">boş</span><span class="handle"></span></div>
+  <button class="d"><span class="num">8</span><span class="card">Ses<small>düzey · %90</small></span><span class="handle"></span></button>
+  <div class="d blank"><span class="num">9</span><span class="card">kayıt dışı</span><span class="handle"></span></div>
+</div>
+<div class="frost"></div>
+</body></html>

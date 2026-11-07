@@ -545,6 +545,19 @@
   /* MORG: soğuk oda çekmecelerindeki şablon (stencil) yazı */
   #title h1 .b{font-family:'Saira Stencil One',sans-serif; font-size:168px; letter-spacing:14px; color:#9b111b; margin-top:6px;
     -webkit-mask-image:radial-gradient(circle at 30% 40%, #000 55%, rgba(0,0,0,.75) 70%, #000 85%); text-shadow:0 0 26px rgba(150,10,20,.35)}
+
+  /* ölüm geçişi: jumpscare parazitle bozulup kararır, ÖLDÜN karanlıktan yavaşça belirir */
+  #scare::after{content:''; position:absolute; inset:0; background:#000; opacity:0; pointer-events:none}
+  #scare.dying #scareImg{animation:dieGlitch 1.8s steps(1) forwards, lunge .5s forwards; filter:contrast(1.4)}
+  #scare.dying::after{animation:dieFade 1.8s ease-in forwards}
+  #scare.dying .flash{animation:none; opacity:0}
+  @keyframes dieGlitch{0%{transform:scale(1.15)} 10%{transform:scale(1.15) translateX(-18px); clip-path:inset(18% 0 52% 0)} 18%{transform:scale(1.15) translateX(14px); clip-path:inset(60% 0 8% 0)} 26%{transform:scale(1.13); clip-path:none; filter:grayscale(1) contrast(1.8)} 40%{transform:scale(1.11) translateY(4px)} 100%{transform:scale(1.08); filter:grayscale(1) brightness(.4)}}
+  @keyframes dieFade{0%{opacity:0} 25%{opacity:.25} 100%{opacity:1}}
+  #over.rise .t{animation:overT 2.4s ease-out both}
+  #over.rise .why{animation:overF 1.2s ease-out 1.6s both}
+  #over.rise .big-btn{animation:overF 1s ease-out 2.4s both}
+  @keyframes overT{0%{opacity:0; letter-spacing:40px; filter:blur(8px)} 60%{opacity:.9} 100%{opacity:1; letter-spacing:normal; filter:none}}
+  @keyframes overF{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
   /* SCARE */
   #scare{background:#000}
   #scareImg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation:lunge .5s cubic-bezier(.15,.9,.3,1) forwards, shake .06s infinite}
@@ -713,11 +726,11 @@
   <section id="custom" class="screen"><h2 class="pageT">CUSTOM NIGHT</h2><div id="ccards"></div><div id="cpresets"><button data-p="easy">KOLAY 5</button><button data-p="n6">GECE 6</button><button data-p="max">20/20</button></div><button class="back" id="bCusBack">← GERİ</button><button id="cStart">BAŞLAT ▶</button></section>
 </div>
 
-<script src="audio.js?v=20261107x"></script>
-<script src="core.js?v=20261107x"></script>
-<script src="nights.js?v=20261107x"></script>
-<script src="save.js?v=20261107x"></script>
+<script src="audio.js?v=20261107y"></script>
+<script src="core.js?v=20261107y"></script>
+<script src="nights.js?v=20261107y"></script>
+<script src="save.js?v=20261107y"></script>
 <script src="lore.js?v=2"></script>
-<script src="game.js?v=20261107x"></script>
+<script src="game.js?v=20261107y"></script>
 </body>
 </html>
